@@ -1,5 +1,6 @@
 const express = require('express');
 const mysql = require('mysql2');
+const crypto = require('crypto');
 
 let app= express();
 let databaseLayer = null;
@@ -29,7 +30,7 @@ app.set('view engine', 'ejs');
         return;
     }
     databaseLayer = new  DBinterface(connectionDB);
-    console.log(await databaseLayer.writeNewUser({name:'vasya'}));
+    console.log(await databaseLayer.writeNewUser({name:'Bill',hashedPassword:'213456',avatar:"abcdefg"}));
  })
 
 
@@ -65,10 +66,68 @@ app.set('view engine', 'ejs');
         } catch(e) {
             throw new Error(e)
         }
+       //if a username exists
+       if (test){
+        return {status:'fail',result:'User exists!Please choose an another login'}
+       }
+       
+       try{
+            /***start a transaction to save a user info*/
+            await new Promise((resolve, reject) => {
+                db.query('START TRANSACTION',(err,rows)=>{
+                    if (err) { 
+                        reject(err); 
+                        }
+                               
+                    resolve(true)
+                })
+            }); 
+            //write a user name 
+              await new Promise((resolve, reject) => {
+                db.query('INSERT INTO users_names (usrName) VALUES (?)',[arg.name],(err,rows)=>{
+                    if (err) { 
+                        reject(err); 
+                        }
+                               
+                    resolve(true)
+                })
+            }); 
 
-        return test;
+
+            //write a data into users
+            let dataToUsers = [ [arg.hashedPassword],[arg.avatar]]
+            await new Promise((resolve, reject) => {
+                db.query(`INSERT INTO users (usrId,usrPassword,usrAvatar) VALUES ((SELECT usrId FORM users_names WHERE usrName ='${arg.name}'), ?,?)`,[dataToUsers],(err,rows)=>{
+                    if (err) { 
+                        reject(err); 
+                        }
+                               
+                    resolve(true)
+                })
+            });
+        }catch (e) {
+            return new Promise((resolve, reject) => {
+                db.query('ROLLBACK',(err,rows)=>{
+                    if (err) { 
+                        reject(err); 
+                        }
+                               
+                    resolve({status:"fail",result:e})
+                })
+            }); 
+        }
+
+        return new Promise((resolve, reject) => {
+            db.query('COMMIT',(err,rows)=>{
+                if (err) { 
+                    reject(err); 
+                    }
+                           
+                resolve({status:"succ",result:"User created!"})
+            })
+        }); 
+       
     }
-
 
  }
 
