@@ -6,7 +6,7 @@ const DATABASE_USER='root';
 const DATABASE_HOST='localhost';
 const DATABASE_PASSWORD='65535258';
 const DATABASE_NAME='chat';
-const cit='putinhujlo';
+ 
 
 let app= express();
 let databaseLayer = null;
@@ -48,7 +48,17 @@ app.set('view engine', 'ejs');
                                                     }));*/
     //console.log( await databaseLayer.removeUserMessage(1) );
     /*console.log( await databaseLayer.editUserMessage({msgId:2,message:'abc'}) );*/
-    console.log( await databaseLayer.incrementFailLoginAttempts(17) );
+    //console.log( await databaseLayer.incrementFailLoginAttempts(17) );
+    //console.log( await databaseLayer.clearUserLocked(17) );
+    //console.log( await databaseLayer.getUserFailLoginAttempts(17) );
+    //console.log( await databaseLayer.clearUserFailLoginAttempts(17) );
+   //console.log( await databaseLayer.setSessionActive(17) );
+   //console.log( await databaseLayer.setUserLocked(17) );
+    //console.log( await databaseLayer.clearSessionActive(17) );
+    //console.log( await databaseLayer.clearUserLocked(17) );
+    //console.log( await databaseLayer.isUserLocked(17) );
+    //console.log( await databaseLayer.isSessionActive(17) );
+    process.exit(0);
 
  })
 
@@ -265,11 +275,11 @@ app.set('view engine', 'ejs');
         });
     }
   /*****set a session state */
-    async setSessionStatus (usrId) {
+    async setSessionActive (usrId) {
            //get a private member of class
         let db = this.privateMembers.get(this);
         return new Promise((resolve, reject) => {
-            db.query(`UPDATE users SET status=1 WHERE usrId=?`, [usrId], (err, rows)=>{
+            db.query(`UPDATE users SET status=status|0x00000001 WHERE usrId=?`, [usrId], (err, rows)=>{
                 if(err) {
                     reject(err)
                 } else if (rows.affectedRows == 0) 
@@ -281,12 +291,12 @@ app.set('view engine', 'ejs');
             })
         });
     }
-/****clear a session state */
-    async clearSessionStatus (usrId) {
+/****clear a session state (bit0) */
+    async clearSessionActive (usrId) {
            //get a private member of class
         let db = this.privateMembers.get(this);
         return new Promise((resolve, reject) => {
-            db.query(`UPDATE users SET status=0 WHERE usrId=?`, [usrId], (err, rows)=>{
+            db.query(`UPDATE users SET status=status&0xFFFFFFFE WHERE usrId=?`, [usrId], (err, rows)=>{
                 if(err) {
                     reject(err)
                 } else if (rows.affectedRows == 0) 
@@ -298,7 +308,42 @@ app.set('view engine', 'ejs');
             })
         });
     }
-  
+
+    /****write user lock (bit4 ) */
+    async setUserLocked (usrId) {
+        //get a private member of class
+     let db = this.privateMembers.get(this);
+        return new Promise((resolve, reject) => {
+            db.query(`UPDATE users SET status=status|0x00000010 WHERE usrId=?`, [usrId], (err, rows)=>{
+                if(err) {
+                    reject(err)
+                } else if (rows.affectedRows == 0) 
+                {
+                    resolve({status:false, result:'User not found!'});
+                } else {
+                    resolve({status:true, result:`Updated ${rows.affectedRows} row`})
+                }
+            })
+        });
+    }
+
+    /****write user lock (bit4 ) */
+    async clearUserLocked (usrId) {
+        //get a private member of class
+     let db = this.privateMembers.get(this);
+        return new Promise((resolve, reject) => {
+            db.query(`UPDATE users SET status=status&0xFFFFFFEF WHERE usrId=?`, [usrId], (err, rows)=>{
+                if(err) {
+                    reject(err)
+                } else if (rows.affectedRows == 0) 
+                {
+                    resolve({status:false, result:'User not found!'});
+                } else {
+                    resolve({status:true, result:`Updated ${rows.affectedRows} row`})
+                }
+            })
+        });
+    }
 
 
 async incrementFailLoginAttempts (usrId) {
@@ -316,6 +361,75 @@ async incrementFailLoginAttempts (usrId) {
                 }
             })
         });
+    }
+
+    async getUserFailLoginAttempts (usrId) {
+          //get a private member of class
+          let db = this.privateMembers.get(this);
+          return new Promise((resolve, reject) => {
+              db.query( `SELECT failLogins FROM users WHERE usrId=?`, [usrId], (err, rows)=>{
+                  if(err) {
+                      reject(err)
+                  } else if (rows.length == 0) 
+                  {
+                      resolve({status:false, result:'User not found!'});
+                  } else {
+                      resolve({status:true, result:rows[0].failLogins})
+                  }
+              })
+          });
+    }
+
+    async clearUserFailLoginAttempts (usrId) {
+          //get a private member of class
+          let db = this.privateMembers.get(this);
+          return new Promise((resolve, reject) => {
+              db.query( `UPDATE users SET failLogins=0 WHERE usrId=?`, [usrId], (err, rows)=>{
+                  if(err) {
+                      reject(err)
+                  } else if (rows.affectedRows == 0) 
+                  {
+                      resolve({status:false, result:'User not found!'});
+                  } else {
+                      resolve({status:true, result:`Updated ${rows.affectedRows} row`})
+                  }
+              })
+          });
+    }
+
+
+    async isUserLocked (usrID) {
+         //get a private member of class
+         let db = this.privateMembers.get(this);
+         return new Promise((resolve, reject) => {
+             db.query( `SELECT ((status&0x00000010)>>4) AS status FROM users WHERE usrId=?`, [usrID], (err, rows)=>{
+                 if(err) {
+                     reject(err)
+                 } else if (rows.length == 0) 
+                 {
+                     resolve({status:false, result:'User not found!'});
+                 } else {
+                     resolve({status:true, result:rows[0].status})
+                 }
+             })
+         });
+    }
+
+    async isSessionActive(usrID) {
+         //get a private member of class
+         let db = this.privateMembers.get(this);
+         return new Promise((resolve, reject) => {
+             db.query( `SELECT (status&0x00000001) AS status FROM users WHERE usrId=?`, [usrID], (err, rows)=>{
+                 if(err) {
+                     reject(err)
+                 } else if (rows.length == 0) 
+                 {
+                     resolve({status:false, result:'User not found!'});
+                 } else {
+                     resolve({status:true, result:rows[0].status})
+                 }
+             })
+         });
     }
 
  
