@@ -6,7 +6,7 @@ const DATABASE_USER='root';
 const DATABASE_HOST='localhost';
 const DATABASE_PASSWORD='65535258';
 const DATABASE_NAME='chat';
-
+const cit='putinhujlo';
 
 let app= express();
 let databaseLayer = null;
