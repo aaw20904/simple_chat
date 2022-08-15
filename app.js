@@ -42,12 +42,13 @@ app.set('view engine', 'ejs');
      // console.log(await databaseLayer.writeNewUser({name:'Bill',hashedPassword:'213456',avatar:"abcdefg"}) ); 
     //console.log(await databaseLayer.removeUserByID(16));
    // console.log(await databaseLayer.changeUserPasword({usrId:16, password:123546}) );
-     console.log(await databaseLayer.addUserMessage({
+   /*  console.log(await databaseLayer.addUserMessage({
                                                     usrId:17, 
                                                     msg:"helloword!"
-                                                    }));
+                                                    }));*/
     //console.log( await databaseLayer.removeUserMessage(1) );
-    console.log( await databaseLayer.editUserMessage({msgId:2,message:'abc'}) );
+    /*console.log( await databaseLayer.editUserMessage({msgId:2,message:'abc'}) );*/
+    console.log( await databaseLayer.incrementFailLoginAttempts(17) );
 
  })
 
@@ -263,8 +264,61 @@ app.set('view engine', 'ejs');
             })
         });
     }
+  /*****set a session state */
+    async setSessionStatus (usrId) {
+           //get a private member of class
+        let db = this.privateMembers.get(this);
+        return new Promise((resolve, reject) => {
+            db.query(`UPDATE users SET status=1 WHERE usrId=?`, [usrId], (err, rows)=>{
+                if(err) {
+                    reject(err)
+                } else if (rows.affectedRows == 0) 
+                {
+                    resolve({status:false, result:'User not found!'});
+                } else {
+                    resolve({status:true, result:`Updated ${rows.affectedRows} row`})
+                }
+            })
+        });
+    }
+/****clear a session state */
+    async clearSessionStatus (usrId) {
+           //get a private member of class
+        let db = this.privateMembers.get(this);
+        return new Promise((resolve, reject) => {
+            db.query(`UPDATE users SET status=0 WHERE usrId=?`, [usrId], (err, rows)=>{
+                if(err) {
+                    reject(err)
+                } else if (rows.affectedRows == 0) 
+                {
+                    resolve({status:false, result:'User not found!'});
+                } else {
+                    resolve({status:true, result:`Updated ${rows.affectedRows} row`})
+                }
+            })
+        });
+    }
+  
 
 
+async incrementFailLoginAttempts (usrId) {
+           //get a private member of class
+        let db = this.privateMembers.get(this);
+        return new Promise((resolve, reject) => {
+            db.query( `UPDATE users SET failLogins=failLogins+1 WHERE usrId=?`, [usrId], (err, rows)=>{
+                if(err) {
+                    reject(err)
+                } else if (rows.affectedRows == 0) 
+                {
+                    resolve({status:false, result:'User not found!'});
+                } else {
+                    resolve({status:true, result:`Updated ${rows.affectedRows} row`})
+                }
+            })
+        });
+    }
+
+ 
 
 
 
