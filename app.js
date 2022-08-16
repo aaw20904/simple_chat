@@ -53,11 +53,11 @@ app.set('view engine', 'ejs');
     //console.log( await databaseLayer.getUserFailLoginAttempts(17) );
     //console.log( await databaseLayer.clearUserFailLoginAttempts(17) );
    //console.log( await databaseLayer.setSessionActive(17) );
-   //console.log( await databaseLayer.setUserLocked(17) );
-    //console.log( await databaseLayer.clearSessionActive(17) );
+    //console.log( await databaseLayer.setUserLocked(17) );
+   //console.log( await databaseLayer.clearSessionActive(17) );
     //console.log( await databaseLayer.clearUserLocked(17) );
     //console.log( await databaseLayer.isUserLocked(17) );
-    //console.log( await databaseLayer.isSessionActive(17) );
+    console.log( await databaseLayer.isSessionActive(17) );
     process.exit(0);
 
  })
@@ -242,7 +242,7 @@ app.set('view engine', 'ejs');
         });
     }
 
-
+/*******R E M O V E  user message */
     async removeUserMessage (msgId) {
               //get a private member of class
         let db = this.privateMembers.get(this);
@@ -274,7 +274,7 @@ app.set('view engine', 'ejs');
             })
         });
     }
-  /*****set a session state */
+  /*****set a session to be active */
     async setSessionActive (usrId) {
            //get a private member of class
         let db = this.privateMembers.get(this);
@@ -345,7 +345,7 @@ app.set('view engine', 'ejs');
         });
     }
 
-
+/***increment fail attempts to login */
 async incrementFailLoginAttempts (usrId) {
            //get a private member of class
         let db = this.privateMembers.get(this);
@@ -362,7 +362,7 @@ async incrementFailLoginAttempts (usrId) {
             })
         });
     }
-
+/*****how many times was a fail login? ***/
     async getUserFailLoginAttempts (usrId) {
           //get a private member of class
           let db = this.privateMembers.get(this);
@@ -380,6 +380,7 @@ async incrementFailLoginAttempts (usrId) {
           });
     }
 
+    /******CLEAR fail fogin attempts */
     async clearUserFailLoginAttempts (usrId) {
           //get a private member of class
           let db = this.privateMembers.get(this);
@@ -397,7 +398,7 @@ async incrementFailLoginAttempts (usrId) {
           });
     }
 
-
+  /***is a user locked? */
     async isUserLocked (usrID) {
          //get a private member of class
          let db = this.privateMembers.get(this);
@@ -409,7 +410,8 @@ async incrementFailLoginAttempts (usrId) {
                  {
                      resolve({status:false, result:'User not found!'});
                  } else {
-                     resolve({status:true, result:rows[0].status})
+                    let rs = (rows[0].status == 1) ? true : false;
+                     resolve({status:true, result:rs })
                  }
              })
          });
@@ -426,7 +428,8 @@ async incrementFailLoginAttempts (usrId) {
                  {
                      resolve({status:false, result:'User not found!'});
                  } else {
-                     resolve({status:true, result:rows[0].status})
+                     let rs = (rows[0].status == 1) ? true : false;
+                     resolve({status:true, result:rs})
                  }
              })
          });
