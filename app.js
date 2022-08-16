@@ -1,7 +1,7 @@
-const DBinterface = require('./database.js');
-const express = require('express');
-const mysql = require('mysql2');
-const crypto = require('crypto');
+import DBinterface  from './database.js';
+import express from 'express';
+import mysql from 'mysql2';
+import crypto from 'crypto';
 
 const DATABASE_USER='root';
 const DATABASE_HOST='localhost';
