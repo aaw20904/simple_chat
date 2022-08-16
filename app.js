@@ -53,20 +53,23 @@ app.set('view engine', 'ejs');
     //console.log( await databaseLayer.getUserFailLoginAttempts(17) );
     //console.log( await databaseLayer.clearUserFailLoginAttempts(17) );
    //console.log( await databaseLayer.setSessionActive(17) );
-   //console.log( await databaseLayer.setUserLocked(17) );
-    //console.log( await databaseLayer.clearSessionActive(17) );
+    //console.log( await databaseLayer.setUserLocked(17) );
+   //console.log( await databaseLayer.clearSessionActive(17) );
     //console.log( await databaseLayer.clearUserLocked(17) );
     //console.log( await databaseLayer.isUserLocked(17) );
     //console.log( await databaseLayer.isSessionActive(17) );
+    let res = await databaseLayer.getAllTheChat()
+    console.log(Array.isArray(res.result));
+    res.result.forEach(element => {
+        console.log(element);
+    }); 
+     
     process.exit(0);
 
  })
 
 
 
-
-
- 
 
  class DBinterface {
     constructor(conn) {
@@ -242,7 +245,7 @@ app.set('view engine', 'ejs');
         });
     }
 
-
+/*******R E M O V E  user message */
     async removeUserMessage (msgId) {
               //get a private member of class
         let db = this.privateMembers.get(this);
@@ -274,7 +277,7 @@ app.set('view engine', 'ejs');
             })
         });
     }
-  /*****set a session state */
+  /*****set a session to be active */
     async setSessionActive (usrId) {
            //get a private member of class
         let db = this.privateMembers.get(this);
@@ -345,7 +348,7 @@ app.set('view engine', 'ejs');
         });
     }
 
-
+/***increment fail attempts to login */
 async incrementFailLoginAttempts (usrId) {
            //get a private member of class
         let db = this.privateMembers.get(this);
@@ -362,7 +365,7 @@ async incrementFailLoginAttempts (usrId) {
             })
         });
     }
-
+/*****how many times was a fail login? ***/
     async getUserFailLoginAttempts (usrId) {
           //get a private member of class
           let db = this.privateMembers.get(this);
@@ -380,6 +383,7 @@ async incrementFailLoginAttempts (usrId) {
           });
     }
 
+    /******CLEAR fail fogin attempts */
     async clearUserFailLoginAttempts (usrId) {
           //get a private member of class
           let db = this.privateMembers.get(this);
@@ -397,7 +401,7 @@ async incrementFailLoginAttempts (usrId) {
           });
     }
 
-
+  /***is a user locked? */
     async isUserLocked (usrID) {
          //get a private member of class
          let db = this.privateMembers.get(this);
@@ -409,7 +413,8 @@ async incrementFailLoginAttempts (usrId) {
                  {
                      resolve({status:false, result:'User not found!'});
                  } else {
-                     resolve({status:true, result:rows[0].status})
+                    let rs = (rows[0].status == 1) ? true : false;
+                     resolve({status:true, result:rs })
                  }
              })
          });
@@ -426,15 +431,45 @@ async incrementFailLoginAttempts (usrId) {
                  {
                      resolve({status:false, result:'User not found!'});
                  } else {
-                     resolve({status:true, result:rows[0].status})
+                     let rs = (rows[0].status == 1) ? true : false;
+                     resolve({status:true, result:rs})
                  }
              })
          });
     }
 
+    /********* get all the messages sort by date ***/
+
+
+    async getAllTheChat() {
+         //get a private member of class
+         let db = this.privateMembers.get(this);
+         return new Promise((resolve, reject) => {
+             db.query( `SELECT * FROM chat.messages order by sent;`, (err, rows)=>{
+                 if(err) {
+                     reject(err)
+                 } else  {
+                     /**returns an array of objects-"strings"  */
+                     resolve({status:true, result: rows})
+                 }
+             })
+         });
+    }
  
-
-
+    /********** FOR A D M I N ******/
+    async getAllUsersWithStatus() {
+        //get a private member of class
+            let db = this.privateMembers.get(this);
+            let sqlQuery = "SELECT usrName, failLogins, CASE WHEN (status&0x00000001) THEN 'active' ELSE 'logoff' END login_state,"+
+            "CASE WHEN (status&0x00000010) THEN 'locked' ELSE 'unlocked' END usr_lock  FROM users NATURAL JOIN users_names;";
+            return new Promise((resolve, reject) => {
+                db.query(sqlQuery,(err,rows)=>{
+                    if(err){reject(err)}
+                    //[{usrName, failLogins,usr_login,}]
+                    resolve(rows);
+                })
+            });
+    }
 
 
  }
