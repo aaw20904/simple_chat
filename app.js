@@ -57,16 +57,19 @@ app.set('view engine', 'ejs');
    //console.log( await databaseLayer.clearSessionActive(17) );
     //console.log( await databaseLayer.clearUserLocked(17) );
     //console.log( await databaseLayer.isUserLocked(17) );
-    console.log( await databaseLayer.isSessionActive(17) );
+    //console.log( await databaseLayer.isSessionActive(17) );
+    let res = await databaseLayer.getAllTheChat()
+    console.log(Array.isArray(res.result));
+    res.result.forEach(element => {
+        console.log(element);
+    }); 
+     
     process.exit(0);
 
  })
 
 
 
-
-
- 
 
  class DBinterface {
     constructor(conn) {
@@ -435,9 +438,38 @@ async incrementFailLoginAttempts (usrId) {
          });
     }
 
+    /********* get all the messages sort by date ***/
+
+
+    async getAllTheChat() {
+         //get a private member of class
+         let db = this.privateMembers.get(this);
+         return new Promise((resolve, reject) => {
+             db.query( `SELECT * FROM chat.messages order by sent;`, (err, rows)=>{
+                 if(err) {
+                     reject(err)
+                 } else  {
+                     /**returns an array of objects-"strings"  */
+                     resolve({status:true, result: rows})
+                 }
+             })
+         });
+    }
  
-
-
+    /********** FOR A D M I N ******/
+    async getAllUsersWithStatus() {
+        //get a private member of class
+            let db = this.privateMembers.get(this);
+            let sqlQuery = "SELECT usrName, failLogins, CASE WHEN (status&0x00000001) THEN 'active' ELSE 'logoff' END login_state,"+
+            "CASE WHEN (status&0x00000010) THEN 'locked' ELSE 'unlocked' END usr_lock  FROM users NATURAL JOIN users_names;";
+            return new Promise((resolve, reject) => {
+                db.query(sqlQuery,(err,rows)=>{
+                    if(err){reject(err)}
+                    //[{usrName, failLogins,usr_login,}]
+                    resolve(rows);
+                })
+            });
+    }
 
 
  }
