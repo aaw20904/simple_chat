@@ -1,4 +1,4 @@
-import { DBinterface } from './database';
+const DBinterface = require('./database.js');
 const express = require('express');
 const mysql = require('mysql2');
 const crypto = require('crypto');
