@@ -1,4 +1,4 @@
- export class DBinterface {
+ export default class DBinterface {
     constructor(conn) {
       //making a hide property
       this.privateMembers = new WeakMap();
