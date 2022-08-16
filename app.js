@@ -9,7 +9,7 @@ const DATABASE_NAME='chat';
  
 
 let app= express();
-let databaseLayer = null;
+let databaseLayer = 0;
 
  
 // set the view engine to ejs
