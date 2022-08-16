@@ -399,6 +399,67 @@ async incrementFailLoginAttempts (usrId) {
               })
           });
     }
+ /**write the  symmetryc key for cookie encryption */
+    async updateKey(arg={pubKey:null, initVect:null}) {
+        //get a private member of class
+        let db = this.privateMembers.get(this);
+        try{
+            await  new Promise((resolve, reject) => {
+                db.query('START TRANSACTION',(err,rows)=>{
+                    if (err) { reject(err) }
+                    resolve();
+                })
+            });
+
+            await  new Promise((resolve, reject) => {
+                db.query('TRUNCATE sym_keys;',(err,rows)=>{
+                    if (err) { reject(err) }
+                    resolve();
+                })
+            });
+
+            await new Promise((resolve, reject) => {
+                db.query( `INSERT INTO sym_keys (pubKey, initVect) VALUES (?,?)`, [arg.pubKey, arg.initVect], (err, rows)=>{
+                    if (err) {
+                        reject(err)
+                    } else {
+                        resolve({status:true, result:`Updated ${rows.affectedRows} row`})
+                    }
+                })
+            });
+       } catch(e) {
+        return new Promise((resolve, reject) => {
+            db.query('ROLLBACK',(err,rows)=>{
+                reject(e);
+            })
+        });
+       }
+
+       return new Promise((resolve, reject) => {
+           db.query('COMMIT', (err, rows)=>{
+                if (err) { reject(err) }
+                resolve( {status:true, result:rows} );
+           })
+       });
+
+
+    }
+
+    async readKey () {
+        //get a private member of class
+        let db = this.privateMembers.get(this);
+        return new Promise((resolve, reject) => {
+            db.query( `SELECT pubKey, initVect FROM sym_keys;`,  (err, rows)=>{
+                if(err) {
+                    reject(err)
+                } else {
+                    resolve({status:true, result:rows[0]})
+                }
+            })
+        });
+    }
+
+    
 
 
  }
