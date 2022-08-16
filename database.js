@@ -1,4 +1,4 @@
-export class DBinterface {
+ export class DBinterface {
     constructor(conn) {
       //making a hide property
       this.privateMembers = new WeakMap();
@@ -402,3 +402,5 @@ async incrementFailLoginAttempts (usrId) {
 
 
  }
+ 
+ 
