@@ -2,6 +2,7 @@ import DBinterface  from './database.js';
 import express from 'express';
 import mysql from 'mysql2';
 import CryptoProcedures from './cryptoroutines.js';
+import UserAuthentication from './authentication.js';
 import crypto from 'crypto';
 
 const DATABASE_USER='root';
@@ -11,6 +12,7 @@ const DATABASE_NAME='chat';
 
 let app= express();
 let databaseLayer = 0;
+
 
  
 // set the view engine to ejs
@@ -40,8 +42,8 @@ app.set('view engine', 'ejs');
     }
     databaseLayer = new DBinterface(connectionDB);
     let cryptoProc = new CryptoProcedures(databaseLayer);
-    let userAuth = new UserAuthentication(cryptoProc);
-      
+    let userAuth = new UserAuthentication(cryptoProc,databaseLayer);
+   console.log(await cryptoProc.generateSymmetricCryptoKey());
      await cryptoProc.initInstanceKey();
      // console.log(await databaseLayer.writeNewUser({name:'Bill',hashedPassword:'213456',avatar:"abcdefg"}) ); 
     //console.log(await databaseLayer.removeUserByID(16));
@@ -68,64 +70,18 @@ app.set('view engine', 'ejs');
     //await databaseLayer.updateKey({pubKey:123,initVect:456})
    //let res = await databaseLayer.readKey();
     //console.log(res.result.pubKey.toString('hex'));
-    //console.log(await cryptoProc.generateSymmetricCryptoKey());
+  
      //let x1 = cryptoProc.symmEncrypt(Buffer.from("helloWord"));
      //let y1 = cryptoProc.symmDecrypt(x1);
      //console.log(y1.toString("utf-8"))
-   let cookie = userAuth.createCookie('Wasya');
-   let raw = userAuth.readCookie(cookie);
-   console.log(raw);
+   let cookie = userAuth.createCookie(17);
+  // let raw = userAuth.readCookie(cookie);
+  //await databaseLayer.readUserShortlyByID(18)
+   let res = await  userAuth.authenticateUserByCookie(cookie)
+  console.log(res);
+   
 
     process.exit(0);
  })
-
-
-class UserAuthentication {
-    constructor (CryptoProcedures) {
-        //making a hide property
-      this.privateMembers = new WeakMap();
-      //assign a 'private' - it may be an object
-      this.privateMembers.set(this, {
-        //an instance of the CryptoProcedures class
-        cryproProcedures: CryptoProcedures,
-       });
-    }
-
-    createCookie (userName) {
-        //get a private member
-        let cryptoProc = this.privateMembers.get(this).cryproProcedures;
-        //get current date in ms
-        let currentTime = BigInt( Date.now());
-        //allocate a Buffer
-        let bufDate = Buffer.allocUnsafe(8);
-        //convert a Number to a Buffer
-        bufDate.writeBigInt64BE(BigInt(currentTime),0);
-        //convert a name to a Buffer
-        let bufName = Buffer.from(userName);
-        //concat
-        let dataForEncription = [bufDate];
-        dataForEncription.push(bufName);
-        dataForEncription = Buffer.concat(dataForEncription);
-        let encrypted = cryptoProc.symmEncrypt(dataForEncription);
-        return encrypted.toString('hex');
-    }
-
-    readCookie (encryptCookie="hex") {
-        //get a private member
-        let cryptoProc = this.privateMembers.get(this).cryproProcedures;
-        //convert to a Buffer
-        let encrypted = Buffer.from(encryptCookie,'hex');
-        let decrypted = cryptoProc.symmDecrypt(encrypted);
-        //parse on parts
-        let date = Number(decrypted.readBigInt64BE(0));
-        let name = decrypted.subarray(8);
-        console.log(name.toString('utf-8'));
-    }
-
-
-
-}
-
- 
 
 

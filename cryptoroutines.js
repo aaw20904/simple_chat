@@ -1,9 +1,11 @@
 import crypto from 'crypto';
 
 export default class CryptoProcedures {
-    constructor (dbInst) {
+    constructor  (dbInst) {
         //making a hide property
       this.privateMembers = new WeakMap();
+      let pubKey, initVect;
+
       //assign a 'private' - it may be an object
       this.privateMembers.set(this, { 
         db:dbInst,
@@ -31,13 +33,16 @@ export default class CryptoProcedures {
 
         })    
     }
-/***call neccessary to init key and vector  */
+/***call neccessary to init key and vector.MUST BE call after a constructor  */
     async initInstanceKey () {
         //get a private member
         let priv = this.privateMembers.get(this);
         //read them from the DB
         let result = await priv.db.readKey();
         //asssign
+        if (!result.status) {
+            throw new Error(result.result)
+        }
         priv.keyAndVect.pubKey = result.result.pubKey;
         priv.keyAndVect.initVect = result.result.initVect;
     }

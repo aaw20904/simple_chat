@@ -99,7 +99,28 @@
         }); 
        
     }
+    /**read a session_status, locked_status, fail_login_attempts from the DB  */
+    //RETURNS {status, result:{session:bool, locked:bool, fail:Number}}
+    async readUserShortlyByID (usrID=1) {
+         //get a private member of class
+         let db = this.privateMembers.get(this);
 
+        return new Promise((resolve, reject) => {
+            db.query (`SELECT usrId, failLogins, status FROM users WHERE usrId=?`,[usrID],(err, rows)=>{
+                if (err) {
+                    reject(err);
+                }
+                else if (rows.length == 0) {
+                    resolve({status:false, result:'User not found'});
+                } else {
+                    let session = rows[0].status & 0x00000001;
+                    let locked =  rows[0].status & 0x00000010;
+                    resolve({status:true, result:{usrId: rows[0].usrId, session:Boolean(session), locked:Boolean(locked), fail:rows[0].failLogins}});
+                }
+                
+            })
+        });
+    }
     /*******R E M O V I N G  a  user by  I D*/
     async removeUserByID (usrId) {
         //get a private member of class
@@ -453,6 +474,9 @@ async incrementFailLoginAttempts (usrId) {
                 if(err) {
                     reject(err)
                 } else {
+                    if(rows.length ==0 ) {
+                        resolve({status:false, result:'Empty crypto keys!'})
+                    }
                     resolve({status:true, result:rows[0]})
                 }
             })
