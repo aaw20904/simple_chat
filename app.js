@@ -28,7 +28,6 @@ app.set('view engine', 'ejs');
                 You should not do this.*/
                 //rejectUnauthorized: FALSE,
         // }
-            
     
      });
  
@@ -131,7 +130,9 @@ class cryptoProcedures {
         encryptedArray.push( cipher.final());
         return Buffer.concat(encryptedArray);
     } 
-
+    async decryptData(){
+        
+    }
 }
  
 
