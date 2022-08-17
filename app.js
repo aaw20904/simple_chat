@@ -38,6 +38,7 @@ app.set('view engine', 'ejs');
         return;
     }
     databaseLayer = new DBinterface(connectionDB);
+    let cryptoProc = new cryptoProcedures(databaseLayer);
      // console.log(await databaseLayer.writeNewUser({name:'Bill',hashedPassword:'213456',avatar:"abcdefg"}) ); 
     //console.log(await databaseLayer.removeUserByID(16));
    // console.log(await databaseLayer.changeUserPasword({usrId:16, password:123546}) );
@@ -63,11 +64,12 @@ app.set('view engine', 'ejs');
     //await databaseLayer.updateKey({pubKey:123,initVect:456})
    //let res = await databaseLayer.readKey();
     //console.log(res.result.pubKey.toString('hex'));
-    let cryptoProc = new cryptoProcedures(databaseLayer);
+   //console.log(await cryptoProc.generateSymmetricCryptoKey());
+    
     await cryptoProc.initInstanceKey()
     let res = await cryptoProc.encryptData(Buffer.from([0x01,0x02,0x03]))
     console.log(res);
-    //console.log(await cryptoProc.generateSymmetricCryptoKey());
+    
     process.exit(0);
  })
 
@@ -119,7 +121,7 @@ class cryptoProcedures {
     return res.result;
 
     }
-
+ //input and output are buffers
     async encryptData (data=Buffer.from([0x30,0x31,0x32])) {
         //create a 
         let init = this.privateMembers.get(this).keyAndVect;
@@ -130,8 +132,15 @@ class cryptoProcedures {
         encryptedArray.push( cipher.final());
         return Buffer.concat(encryptedArray);
     } 
-    async decryptData(){
-        
+
+ //input and output are buffers
+    async decryptData(encrypted=Buffer.from([0x01,0x02,0x03])){
+               //create a 
+        let init = this.privateMembers.get(this).keyAndVect;
+        const decipher = crypto.createDecipheriv('aes256', init.pubKey, init.initVect);
+        let decryptedMessage = [decipher.update(encrypted)];
+        decryptedMessage.push(decipher.final('utf8'));
+        return Buffer.concat(decryptedMessage);
     }
 }
  
