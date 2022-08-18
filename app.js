@@ -137,7 +137,7 @@ class AuthorizationUser {
      
       if (!userInfo.status) {
          //if user not found-
-        return {status:false, result:"Bad username or password!"}
+        return {status:false, msg:"Bad username or password!"}
       }
       
       //checking a password
