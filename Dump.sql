@@ -66,7 +66,7 @@ CREATE TABLE `sym_keys` (
 
 LOCK TABLES `sym_keys` WRITE;
 /*!40000 ALTER TABLE `sym_keys` DISABLE KEYS */;
-INSERT INTO `sym_keys` VALUES (1,_binary '_*\ä¢@a\ÝX\â\ÑuŒwfñ\Õ.}\á\Ù›ˆ\È‹¥%q*¼',_binary '3Šø—¯o qï†¦\Ü\Ò\í');
+INSERT INTO `sym_keys` VALUES (1,_binary 'øCK\ïq	=3ŠöÀ©0\ËgŠ- }¹\Û\æ­N‡Ø¸C\é‰',_binary '\É&\"À:’\Ï|qóO?V');
 /*!40000 ALTER TABLE `sym_keys` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -132,4 +132,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-08-18 12:51:32
+-- Dump completed on 2022-08-18 18:58:18
