@@ -2,15 +2,14 @@ import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 
 export default class CryptoProcedures {
-    constructor  (dbInst) {
+    constructor  (arg={pubKey:Buffer.from([0x01]), initVect:Buffer.from([0x01])}) {
         //making a hide property
       this.privateMembers = new WeakMap();
-      let pubKey, initVect;
+      
 
       //assign a 'private' - it may be an object
       this.privateMembers.set(this, { 
-        db:dbInst,
-        keyAndVect:{pubKey:0, initVect:0},
+        keyAndVect:{pubKey:arg.pubKey, initVect:arg.initVect},
          //input and output are buffers - symmetrical encription
         _encryptData:    (data=Buffer.from([0x30,0x31,0x32]))=> {
             
@@ -34,25 +33,20 @@ export default class CryptoProcedures {
 
         })    
     }
-/***call neccessary to init key and vector.MUST BE call after a constructor  */
-    async initInstanceKey () {
-            //get a private member
-        let priv = this.privateMembers.get(this);
-            //read them from the DB
-        let result = await priv.db.readKey();
-            //asssign
-        if (!result.status) {
-            throw new Error(result.result)
-        }
-        priv.keyAndVect.pubKey = result.result.pubKey;
-        priv.keyAndVect.initVect = result.result.initVect;
+/*** */
+     updateInstanceKey (arg={pubKey:null,initVect:null}) {
+      if(!pubKey) {
+        throw new Error('Bad crypto key or vector!')
+      }
+        priv.keyAndVect.pubKey = arg.pubKey;
+        priv.keyAndVect.initVect = arg.initVect;
     }
 
    
    async generateSymmetricCryptoKey() {
             //get a private member of class
         let priv = this.privateMembers.get(this);
-        let db = priv.db;
+        
 
 
     //it will be using for AES256 symm encryption
@@ -79,25 +73,24 @@ export default class CryptoProcedures {
             })
         });
 
-            // save into DB
-        let res = await db.updateKey({pubKey:pubKey, initVect:iv});
+            
             //assign to private members
         priv.keyAndVect.pubKey = pubKey;
         priv.keyAndVect.initVect = iv;
-        return res.result;
+        return {status:true, results:{pubKey:pubKey, initVect:iv} };
 
     }
         //input and output are buffers - symmetrical encription
      symmEncrypt(data=Buffer.from([0x30,0x31,0x32])) {
         
         let init = this.privateMembers.get(this);
-        return init._encryptData(data);
+        return {status:true, value:init._encryptData(data)};
     } 
 
         //input and output are buffers - symmetrical decryption
      symmDecrypt(encrypted=Buffer.from([0x01,0x02,0x03])){   
         let init = this.privateMembers.get(this);
-       return init._decryptData(encrypted);
+       return {status:true, value:init._decryptData(encrypted)};
     }
 
     async   createPasswordHash (psw="*") {
@@ -106,8 +99,8 @@ export default class CryptoProcedures {
             //*********encoding********
             bcrypt.hash(psw, saltRounds, function(err, hash) {
                 if (err) { reject(err) }
-                //@RETURN a String
-                resolve(hash);
+                //@RETURN
+                resolve({status:true, value:hash});
             });
         });
     }
@@ -117,7 +110,7 @@ export default class CryptoProcedures {
             bcrypt.compare(psw, hashed, function(err, result) {
                 // result == true
                 if(err) { reject(err) }
-                resolve (result);
+                resolve ({status:true, value:result});
             });
         });
     }

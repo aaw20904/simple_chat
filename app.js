@@ -1,3 +1,16 @@
+/*****RETURNED VALUE MUST BE 
+   {
+    status:Boolean,
+    msg:Text,    
+    error: Error | Text,
+    value: any  //when ONE returned value
+    results: {.....}  //when MANY returned values
+
+   }
+
+
+ */
+
 import DBinterface  from './database.js';
 import express from 'express';
 import mysql from 'mysql2';
@@ -41,11 +54,13 @@ app.set('view engine', 'ejs');
         return;
     }
     databaseLayer = new DBinterface(connectionDB);
-    let cryptoProc = new CryptoProcedures(databaseLayer);
-    let userAuth = new UserAuthentication(cryptoProc,databaseLayer);
-    let authorizeLayer = new AuthorizationUser(databaseLayer,cryptoProc,userAuth);
-    console.log(await cryptoProc.generateSymmetricCryptoKey());
-     await cryptoProc.initInstanceKey();
+    let keys = await databaseLayer.readKey(); 
+      //create an instance init key and vect
+    let cryptoProc = new CryptoProcedures(keys.results );
+    let userAuth = new UserAuthentication(cryptoProc, databaseLayer);
+   // let authorizeLayer = new AuthorizationUser(databaseLayer,cryptoProc,userAuth);
+   // let newKeys = await cryptoProc.generateSymmetricCryptoKey();   
+    //   databaseLayer.updateKey(newKeys.results);   
      // console.log(await databaseLayer.writeNewUser({name:'Bill',hashedPassword:'213456',avatar:"abcdefg"}) ); 
     //console.log(await databaseLayer.removeUserByID(16));
    // console.log(await databaseLayer.changeUserPasword({usrId:16, password:123546}) );
@@ -72,20 +87,24 @@ app.set('view engine', 'ejs');
    //let res = await databaseLayer.readKey();
     //console.log(res.result.pubKey.toString('hex'));
   
-     //let x1 = cryptoProc.symmEncrypt(Buffer.from("helloWord"));
-     //let y1 = cryptoProc.symmDecrypt(x1);
-     //console.log(y1.toString("utf-8"))
-    ////let cookie = await userAuth.createCookie(17);
-    //async  userAuth.readCookie()
-    //let raw = await userAuth.authenticateUserByCookie(cookie);
+     //2 let x1 = cryptoProc.symmEncrypt(Buffer.from("helloWord"));
+     //2 console.log(x1.value.toString('hex'));
+     //2 let y1 = cryptoProc.symmDecrypt(x1.value);
+     //2 console.log(y1.value.toString('utf-8'));
+    ///console.log(y1.toString("utf-8"))
+     //2 let cookie =  userAuth.createCookie(17);
+     //2 console.log(cookie);
+    //2 console.log(userAuth.readCookie(cookie.value).results)
+   //2 let raw = await userAuth.authenticateUserByCookie(cookie.value);
+   //2 console.log(raw.results, raw.status)
   //await databaseLayer.readUserShortlyByID(18)
    //let res = await  userAuth.authenticateUserByCookie(cookie)
-  //let hash = await cryptoProc.createPasswordHash("psw");
-  //console.log(hash);
-  //console.log(await cryptoProc.validatePassword('psw',hash));
-  //console.log(raw);
+  let hash = await cryptoProc.createPasswordHash("psw");
+  console.log(hash.value);
+  console.log(await cryptoProc.validatePassword('psw',hash.value));
   
-  await authorizeLayer.authorizeUser('Bill');
+  
+  //await authorizeLayer.authorizeUser('Bill');
     process.exit(0);
  })
 
@@ -108,16 +127,24 @@ class AuthorizationUser {
     }
    /**authorizate a user and returns a cookie-token
     for the authentication */
-    async authorizeUser(usrName, password) {
+    async authorizeUser(usrName="a", password="1") {
       //get private members
-      let cryptoInterface  = this.privateMembers.get(this).CryptoProcedures;
+      let cryptoInterface  = this.privateMembers.get(this).cryptoProcedures;
       let dbInterface = this.privateMembers.get(this).dbInterface;
       let authentificationInterface = this.privateMembers.get(this).userAuthentication;
       //read info
       let userInfo = await dbInterface.readUserByName(usrName);
-      //if user not found-
+     
       if (!userInfo.status) {
-
+         //if user not found-
+        return {status:false, result:"Bad username or password!"}
+      }
+      
+      //checking a password
+       
+      if(! await cryptoInterface.validatePassword(password, userInfo.results.usrPassword)) {
+       
+        return {status:false, result:"Bad username or password!"}
       }
     }
   }

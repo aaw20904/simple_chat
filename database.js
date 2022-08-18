@@ -31,7 +31,7 @@
         }
        //if a username exists
        if (test) {
-        return {status:false, result:'User exists!Please choose an another login'}
+        return {status:false, msg:'User exists!Please choose an another login'}
        }
        //if there is all right -  a username is unique:
        try{
@@ -83,7 +83,7 @@
                         reject(err); 
                         }
                                
-                    resolve({status:"fail",result:e})
+                    resolve({status:"fail", error:e})
                 })
             }); 
         }
@@ -94,13 +94,13 @@
                     reject(err); 
                     }
                            
-                resolve({status:true, result:"User created!"})
+                resolve({status:true, msg:"User created!"})
             })
         }); 
        
     }
     /**read a session_status, locked_status, fail_login_attempts from the DB  */
-    //RETURNS {status, result:{session:bool, locked:bool, fail:Number}}
+    //RETURNS {status, results:{session:bool, locked:bool, fail:Number}}
     async readUserShortlyByID (usrID=1) {
          //get a private member of class
          let db = this.privateMembers.get(this);
@@ -111,11 +111,11 @@
                     reject(err);
                 }
                 else if (rows.length == 0) {
-                    resolve({status:false, result:'User not found'});
+                    resolve({status:false, msg:'User not found'});
                 } else {
                     let session = rows[0].usrStatus & 0x00000001;
                     let locked =  rows[0].usrStatus & 0x00000010;
-                    resolve({status:true, result:{usrId: rows[0].usrId, session:Boolean(session), locked:Boolean(locked), fail:rows[0].failLogins}});
+                    resolve({status:true, results:{usrId: rows[0].usrId, session:Boolean(session), locked:Boolean(locked), fail:rows[0].failLogins}});
                 }
                 
             })
@@ -133,7 +133,7 @@
                     reject(err);
                 }
                 else if (rows.length == 0) {
-                    resolve({status:false, result:'User not found'});
+                    resolve({status:false, msg:'User not found'});
                 } else {
                     let ref = rows[0];
                     let result = {
@@ -146,7 +146,7 @@
                             login:Boolean((ref.usrStatus & 0x00000001)),
                         }
                   
-                    resolve({status:true, result:result});
+                    resolve({status:true, results:result});
                 }
                 
             })
@@ -163,9 +163,9 @@
                     reject(err);
                 }
                 else if (rows.affectedRows == 0) {
-                    resolve({status:false, result:'Record not found'});
+                    resolve({status:false, msg:'Record not found'});
                 } else {
-                    resolve({status:true, result:`Deleted ${rows.affectedRows} row!`});
+                    resolve({status:true, msg:`Deleted ${rows.affectedRows} row!`});
                 }
                 
             })
@@ -181,9 +181,9 @@
                     reject(err)
                 } 
                 else if (rows.affectedRows == 0) {
-                    resolve({status:false, result:'Record not found'});
+                    resolve({status:false, msg:'Record not found'});
                 } else {
-                    resolve({status:true, result:`Deleted ${rows.affectedRows} row!`});
+                    resolve({status:true, msg:`Deleted ${rows.affectedRows} row!`});
                 }
             })
         });
@@ -199,9 +199,9 @@
                     reject(err)
                 } else {
                     if(rows.changedRows == 0) {
-                        resolve({status:false, result:"User not found!"})
+                        resolve({status:false, msg:"User not found!"})
                     } else {
-                        resolve({startus: true, result:`Successfull updated ${rows.affectedRows} row`})
+                        resolve({startus: true, msg:`Successfull updated ${rows.affectedRows} row`})
                     }
                   
                 }
@@ -218,7 +218,7 @@
                     reject(err)
                  }
                  else {
-                    resolve({staus:true, result:`Created ${rows.affectedRows} row`});
+                    resolve({staus:true, msg:`Created ${rows.affectedRows} row`});
                  }
             })
         });
@@ -234,9 +234,9 @@
                     reject(err);
                 } 
                 if(rows.affectedRows == 0) {
-                    resolve({status:false, result:'Message not found!'});
+                    resolve({status:false, msg:'Message not found!'});
                 }
-                resolve({status:true, result:`Deleted ${rows.affectedRows} rows`});
+                resolve({status:true, msg:`Deleted ${rows.affectedRows} rows`});
             })
         });
     }
@@ -250,9 +250,9 @@
                     reject(err);
                 } 
                 if (rows.affectedRows == 0) {
-                    resolve({status:false, result:'Message not found!'});
+                    resolve({status:false, msg:'Message not found!'});
                 }
-                resolve({status:true, result:`Changed ${rows.affectedRows} rows`});
+                resolve({status:true, msg:`Changed ${rows.affectedRows} rows`});
             })
         });
     }
@@ -266,9 +266,9 @@
                     reject(err)
                 } else if (rows.affectedRows == 0) 
                 {
-                    resolve({status:false, result:'User not found!'});
+                    resolve({status:false, msg:'User not found!'});
                 } else {
-                    resolve({status:true, result:`Updated ${rows.affectedRows} row`})
+                    resolve({status:true, msg:`Updated ${rows.affectedRows} row`})
                 }
             })
         });
@@ -283,9 +283,9 @@
                     reject(err)
                 } else if (rows.affectedRows == 0) 
                 {
-                    resolve({status:false, result:'User not found!'});
+                    resolve({status:false, msg:'User not found!'});
                 } else {
-                    resolve({status:true, result:`Updated ${rows.affectedRows} row`})
+                    resolve({status:true, msg:`Updated ${rows.affectedRows} row`})
                 }
             })
         });
@@ -301,9 +301,9 @@
                     reject(err)
                 } else if (rows.affectedRows == 0) 
                 {
-                    resolve({status:false, result:'User not found!'});
+                    resolve({status:false, msg:'User not found!'});
                 } else {
-                    resolve({status:true, result:`Updated ${rows.affectedRows} row`})
+                    resolve({status:true, msg:`Updated ${rows.affectedRows} row`})
                 }
             })
         });
@@ -319,9 +319,9 @@
                     reject(err)
                 } else if (rows.affectedRows == 0) 
                 {
-                    resolve({status:false, result:'User not found!'});
+                    resolve({status:false, msg:'User not found!'});
                 } else {
-                    resolve({status:true, result:`Updated ${rows.affectedRows} row`})
+                    resolve({status:true, msg:`Updated ${rows.affectedRows} row`})
                 }
             })
         });
@@ -337,9 +337,9 @@ async incrementFailLoginAttempts (usrId) {
                     reject(err)
                 } else if (rows.affectedRows == 0) 
                 {
-                    resolve({status:false, result:'User not found!'});
+                    resolve({status:false, msg:'User not found!'});
                 } else {
-                    resolve({status:true, result:`Updated ${rows.affectedRows} row`})
+                    resolve({status:true, msg:`Updated ${rows.affectedRows} row`})
                 }
             })
         });
@@ -354,9 +354,9 @@ async incrementFailLoginAttempts (usrId) {
                       reject(err)
                   } else if (rows.length == 0) 
                   {
-                      resolve({status:false, result:'User not found!'});
+                      resolve({status:false, msg:'User not found!'});
                   } else {
-                      resolve({status:true, result:rows[0].failLogins})
+                      resolve({status:true, value:rows[0].failLogins})
                   }
               })
           });
@@ -373,10 +373,10 @@ async incrementFailLoginAttempts (usrId) {
                      reject(err)
                  } else if (rows.length == 0) 
                  {
-                     resolve({status:false, result:'User not found!'});
+                     resolve({status:false, msg:'User not found!'});
                  } else {
                     let rs = (rows[0].usrStatus == 1) ? true : false;
-                     resolve({status:true, result:rs })
+                     resolve({status:true, value:rs })
                  }
              })
          });
@@ -391,10 +391,10 @@ async incrementFailLoginAttempts (usrId) {
                      reject(err)
                  } else if (rows.length == 0) 
                  {
-                     resolve({status:false, result:'User not found!'});
+                     resolve({status:false, msg:'User not found!'});
                  } else {
                      let rs = (rows[0].usrStatus == 1) ? true : false;
-                     resolve({status:true, result:rs})
+                     resolve({status:true, value:rs})
                  }
              })
          });
@@ -412,7 +412,7 @@ async incrementFailLoginAttempts (usrId) {
                      reject(err)
                  } else  {
                      /**returns an array of objects-"strings"  */
-                     resolve({status:true, result: rows})
+                     resolve({status:true, results:rows})
                  }
              })
          });
@@ -428,7 +428,7 @@ async incrementFailLoginAttempts (usrId) {
                 db.query(sqlQuery,(err,rows)=>{
                     if(err){reject(err)}
                     //[{usrName, failLogins,usr_login,}]
-                    resolve({usrStatus:true, result:rows});
+                    resolve({usrStatus:true, results:rows});
                 })
             });
     }
@@ -444,9 +444,9 @@ async incrementFailLoginAttempts (usrId) {
                       reject(err)
                   } else if (rows.affectedRows == 0) 
                   {
-                      resolve({status:false, result:'User not found!'});
+                      resolve({status:false, msg:'User not found!'});
                   } else {
-                      resolve({status:true, result:`Updated ${rows.affectedRows} row`})
+                      resolve({status:true, msg:`Updated ${rows.affectedRows} row`})
                   }
               })
           });
@@ -475,7 +475,7 @@ async incrementFailLoginAttempts (usrId) {
                     if (err) {
                         reject(err)
                     } else {
-                        resolve({status:true, result:`Updated ${rows.affectedRows} row`})
+                        resolve({status:true, msg:`Updated ${rows.affectedRows} row`})
                     }
                 })
             });
@@ -490,7 +490,7 @@ async incrementFailLoginAttempts (usrId) {
        return new Promise((resolve, reject) => {
            db.query('COMMIT', (err, rows)=>{
                 if (err) { reject(err) }
-                resolve( {status:true, result:rows} );
+                resolve( {status:true, results:rows} );
            })
        });
 
@@ -506,9 +506,9 @@ async incrementFailLoginAttempts (usrId) {
                     reject(err)
                 } else {
                     if(rows.length ==0 ) {
-                        resolve({status:false, result:'Empty crypto keys!'})
+                        resolve({status:false, msg:'Empty crypto keys!'})
                     }
-                    resolve({status:true, result:rows[0]})
+                    resolve({status:true, results:rows[0]})
                 }
             })
         });

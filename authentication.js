@@ -28,8 +28,8 @@ export default class UserAuthentication {
         let dataForEncription = [bufDate];
         dataForEncription.push(bufUsrId);
         dataForEncription = Buffer.concat(dataForEncription);
-        let encrypted = cryptoProc.symmEncrypt(dataForEncription);
-        return encrypted.toString('hex');
+        let encrypted = cryptoProc.symmEncrypt(dataForEncription).value;
+        return {status:true, value:encrypted.toString('hex')};
     }
 
     readCookie (encryptCookie="hex") {
@@ -39,14 +39,14 @@ export default class UserAuthentication {
         let encrypted = Buffer.from(encryptCookie,'hex');
         let decrypted;
         try {
-             decrypted = cryptoProc.symmDecrypt(encrypted);
+             decrypted = cryptoProc.symmDecrypt(encrypted).value;
         } catch(e) {
-            return {status:false, result:e.reason}
+            return {status:false, error:e.reason}
         }
             //parse on parts
         let date = Number(decrypted.readBigInt64BE(0));
         let name = decrypted.subarray(8);
-        return {status:true, usrId:name.readInt32BE(0), timestamp:date};
+        return {status:true, results:{usrId:name.readInt32BE(0), timestamp:date}};
     }
   /***HIGH_LEVEL_METHOD: CONTROL a cookie   */
     async authenticateUserByCookie (arg="123") {
@@ -59,53 +59,53 @@ export default class UserAuthentication {
         let dbInterface = this.privateMembers.get(this).dbInterface;
         if(!arg){
              //RETURTN ->@ C) unauthorized.
-            return {status:false,result:{msg:"Cookie is null",sw:'NL'}}
+            return {status:false, msg:"Cookie is null", error:'NL'}
         }
              //decrypt a token 
         let token = this.readCookie(arg);
             //has a token been correct encrypted?
         if (!token.status) {
             //RETURN - bad encrypted!
-            let resultat = {msg:'Bad token!',sw:'BT'}
-            return {status:false, result:resultat}
+             
+            return {status:false, msg:'Bad token!', error:"BT"}
         }
             //1)read user info from the DB
-        let userInfo = await dbInterface.readUserShortlyByID(token.usrId)
+        let userInfo = await dbInterface.readUserShortlyByID(token.results.usrId)
             //is a user exists?
         if (!userInfo.status) {
             //RETURTN ->@ C) unauthorized.
-            return {status:false, result:{msg:'User not found!',sw:'NF'}}
+            return {status:false, msg:'User not found!', error:'NF'}
         }
              //2)is a user locked?
-        if (userInfo.result.locked) {
+        if (userInfo.results.locked) {
              //RETURTN ->@ C) unauthorized.
-            return {status:false, result:{msg:'User blocked!Please call to the Admin',sw:"LK"}}
+            return {status:false, msg:'User blocked!Please call to the Admin', error:"LK"}
         }
              //3)is a session active?
-        if (!userInfo.result.session) {
+        if (!userInfo.results.session) {
              //RETURTN ->@ C) unauthorized.
-            return {status:false, result:{msg:'Session is closed!',sw:"SC"}}
+            return {status:false, msg:'Session is closed!', error:"SC"}
         }
             //4)checking a lifetime of the token
        let currentTime = Number(Date.now());
             //calc difference in milliSeconds
-       let ellapsed = currentTime - token.timestamp;
+       let ellapsed = currentTime - token.results.timestamp;
             //5) has a token`s lifetime gone?
        if (ellapsed > AUTH_COOKIE_LIFE_TIME) {
             //clear sessoin
-            await dbInterface.clearSessionActive(token.usrId);
+            await dbInterface.clearSessionActive(token.results.usrId);
             //RETURTN ->@ C) unauthorized.
-            return {status: false, result:{msg:'Lifetime has gone!',sw:"TD"} }
+            return {status: false, msg:'Lifetime has gone!', error:"TD" }
        }
             //6) Can a token been updated?
        if (ellapsed > AUTH_COOKIE_UPDATE_THRESHOLD) {
             //generate a new auth cookie
-        newCookie = this.createCookie(token.usrId)
+        newCookie = this.createCookie(token.results.usrId).value;
             //RETURN->@ A) authorized, update cokie(token)  needed 
-        return {status:true, result:{msg:"Successfully authenticated ", mustUpdated:true, info:userInfo.result, cookie:newCookie}}
+        return {status:true, msg:"Successfully authenticated", results:{ mustUpdated:true, info:userInfo.results, cookie:newCookie}}
        } else {
             //RETURN->@ B) authorized, update cokie(token) not needed 
-        return {status:true, result:{msg:"Successfully authenticated", mustUpdated:false, info:userInfo.result} }
+        return {status:true, msg:"Successfully authenticated", results:{ mustUpdated:false, info:userInfo.results} }
        }
         
     }
