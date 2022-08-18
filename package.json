@@ -14,5 +14,8 @@
     "mysql2": "^2.3.3",
     "svg-captcha": "^1.4.0",
     "ws": "^8.8.1"
+  },
+  "devDependencies": {
+    "bcrypt": "^5.0.1"
   }
 }

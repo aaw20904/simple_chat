@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 
 export default class CryptoProcedures {
     constructor  (dbInst) {
@@ -100,5 +101,26 @@ export default class CryptoProcedures {
        return init._decryptData(encrypted);
     }
 
+    async   createPasswordHash (psw="*") {
+         const saltRounds = 10;
+         return new Promise((resolve, reject) => {
+            //*********encoding********
+            bcrypt.hash(psw, saltRounds, function(err, hash) {
+                if (err) { reject(err) }
+                //@RETURN a String
+                resolve(hash);
+            });
+        });
+    }
+
+    async validatePassword(psw="*", hashed="abcd") {
+        return new Promise((resolve, reject) => {
+            bcrypt.compare(psw, hashed, function(err, result) {
+                // result == true
+                if(err) { reject(err) }
+                resolve (result);
+            });
+        });
+    }
 
 }

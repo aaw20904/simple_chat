@@ -1,6 +1,5 @@
-//in mSeconds
-const AUTH_COOKIE_LIFE_TIME = 36000;
-const AUTH_COOKIE_UPDATE_THRESHOLD = 1800;
+
+
 export default class UserAuthentication {
     constructor (CryptoProcedures, DBinterface) {
         //making a hide property
@@ -46,6 +45,9 @@ export default class UserAuthentication {
     }
   /***HIGH_LEVEL_METHOD: CONTROL a cookie   */
     async authenticateUserByCookie (arg="123") {
+        //in mSeconds
+        const AUTH_COOKIE_LIFE_TIME = 36000;
+        const AUTH_COOKIE_UPDATE_THRESHOLD = 1800;
         let newCookie = null;
         //get a private member
         let cryptoProc = this.privateMembers.get(this).cryproProcedures;

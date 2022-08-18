@@ -74,11 +74,13 @@ app.set('view engine', 'ejs');
      //let x1 = cryptoProc.symmEncrypt(Buffer.from("helloWord"));
      //let y1 = cryptoProc.symmDecrypt(x1);
      //console.log(y1.toString("utf-8"))
-   let cookie = userAuth.createCookie(17);
+   //let cookie = userAuth.createCookie(17);
   // let raw = userAuth.readCookie(cookie);
   //await databaseLayer.readUserShortlyByID(18)
-   let res = await  userAuth.authenticateUserByCookie(cookie)
-  console.log(res);
+   //let res = await  userAuth.authenticateUserByCookie(cookie)
+  let hash = await cryptoProc.createPasswordHash("psw");
+  console.log(hash);
+  console.log(await cryptoProc.validatePassword('psw',hash));
    
 
     process.exit(0);
