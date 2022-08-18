@@ -10,7 +10,7 @@
 
 
  */
-
+import AuthorizationUser from './authorization.js';
 import DBinterface  from './database.js';
 import express from 'express';
 import mysql from 'mysql2';
@@ -58,7 +58,7 @@ app.set('view engine', 'ejs');
       //create an instance init key and vect
     let cryptoProc = new CryptoProcedures(keys.results );
     let userAuth = new UserAuthentication(cryptoProc, databaseLayer);
-   // let authorizeLayer = new AuthorizationUser(databaseLayer,cryptoProc,userAuth);
+   let authorizeLayer = new AuthorizationUser(databaseLayer,cryptoProc,userAuth);
    // let newKeys = await cryptoProc.generateSymmetricCryptoKey();   
     //   databaseLayer.updateKey(newKeys.results);   
      // console.log(await databaseLayer.writeNewUser({name:'Bill',hashedPassword:'213456',avatar:"abcdefg"}) ); 
@@ -99,53 +99,16 @@ app.set('view engine', 'ejs');
    //2 console.log(raw.results, raw.status)
   //await databaseLayer.readUserShortlyByID(18)
    //let res = await  userAuth.authenticateUserByCookie(cookie)
-  let hash = await cryptoProc.createPasswordHash("psw");
-  console.log(hash.value);
-  console.log(await cryptoProc.validatePassword('psw',hash.value));
+    let hash = await cryptoProc.createPasswordHash("password");
+    //console.log(await databaseLayer.changeUserPasword({usrId:17,password:hash.value}));
+    
+  //2 console.log(await cryptoProc.validatePassword('psw',hash.value));
   
   
-  //await authorizeLayer.authorizeUser('Bill');
+  console.log(await authorizeLayer.authorizeUser('Bill',"password"));
     process.exit(0);
  })
 
 
-class AuthorizationUser {
-    constructor (dbInterface, cryptoRoutines, userAuthentication) {
-          //making a hide property
-        this.privateMembers = new WeakMap();
-          //assign a 'private' - it may be an object
-        this.privateMembers.set(this, {
-          //an instance of the CryptoProcedures class
-          //instances off:
-          //class CryptoProcedures
-        cryproProcedures: cryptoRoutines,
-          //class DBinterface
-        dbInterface:  dbInterface,
-          //class UserAuthentication
-        userAuthentication: userAuthentication
-       });
-    }
-   /**authorizate a user and returns a cookie-token
-    for the authentication */
-    async authorizeUser(usrName="a", password="1") {
-      //get private members
-      let cryptoInterface  = this.privateMembers.get(this).cryptoProcedures;
-      let dbInterface = this.privateMembers.get(this).dbInterface;
-      let authentificationInterface = this.privateMembers.get(this).userAuthentication;
-      //read info
-      let userInfo = await dbInterface.readUserByName(usrName);
-     
-      if (!userInfo.status) {
-         //if user not found-
-        return {status:false, msg:"Bad username or password!"}
-      }
-      
-      //checking a password
-       
-      if(! await cryptoInterface.validatePassword(password, userInfo.results.usrPassword)) {
-       
-        return {status:false, result:"Bad username or password!"}
-      }
-    }
-  }
+
   /**************** */
