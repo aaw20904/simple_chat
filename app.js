@@ -43,7 +43,8 @@ app.set('view engine', 'ejs');
     databaseLayer = new DBinterface(connectionDB);
     let cryptoProc = new CryptoProcedures(databaseLayer);
     let userAuth = new UserAuthentication(cryptoProc,databaseLayer);
-   console.log(await cryptoProc.generateSymmetricCryptoKey());
+    let authorizeLayer = new AuthorizationUser(databaseLayer,cryptoProc,userAuth);
+    console.log(await cryptoProc.generateSymmetricCryptoKey());
      await cryptoProc.initInstanceKey();
      // console.log(await databaseLayer.writeNewUser({name:'Bill',hashedPassword:'213456',avatar:"abcdefg"}) ); 
     //console.log(await databaseLayer.removeUserByID(16));
@@ -74,16 +75,49 @@ app.set('view engine', 'ejs');
      //let x1 = cryptoProc.symmEncrypt(Buffer.from("helloWord"));
      //let y1 = cryptoProc.symmDecrypt(x1);
      //console.log(y1.toString("utf-8"))
-   //let cookie = userAuth.createCookie(17);
-  // let raw = userAuth.readCookie(cookie);
+    ////let cookie = await userAuth.createCookie(17);
+    //async  userAuth.readCookie()
+    //let raw = await userAuth.authenticateUserByCookie(cookie);
   //await databaseLayer.readUserShortlyByID(18)
    //let res = await  userAuth.authenticateUserByCookie(cookie)
-  let hash = await cryptoProc.createPasswordHash("psw");
-  console.log(hash);
-  console.log(await cryptoProc.validatePassword('psw',hash));
-   
-
+  //let hash = await cryptoProc.createPasswordHash("psw");
+  //console.log(hash);
+  //console.log(await cryptoProc.validatePassword('psw',hash));
+  //console.log(raw);
+  
+  await authorizeLayer.authorizeUser('Bill');
     process.exit(0);
  })
 
 
+class AuthorizationUser {
+    constructor (dbInterface, cryptoRoutines, userAuthentication) {
+          //making a hide property
+        this.privateMembers = new WeakMap();
+          //assign a 'private' - it may be an object
+        this.privateMembers.set(this, {
+          //an instance of the CryptoProcedures class
+          //instances off:
+          //class CryptoProcedures
+        cryproProcedures: cryptoRoutines,
+          //class DBinterface
+        dbInterface:  dbInterface,
+          //class UserAuthentication
+        userAuthentication: userAuthentication
+       });
+    }
+   /**authorizate a user and returns a cookie-token
+    for the authentication */
+    async authorizeUser(usrName, password) {
+      //get private members
+      let cryptoInterface  = this.privateMembers.get(this).CryptoProcedures;
+      let dbInterface = this.privateMembers.get(this).dbInterface;
+      let authentificationInterface = this.privateMembers.get(this).userAuthentication;
+      //read info
+      let userInfo = await dbInterface.readUserByName(usrName);
+      //if user not found-
+      if (!userInfo.status) {
+
+      }
+    }
+  }

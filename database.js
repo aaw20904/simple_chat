@@ -106,16 +106,47 @@
          let db = this.privateMembers.get(this);
 
         return new Promise((resolve, reject) => {
-            db.query (`SELECT usrId, failLogins, status FROM users WHERE usrId=?`,[usrID],(err, rows)=>{
+            db.query (`SELECT usrId, failLogins, usrStatus FROM users WHERE usrId=?`,[usrID],(err, rows)=>{
                 if (err) {
                     reject(err);
                 }
                 else if (rows.length == 0) {
                     resolve({status:false, result:'User not found'});
                 } else {
-                    let session = rows[0].status & 0x00000001;
-                    let locked =  rows[0].status & 0x00000010;
+                    let session = rows[0].usrStatus & 0x00000001;
+                    let locked =  rows[0].usrStatus & 0x00000010;
                     resolve({status:true, result:{usrId: rows[0].usrId, session:Boolean(session), locked:Boolean(locked), fail:rows[0].failLogins}});
+                }
+                
+            })
+        });
+    }
+
+    /*****read user info by the Name */
+    async readUserByName (name="Petya") {
+         //get a private member of class
+         let db = this.privateMembers.get(this);
+
+        return new Promise((resolve, reject) => {
+            db.query (`SELECT usrName, usrId, usrPassword,usrAvatar, failLogins, usrStatus FROM users_names NATURAL JOIN users WHERE usrName=?`,[name],(err, rows)=>{
+                if (err) {
+                    reject(err);
+                }
+                else if (rows.length == 0) {
+                    resolve({status:false, result:'User not found'});
+                } else {
+                    let ref = rows[0];
+                    let result = {
+                            usrName:ref.usrName,
+                            usrId:ref.usrId,
+                            usrPassword:ref.usrPassword,
+                            usrAvatar:ref.usrAvatar,
+                            fail:ref.failLogins,
+                            locked:Boolean((ref.usrStatus & 0x00000010)),
+                            login:Boolean((ref.usrStatus & 0x00000001)),
+                        }
+                  
+                    resolve({status:true, result:result});
                 }
                 
             })
@@ -230,7 +261,7 @@
            //get a private member of class
         let db = this.privateMembers.get(this);
         return new Promise((resolve, reject) => {
-            db.query(`UPDATE users SET status=status|0x00000001 WHERE usrId=?`, [usrId], (err, rows)=>{
+            db.query(`UPDATE users SET usrStatus=usrStatus|0x00000001 WHERE usrId=?`, [usrId], (err, rows)=>{
                 if(err) {
                     reject(err)
                 } else if (rows.affectedRows == 0) 
@@ -247,7 +278,7 @@
            //get a private member of class
         let db = this.privateMembers.get(this);
         return new Promise((resolve, reject) => {
-            db.query(`UPDATE users SET status=status&0xFFFFFFFE WHERE usrId=?`, [usrId], (err, rows)=>{
+            db.query(`UPDATE users SET usrStatus=usrStatus&0xFFFFFFFE WHERE usrId=?`, [usrId], (err, rows)=>{
                 if(err) {
                     reject(err)
                 } else if (rows.affectedRows == 0) 
@@ -265,7 +296,7 @@
         //get a private member of class
      let db = this.privateMembers.get(this);
         return new Promise((resolve, reject) => {
-            db.query(`UPDATE users SET status=status|0x00000010 WHERE usrId=?`, [usrId], (err, rows)=>{
+            db.query(`UPDATE users SET usrStatus=usrStatus|0x00000010 WHERE usrId=?`, [usrId], (err, rows)=>{
                 if(err) {
                     reject(err)
                 } else if (rows.affectedRows == 0) 
@@ -283,7 +314,7 @@
         //get a private member of class
      let db = this.privateMembers.get(this);
         return new Promise((resolve, reject) => {
-            db.query(`UPDATE users SET status=status&0xFFFFFFEF WHERE usrId=?`, [usrId], (err, rows)=>{
+            db.query(`UPDATE users SET usrStatus=usrStatus&0xFFFFFFEF WHERE usrId=?`, [usrId], (err, rows)=>{
                 if(err) {
                     reject(err)
                 } else if (rows.affectedRows == 0) 
@@ -337,14 +368,14 @@ async incrementFailLoginAttempts (usrId) {
          //get a private member of class
          let db = this.privateMembers.get(this);
          return new Promise((resolve, reject) => {
-             db.query( `SELECT ((status&0x00000010)>>4) AS status FROM users WHERE usrId=?`, [usrID], (err, rows)=>{
+             db.query( `SELECT ((usrStatus&0x00000010)>>4) AS usrStatus FROM users WHERE usrId=?`, [usrID], (err, rows)=>{
                  if(err) {
                      reject(err)
                  } else if (rows.length == 0) 
                  {
                      resolve({status:false, result:'User not found!'});
                  } else {
-                    let rs = (rows[0].status == 1) ? true : false;
+                    let rs = (rows[0].usrStatus == 1) ? true : false;
                      resolve({status:true, result:rs })
                  }
              })
@@ -355,14 +386,14 @@ async incrementFailLoginAttempts (usrId) {
          //get a private member of class
          let db = this.privateMembers.get(this);
          return new Promise((resolve, reject) => {
-             db.query( `SELECT (status&0x00000001) AS status FROM users WHERE usrId=?`, [usrID], (err, rows)=>{
+             db.query( `SELECT (usrStatus&0x00000001) AS usrStatus FROM users WHERE usrId=?`, [usrID], (err, rows)=>{
                  if(err) {
                      reject(err)
                  } else if (rows.length == 0) 
                  {
                      resolve({status:false, result:'User not found!'});
                  } else {
-                     let rs = (rows[0].status == 1) ? true : false;
+                     let rs = (rows[0].usrStatus == 1) ? true : false;
                      resolve({status:true, result:rs})
                  }
              })
@@ -391,13 +422,13 @@ async incrementFailLoginAttempts (usrId) {
     async getAllUsersWithStatus() {
         //get a private member of class
             let db = this.privateMembers.get(this);
-            let sqlQuery = "SELECT usrName, failLogins, CASE WHEN (status&0x00000001) THEN 'active' ELSE 'logoff' END login_state,"+
-            "CASE WHEN (status&0x00000010) THEN 'locked' ELSE 'unlocked' END usr_lock  FROM users NATURAL JOIN users_names;";
+            let sqlQuery = "SELECT usrName, failLogins, CASE WHEN (usrStatus&0x00000001) THEN 'active' ELSE 'logoff' END login_state,"+
+            "CASE WHEN (usrStatus&0x00000010) THEN 'locked' ELSE 'unlocked' END usr_lock  FROM users NATURAL JOIN users_names;";
             return new Promise((resolve, reject) => {
                 db.query(sqlQuery,(err,rows)=>{
                     if(err){reject(err)}
                     //[{usrName, failLogins,usr_login,}]
-                    resolve({status:true, result:rows});
+                    resolve({usrStatus:true, result:rows});
                 })
             });
     }

@@ -32,7 +32,7 @@ CREATE TABLE `messages` (
   KEY `mesages_fk2_idx` (`usrId`) /*!80000 INVISIBLE */,
   KEY `mesages_fk3_idx` (`sent`),
   CONSTRAINT `mesages_fk1` FOREIGN KEY (`usrId`) REFERENCES `users_names` (`usrId`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -41,7 +41,7 @@ CREATE TABLE `messages` (
 
 LOCK TABLES `messages` WRITE;
 /*!40000 ALTER TABLE `messages` DISABLE KEYS */;
-INSERT INTO `messages` VALUES (2,17,'abc','2022-08-15 15:35:58'),(3,18,'helloword!','2022-08-16 17:47:02');
+INSERT INTO `messages` VALUES (2,17,'abc','2022-08-15 15:35:58'),(3,17,'Marry had a little lamb','2022-08-16 11:01:10'),(4,18,'Test2','2022-08-16 11:01:29');
 /*!40000 ALTER TABLE `messages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -66,7 +66,7 @@ CREATE TABLE `sym_keys` (
 
 LOCK TABLES `sym_keys` WRITE;
 /*!40000 ALTER TABLE `sym_keys` DISABLE KEYS */;
-INSERT INTO `sym_keys` VALUES (1,_binary 'ÙÄ\„K§˚5K)(\Â÷è\Î,	\Õ‡∏ì\ﬂ[§wï°',_binary '$åÛe\"ú	ñ•<πßΩ\‘p');
+INSERT INTO `sym_keys` VALUES (1,_binary '_*\‰¢@a\›X\‚\—uåwfÒ\’.}\·\Ÿõà\»ã•%q*º',_binary '3ä¯óØo qÔÜ¶\‹\“\Ì');
 /*!40000 ALTER TABLE `sym_keys` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -82,7 +82,7 @@ CREATE TABLE `users` (
   `usrPassword` blob NOT NULL,
   `usrAvatar` blob NOT NULL,
   `failLogins` int NOT NULL DEFAULT '0',
-  `status` int NOT NULL DEFAULT '0',
+  `usrStatus` int NOT NULL DEFAULT '0',
   UNIQUE KEY `idusers_UNIQUE` (`usrId`),
   CONSTRAINT `fk_01001` FOREIGN KEY (`usrId`) REFERENCES `users_names` (`usrId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -94,7 +94,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (17,_binary '213456',_binary 'abcdefg',1,1),(18,_binary '213456',_binary 'abcdefg',0,0);
+INSERT INTO `users` VALUES (17,_binary '213456',_binary 'abcdefg',5,1),(18,_binary '213456',_binary 'abcdefg',0,0);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -132,4 +132,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-08-16 21:25:26
+-- Dump completed on 2022-08-18 12:51:32

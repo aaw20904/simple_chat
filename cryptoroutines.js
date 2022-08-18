@@ -16,9 +16,9 @@ export default class CryptoProcedures {
             
             let init = this.privateMembers.get(this).keyAndVect;
             const cipher = crypto.createCipheriv('aes256', init.pubKey, init.initVect);
-            //encrypt
+                 //encrypt
             let encryptedArray = [cipher.update(data)];
-            //encrypted message returns a buffer
+                //encrypted message returns a buffer
             encryptedArray.push( cipher.final());
             return Buffer.concat(encryptedArray);
         },
@@ -36,11 +36,11 @@ export default class CryptoProcedures {
     }
 /***call neccessary to init key and vector.MUST BE call after a constructor  */
     async initInstanceKey () {
-        //get a private member
+            //get a private member
         let priv = this.privateMembers.get(this);
-        //read them from the DB
+            //read them from the DB
         let result = await priv.db.readKey();
-        //asssign
+            //asssign
         if (!result.status) {
             throw new Error(result.result)
         }
@@ -50,7 +50,7 @@ export default class CryptoProcedures {
 
    
    async generateSymmetricCryptoKey() {
-        //get a private member of class
+            //get a private member of class
         let priv = this.privateMembers.get(this);
         let db = priv.db;
 
@@ -63,14 +63,14 @@ export default class CryptoProcedures {
                  resolve(buf);
               });
         });
-    //generate salt
+            //generate salt
         let salt =  await new Promise((resolve, reject) => {
             crypto.randomBytes(16, (err, buf) => {
                 if (err) { reject(err) }
                  resolve(buf);
               });
         });
-    //generate IV
+            //generate IV
 
         let iv = await  new Promise((resolve, reject) => {
             crypto.pbkdf2(pubKey, salt, 100000, 16, 'sha512', (err, derivedKey)=>{
@@ -79,24 +79,23 @@ export default class CryptoProcedures {
             })
         });
 
-        // save into DB
+            // save into DB
         let res = await db.updateKey({pubKey:pubKey, initVect:iv});
-        //assign to private members
+            //assign to private members
         priv.keyAndVect.pubKey = pubKey;
         priv.keyAndVect.initVect = iv;
         return res.result;
 
     }
- //input and output are buffers - symmetrical encription
+        //input and output are buffers - symmetrical encription
      symmEncrypt(data=Buffer.from([0x30,0x31,0x32])) {
         
         let init = this.privateMembers.get(this);
         return init._encryptData(data);
     } 
 
- //input and output are buffers - symmetrical decryption
-     symmDecrypt(encrypted=Buffer.from([0x01,0x02,0x03])){
-               
+        //input and output are buffers - symmetrical decryption
+     symmDecrypt(encrypted=Buffer.from([0x01,0x02,0x03])){   
         let init = this.privateMembers.get(this);
        return init._decryptData(encrypted);
     }
@@ -113,7 +112,7 @@ export default class CryptoProcedures {
         });
     }
 
-    async validatePassword(psw="*", hashed="abcd") {
+    async validatePassword (psw="*", hashed="abcd") {
         return new Promise((resolve, reject) => {
             bcrypt.compare(psw, hashed, function(err, result) {
                 // result == true
