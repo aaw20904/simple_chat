@@ -1,5 +1,5 @@
 {
-  "type": "module",
+  "type":"module",
   "name": "ws_chat",
   "version": "1.0.0",
   "description": "",
@@ -19,3 +19,4 @@
     "svg-captcha": "^1.4.0"
   }
 }
+ 

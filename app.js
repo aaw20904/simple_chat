@@ -9,6 +9,7 @@
    }
 
  */
+import apiRouter from './routes/api_route.js'
 import UserRegistration from "./registration.js";
 import AuthorizationUser from './authorization.js';
 import DBinterface  from './database.js';
@@ -36,8 +37,7 @@ let layers77= {
 }
 
  
-// set the view engine to ejs
-app.set('view engine', 'ejs');
+
 
     const connectionDB = mysql.createConnection({
         user: DATABASE_USER,
@@ -112,9 +112,15 @@ app.set('view engine', 'ejs');
    //2console.log(await layers77.authorizeLayer.authorizeUser('Bob',"password"));
   //2 console.log(await layers77.registratonLayer.registerUserInSystem({usrName:'Bob', password:'password',avatar:Buffer.from([0x01,0x03,0x05])}))
   //await layers77.authorizeLayer.logoffUser(19);
-  process.exit(0);
+
+
+  //process.exit(0);
  });
 
 
 
-  /**************** */
+    /***server intialization**** */
+  // set the view engine to ejs
+//app.set('view engine', 'ejs');
+app.use("/api", apiRouter);
+app.listen(80,()=>console.log('Listen...'))
