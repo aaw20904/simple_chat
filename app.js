@@ -9,6 +9,7 @@
    }
 
  */
+import UserRegistration from "./registration.js";
 import AuthorizationUser from './authorization.js';
 import DBinterface  from './database.js';
 import express from 'express';
@@ -25,8 +26,14 @@ const DATABASE_PASSWORD='65535258';
 const DATABASE_NAME='chat';
 
 let app= express();
-let databaseLayer = 0;
-
+/****global Instances of classes */
+let layers77= {
+  databaseLayer: null,
+  cryptoLayer: null,
+  authenticationLayer: null,
+  authorizeLayer: null,
+  registratonLayer: null,
+}
 
  
 // set the view engine to ejs
@@ -54,124 +61,60 @@ app.set('view engine', 'ejs');
         process.exit(-1);
         return;
     }
-    databaseLayer = new DBinterface(connectionDB);
-    let keys = await databaseLayer.readKey(); 
+    layers77.databaseLayer = new DBinterface(connectionDB);
+    let keys = await layers77.databaseLayer.readKey(); 
       //create an instance init key and vect
-    let cryptoProc = new CryptoProcedures(keys.results );
-    let userAuth = new UserAuthentication(cryptoProc, databaseLayer);
-   let authorizeLayer = new AuthorizationUser(databaseLayer,cryptoProc,userAuth);
-   let registrationInst = new UserRegisrtration(cryptoProc,databaseLayer);
-   //2 let result = registrationInst.createRegistrationCookieAndCaptcha();
-   //2 registrationInst.isRegistrationCookieValid(result.results.cookie, result.results.text);
-   // let newKeys = await cryptoProc.generateSymmetricCryptoKey();   
-   //   databaseLayer.updateKey(newKeys.results);   
-   // console.log(await databaseLayer.writeNewUser({name:'Bill',hashedPassword:'213456',avatar:"abcdefg"}) ); 
-   //console.log(await databaseLayer.removeUserByID(16));
-   // console.log(await databaseLayer.changeUserPasword({usrId:16, password:123546}) );
-   //* console.log(await databaseLayer.addUserMessage({usrId:18, msg:"helloword!" })); */
-    //console.log( await databaseLayer.removeUserMessage(1) );
-    //console.log( await databaseLayer.editUserMessage({msgId:2,message:'abc'}) );
-    //console.log( await databaseLayer.incrementFailLoginAttempts(17) );
-    //console.log( await databaseLayer.clearUserLocked(17) );
-    //console.log( await databaseLayer.getUserFailLoginAttempts(17) );
-    //console.log( await databaseLayer.clearUserFailLoginAttempts(17) );
-   //console.log( await databaseLayer.setSessionActive(17) );
-    //console.log( await databaseLayer.setUserLocked(17) );
-   //console.log( await databaseLayer.clearSessionActive(17) );
-    //console.log( await databaseLayer.clearUserLocked(17) );
-    //console.log( await databaseLayer.isUserLocked(17) );
-    //console.log( await databaseLayer.isSessionActive(17) );
-    // let res = await databaseLayer.getAllTheChat()
-    //let res = await databaseLayer.getAllUsersWithStatus();
-    //let res = await databaseLayer.readKey();
-    //await databaseLayer.updateKey({pubKey:123,initVect:456})
-   //let res = await databaseLayer.readKey();
+      layers77.cryptoLayer = new CryptoProcedures(keys.results );
+      layers77.authenticationLayer = new UserAuthentication(layers77.cryptoLayer, layers77.databaseLayer);
+     layers77.authorizeLayer = new AuthorizationUser(layers77.databaseLayer, layers77.cryptoLayer, layers77.authenticationLayer);
+     layers77.registratonLayer = new UserRegistration(layers77.cryptoLayer, layers77.databaseLayer);
+   //2 let result = layers77.registratonLayer.createRegistrationCookieAndCaptcha();
+   //2 layers77.registratonLayer.isRegistrationCookieValid(result.results.cookie, result.results.text);
+   // let newKeys = await layers77.cryptoLayer.generateSymmetricCryptoKey();   
+   //   layers77.databaseLayer.updateKey(newKeys.results);   
+   // console.log(await layers77.databaseLayer.writeNewUser({name:'Bill',hashedPassword:'213456',avatar:"abcdefg"}) ); 
+   //console.log(await layers77.databaseLayer.removeUserByID(16));
+   // console.log(await layers77.databaseLayer.changeUserPasword({usrId:16, password:123546}) );
+   //* console.log(await layers77.databaseLayer.addUserMessage({usrId:18, msg:"helloword!" })); */
+    //console.log( await layers77.databaseLayer.removeUserMessage(1) );
+    //console.log( await layers77.databaseLayer.editUserMessage({msgId:2,message:'abc'}) );
+    //console.log( await layers77.databaseLayer.incrementFailLoginAttempts(17) );
+    //console.log( await layers77.databaseLayer.clearUserLocked(17) );
+    //console.log( await layers77.databaseLayer.getUserFailLoginAttempts(17) );
+    //console.log( await layers77.databaseLayer.clearUserFailLoginAttempts(17) );
+   //console.log( await layers77.databaseLayer.setSessionActive(17) );
+    //console.log( await layers77.databaseLayer.setUserLocked(17) );
+   //console.log( await layers77.databaseLayer.clearSessionActive(17) );
+    //console.log( await layers77.databaseLayer.clearUserLocked(17) );
+    //console.log( await layers77.databaseLayer.isUserLocked(17) );
+    //console.log( await layers77.databaseLayer.isSessionActive(17) );
+    // let res = await layers77.databaseLayer.getAllTheChat()
+    //let res = await layers77.databaseLayer.getAllUsersWithStatus();
+    //let res = await layers77.databaseLayer.readKey();
+    //await layers77.databaseLayer.updateKey({pubKey:123,initVect:456})
+   //let res = await layers77.databaseLayer.readKey();
     //console.log(res.result.pubKey.toString('hex'));
-     //2 let x1 = cryptoProc.symmEncrypt(Buffer.from("helloWord"));
+     //2 let x1 = layers77.cryptoLayer.symmEncrypt(Buffer.from("helloWord"));
      //2 console.log(x1.value.toString('hex'));
-     //2 let y1 = cryptoProc.symmDecrypt(x1.value);
+     //2 let y1 = layers77.cryptoLayer.symmDecrypt(x1.value);
      //2 console.log(y1.value.toString('utf-8'));
     ///console.log(y1.toString("utf-8"))
-     //2 let cookie =  userAuth.createCookie(17);
+     //2 let cookie =  layers77.authenticationLayer.createCookie(17);
      //2 console.log(cookie);
-    //2 console.log(userAuth.readCookie(cookie.value).results)
-   //2 let raw = await userAuth.authenticateUserByCookie(cookie.value);
+    //2 console.log(layers77.authenticationLayer.readCookie(cookie.value).results)
+   //2 let raw = await layers77.authenticationLayer.authenticateUserByCookie(cookie.value);
    //2 console.log(raw.results, raw.status)
-  //await databaseLayer.readUserShortlyByID(18)
-   //let res = await  userAuth.authenticateUserByCookie(cookie)
-    //2 let hash = await cryptoProc.createPasswordHash("password");
-    //2 console.log(await databaseLayer.changeUserPasword({usrId:17,password:hash.value}));
-  //2 console.log(await cryptoProc.validatePassword('psw',hash.value));
-  //2 console.log(await authorizeLayer.authorizeUser('Bill',"password"));
-    process.exit(0);
- })
+  //await layers77.databaseLayer.readUserShortlyByID(18)
+   //let res = await  layers77.authenticationLayer.authenticateUserByCookie(cookie)
+    //2 let hash = await layers77.cryptoLayer.createPasswordHash("password");
+    //2 console.log(await layers77.databaseLayer.changeUserPasword({usrId:17,password:hash.value}));
+  //2 console.log(await layers77.cryptoLayer.validatePassword('psw',hash.value));
+   //2console.log(await layers77.authorizeLayer.authorizeUser('Bob',"password"));
+  //2 console.log(await layers77.registratonLayer.registerUserInSystem({usrName:'Bob', password:'password',avatar:Buffer.from([0x01,0x03,0x05])}))
+  //await layers77.authorizeLayer.logoffUser(19);
+  process.exit(0);
+ });
 
 
-class UserRegisrtration {
-  constructor(cryptoProcedures, dbInterface) {
-     //making a hide property
-      this.privateMembers = new WeakMap();
-      //assign a 'private' - it may be an object
-      this.privateMembers.set(this, {
-        cryptoProc: cryptoProcedures,
-        dbInterface: dbInterface,
-       })
-  }
 
- createRegistrationCookieAndCaptcha() {
-    let cryptoProc = this.privateMembers.get(this).cryptoProc;
-    //generate a Captcha
-    let captcha = svgCaptcha.create({size:6, noise:2})
-    //captca contains {text:...,data:...}
-    //get a data
-    let timestamp = BigInt(Date.now());
-    let mainBuffer = [Buffer.allocUnsafe(8)];
-    //write a timestamp into the array as a Buffer
-    mainBuffer[0].writeBigUInt64BE(timestamp);
-    //write a string into an Array as a Buffer
-    mainBuffer.push(Buffer.from(captcha.text));
-    //glue data 
-    //#FORMAT:   8 BYTES-TIMESTAMP|6 BYTES-TEXT_CAPTCHA
-    mainBuffer = Buffer.concat(mainBuffer);
-    //encrypt
-    let cookie = cryptoProc.symmEncrypt(mainBuffer);
-    //convert to a string
-    cookie = cookie.value.toString('hex');
-    return {status:true, results:{ cookie:cookie, 
-                                   image:captcha.data,
-                                   text:captcha.text } }; 
-
-  }
-
-  async isRegistrationCookieValid (cookie="*", enteredText="*") {
-      const CAPTCHA_TOKEN_LIFETIME = 60000;
-      let cryptoProc = this.privateMembers.get(this).cryptoProc;
-      //decrypt, convert plain text to Buffer 
-      let decrypted;
-      try{
-        decrypted = cryptoProc.symmDecrypt(Buffer.from(cookie,"hex")).value;
-      } catch (e) {
-        //when a bad encrypted token
-        return { status:false, value:false, msg:e.reason }
-      }
-      
-      //get a timestamp
-      let timestamp = decrypted.readBigInt64BE(0);
-      //how many time has gone since a cookie has been created?
-      let ellapsed = Number(Date.now()) - Number(timestamp);
-      if(ellapsed > CAPTCHA_TOKEN_LIFETIME) {
-        return{status:true, value:false, msg:"Too many time has gone! Try again"}
-      }
-      //get a string
-      let text = decrypted.slice(8);
-      text = text.toString('utf-8');
-      //compare 
-      if (text.localeCompare(enteredText) === 0) {
-         return {status:true, value:true }
-      } else {
-        return {status:true, value:false , msg:"Wrong captcha code!"}
-      }     
-  }
-
-}
   /**************** */

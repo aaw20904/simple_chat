@@ -30,7 +30,7 @@ export default class AuthorizationUser {
       }
       //checking a password
       let compareResult = await cryptoInterface.validatePassword(password, userInfo.results.usrPassword.toString('utf-8'))
-      if(!compareResult.value ) {
+      if (!compareResult.value ) {
         return {status:false, msg:"Bad username or password!"}
       }
       //if the credantails correct - 
@@ -41,5 +41,11 @@ export default class AuthorizationUser {
       //returns user data
       return {status:true, msg:'Authorized successfull',results:userInfo.results}
 
+    }
+
+    async logoffUser (usrId=1) {
+      let dbInterface = this.privateMembers.get(this).dbInterface;
+      let res = await dbInterface.clearSessionActive(usrId)
+      return res;
     }
   }

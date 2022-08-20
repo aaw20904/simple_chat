@@ -11,7 +11,7 @@
         console.log(this.privateMembers.get(this));
     }
 /*****C R E A T E a new user */
-    async writeNewUser(arg = {name: '', hashedPassword: '', avatar: null}) {
+    async writeNewUser(arg = {name: '', hashedPassword: '', avatar: Buffer.from([0x01,0x02])}) {
         let db = this.privateMembers.get(this);
         /*is there a usr in db? */
         let test;
@@ -84,7 +84,7 @@
                         reject(err); 
                         }
                                
-                    resolve({status:"fail", error:e})
+                    resolve({status:false,msg:'DB error', error:e})
                 })
             }); 
         }
