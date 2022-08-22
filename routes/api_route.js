@@ -13,7 +13,6 @@ router.get('/',async (req,res)=> {
 })
 
 router.post('/data', (req, res)=>{
-     
     let image = new Buffer.from(req.body.clientData,'base64');
     console.log(image);
     res.end();
