@@ -1,0 +1,35 @@
+@media screen and (max-width: 320px) {
+
+    .formwidth{
+        width:100% !important;
+    }
+}
+
+@media screen and (min-width: 320px) {
+
+    .formwidth{
+        width:320px !important;
+    }
+}
+
+button.btn{
+    background-color:#228B22 !important;
+    transition: all 0.3s ease-in-out;
+    border: none !important;
+}
+button.btn:hover{
+    color:#228B22 !important;
+    background-color:#eeffee !important;
+}
+.formwidth{
+    background-color: #FFFACD;
+    border-radius: 12px;
+}
+
+.maintextcolor{
+    color: #006a67 !important;
+}
+
+body{
+    background-color: #ccfeea;
+}
