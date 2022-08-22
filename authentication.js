@@ -53,6 +53,7 @@ export default class UserAuthentication {
             //in mSeconds
         const AUTH_COOKIE_LIFE_TIME = 36000;
         const AUTH_COOKIE_UPDATE_THRESHOLD = 1800;
+        const AUTH_FAIL_ATTEMPTS = 25;
         let newCookie = null;
             //get a private member
         let cryptoProc = this.privateMembers.get(this).cryproProcedures;
@@ -97,7 +98,11 @@ export default class UserAuthentication {
             //RETURTN ->@ C) unauthorized.
             return {status: false, msg:'Lifetime has gone!', error:"TD" }
        }
-            //6) Can a token been updated?
+            //6) Has a user achived maximum fail attempts?
+        if (userInfo.results.fail > AUTH_FAIL_ATTEMPTS) {
+            return {status: false, msg:'Too many fail login attempts!You are cocked! Please call to the Admin', error:"AF" }
+        }
+            //7) Can a token been updated?
        if (ellapsed > AUTH_COOKIE_UPDATE_THRESHOLD) {
             //generate a new auth cookie
         newCookie = this.createCookie(token.results.usrId).value;

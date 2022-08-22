@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1><%- val %></h1>
+    <img id="demoShow"/>
+    <input type="file" value="Choose JPG File" id="demoPick"
+        accept="image/*" onchange="readFile()"/>
+
+<script>
+function readFile () {
+  
+    // (A) GET SELECTED FILE
+    let selected = document.getElementById("demoPick")
+    .files[0];
+    // (B) READ SELECTED FILE
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+        let y = reader.result;
+        sendDataToServer(null,y);
+        document.getElementById("demoShow").src = reader.result;
+    });
+    reader.readAsDataURL(selected);
+}
+
+async function sendDataToServer (url, img) {
+     //define the adress - where you want to send
+    const currentUrl = new URL(document.location.href)
+    let response;
+    // current base URL
+    // url = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
+     url = `${currentUrl.origin}${currentUrl.pathname}data${currentUrl.port}`;
+    const options={
+        headers:{"Content-type":"application/json;charset=utf-8"},
+        body:JSON.stringify({clientData: img}),
+        method:'post'
+    }
+    try{
+        response = await fetch(`${url}`,options);
+    } catch(e){
+        return {status:false, err:e}
+    }
+       
+   if (response.ok) {
+        return {status:true}
+   }
+
+}
+</script>
+</body>
+</html>

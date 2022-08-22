@@ -1,15 +1,14 @@
 /*****RETURNED VALUE MUST BE 
    {
-    status:Boolean,
-    msg:Text,    
-    error: Error | Text,
-    value: any  //when ONE returned value
-    results: {.....}  //when MANY returned values
-
+      status:Boolean,
+      msg:Text,    
+      error: Error | Text,
+      value: any  //when ONE returned value
+      results: {.....}  //when MANY returned values
    }
 
  */
-import apiRouter from './routes/api_route.js'
+import router from './routes/api_route.js'
 import UserRegistration from "./registration.js";
 import AuthorizationUser from './authorization.js';
 import DBinterface  from './database.js';
@@ -35,7 +34,8 @@ let layers77= {
   authorizeLayer: null,
   registratonLayer: null,
 }
-
+//init global interfaces in route
+router._layers77 = layers77;
  
 
 
@@ -64,8 +64,8 @@ let layers77= {
     layers77.databaseLayer = new DBinterface(connectionDB);
     let keys = await layers77.databaseLayer.readKey(); 
       //create an instance init key and vect
-      layers77.cryptoLayer = new CryptoProcedures(keys.results );
-      layers77.authenticationLayer = new UserAuthentication(layers77.cryptoLayer, layers77.databaseLayer);
+     layers77.cryptoLayer = new CryptoProcedures(keys.results );
+     layers77.authenticationLayer = new UserAuthentication(layers77.cryptoLayer, layers77.databaseLayer);
      layers77.authorizeLayer = new AuthorizationUser(layers77.databaseLayer, layers77.cryptoLayer, layers77.authenticationLayer);
      layers77.registratonLayer = new UserRegistration(layers77.cryptoLayer, layers77.databaseLayer);
    //2 let result = layers77.registratonLayer.createRegistrationCookieAndCaptcha();
@@ -99,22 +99,20 @@ let layers77= {
      //2 let y1 = layers77.cryptoLayer.symmDecrypt(x1.value);
      //2 console.log(y1.value.toString('utf-8'));
     ///console.log(y1.toString("utf-8"))
-     //2 let cookie =  layers77.authenticationLayer.createCookie(17);
+      let cookie =  layers77.authenticationLayer.createCookie(17);
      //2 console.log(cookie);
-    //2 console.log(layers77.authenticationLayer.readCookie(cookie.value).results)
-   //2 let raw = await layers77.authenticationLayer.authenticateUserByCookie(cookie.value);
-   //2 console.log(raw.results, raw.status)
-  //await layers77.databaseLayer.readUserShortlyByID(18)
-   //let res = await  layers77.authenticationLayer.authenticateUserByCookie(cookie)
+     // console.log(layers77.authenticationLayer.readCookie(cookie.value).results)
+    let raw = await layers77.authenticationLayer.authenticateUserByCookie(cookie.value);
+   console.log(raw.results, raw.status)
+    //await layers77.databaseLayer.readUserShortlyByID(18)
+     //let res = await  layers77.authenticationLayer.authenticateUserByCookie(cookie)
     //2 let hash = await layers77.cryptoLayer.createPasswordHash("password");
     //2 console.log(await layers77.databaseLayer.changeUserPasword({usrId:17,password:hash.value}));
-  //2 console.log(await layers77.cryptoLayer.validatePassword('psw',hash.value));
-   //2console.log(await layers77.authorizeLayer.authorizeUser('Bob',"password"));
-  //2 console.log(await layers77.registratonLayer.registerUserInSystem({usrName:'Bob', password:'password',avatar:Buffer.from([0x01,0x03,0x05])}))
-  //await layers77.authorizeLayer.logoffUser(19);
-
-
-  //process.exit(0);
+    //2 console.log(await layers77.cryptoLayer.validatePassword('psw',hash.value));
+    //2console.log(await layers77.authorizeLayer.authorizeUser('Bob',"password"));
+    //2 console.log(await layers77.registratonLayer.registerUserInSystem({usrName:'Bob', password:'password',avatar:Buffer.from([0x01,0x03,0x05])}))
+    //await layers77.authorizeLayer.logoffUser(19);
+    //process.exit(0);
  });
 
 
@@ -122,5 +120,6 @@ let layers77= {
     /***server intialization**** */
   // set the view engine to ejs
 //app.set('view engine', 'ejs');
-app.use("/api", apiRouter);
+app.use("/register", router);
+app.use(express.json());
 app.listen(80,()=>console.log('Listen...'))
