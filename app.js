@@ -8,7 +8,7 @@
    }
 
  */
-import router from './routes/api_route.js'
+import  registerRouter  from './routes/register_route.js'
 import UserRegistration from "./registration.js";
 import AuthorizationUser from './authorization.js';
 import DBinterface  from './database.js';
@@ -32,10 +32,10 @@ let layers77= {
   cryptoLayer: null,
   authenticationLayer: null,
   authorizeLayer: null,
-  registratonLayer: null,
+  registrationLayer: null,
 }
 //init global interfaces in route
-router._layers77 = layers77;
+registerRouter._layers77 = layers77;
  
 
 
@@ -67,9 +67,9 @@ router._layers77 = layers77;
     layers77.cryptoLayer = new CryptoProcedures(keys.results );
     layers77.authenticationLayer = new UserAuthentication(layers77.cryptoLayer, layers77.databaseLayer);
     layers77.authorizeLayer = new AuthorizationUser(layers77.databaseLayer, layers77.cryptoLayer, layers77.authenticationLayer);
-    layers77.registratonLayer = new UserRegistration(layers77.cryptoLayer, layers77.databaseLayer);
-    //2 let result = layers77.registratonLayer.createRegistrationCookieAndCaptcha();
-    //2 layers77.registratonLayer.isRegistrationCookieValid(result.results.cookie, result.results.text);
+    layers77.registrationLayer = new UserRegistration(layers77.cryptoLayer, layers77.databaseLayer);
+    //2 let result = layers77.registrationLayer.createRegistrationCookieAndCaptcha();
+    //2 layers77.registrationLayer.isRegistrationCookieValid(result.results.cookie, result.results.text);
     // let newKeys = await layers77.cryptoLayer.generateSymmetricCryptoKey();   
     //layers77.databaseLayer.updateKey(newKeys.results);   
     // console.log(await layers77.databaseLayer.writeNewUser({name:'Bill',hashedPassword:'213456',avatar:"abcdefg"}) ); 
@@ -110,7 +110,7 @@ router._layers77 = layers77;
      //2 console.log(await layers77.databaseLayer.changeUserPasword({usrId:17,password:hash.value}));
      //2 console.log(await layers77.cryptoLayer.validatePassword('psw',hash.value));
      //2console.log(await layers77.authorizeLayer.authorizeUser('Bob',"password"));
-     //2 console.log(await layers77.registratonLayer.registerUserInSystem({usrName:'Bob', password:'password',avatar:Buffer.from([0x01,0x03,0x05])}))
+     //2 console.log(await layers77.registrationLayer.registerUserInSystem({usrName:'Bob', password:'password',avatar:Buffer.from([0x01,0x03,0x05])}))
      //await layers77.authorizeLayer.logoffUser(19);
      //process.exit(0);
  });
@@ -120,7 +120,11 @@ router._layers77 = layers77;
     /***server intialization**** */
   // set the view engine to ejs
 //app.set('view engine', 'ejs');
-app.use("/register", router);
+app.use("/register", registerRouter);
 app.use(express.json());
 app.use(express.static('public'));
+
+app.get('/',(req, res)=>{
+  res.render('okay.ejs',{time: new Date().toLocaleTimeString()});
+})
 app.listen(80,()=>console.log('Listen...'))

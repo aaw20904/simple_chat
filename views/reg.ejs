@@ -10,78 +10,167 @@
     <script src="/js/bootstrap.bundle.min.js" type="text/javascript"></script>
     
 </head>
-<body class="d-flex justify-content-center align-items-center">
+<body class="d-flex flex-column justify-content-center align-items-center h-100">
    
- <section class="container m-2 border border-primary m-2 px-4 formwidth "  > 
+ <section class="container mx-2 border border-primary my-2 px-4 py-2 formwidth "  > 
     <h6 class="maintextcolor"><%- val %></h6>
-    <h4 class="h4 maintextcolor">Chat registration</h4>
-    <form action="/action_page.php" class="was-validated d-flex flex-column justify-content-center">
-        <div class="mb-3 mt-3 mx-2">
-          <label for="uname" class="form-label maintextcolor">Username:</label>
-          <input type="text" size="24" maxlength="24" class="form-control maintextcolor" id="uname" placeholder="Enter username" name="uname" required>
+    <h4 class="h4 maintextcolor w-100 text-center ">Chat registration</h4>
+    <h6 class="h6" id="statusString">*</h6>
+    <form action="/action_page.php" class="was-validated d-flex flex-column justify-content-center myForm">
+        <div class="mb-1 mt-1 mx-2">
+          <label for="usrName" class="form-label maintextcolor">Username:</label>
+          <input type="text" size="24" maxlength="24" class="form-control maintextcolor" value=<%-userName %> id="usrName" placeholder="Enter username" name="usrName" required>
           <div class="valid-feedback">Valid.</div>
           <div class="invalid-feedback">Please fill out this field.</div>
         </div>
-        <div class="mb-3 mx-2">
-          <label for="pwd" class="form-label maintextcolor">Password:</label>
-          <input type="password" size="10" maxlength="10" class="form-control maintextcolor" id="pwd" placeholder="Enter password" name="pswd" required>
+        <div class="mb-1 mx-2">
+          <label for="password" class="form-label maintextcolor">Password:</label>
+          <input type="password" size="10" maxlength="10" class="form-control maintextcolor" value=<%-userPassword %> id="password" placeholder="Enter password" name="password" required>
+          <div class="valid-feedback">Valid.</div>
+          <div class="invalid-feedback">Please fill out this field.</div>
+        </div>
+        <div class="mb-1 mx-2">
+          <label for="captchaCode" class="form-label maintextcolor">Captcha code:</label>
+          <input type="text" size="10" maxlength="10" class="form-control maintextcolor" id="captchaCode" placeholder="Enter captcha" name="captchaCode" required>
           <div class="valid-feedback">Valid.</div>
           <div class="invalid-feedback">Please fill out this field.</div>
         </div>
 
-        <div class="mb-3 mx-2">
+        <div class="mb-1 mx-2">
             <label for="avatar" class="form-label maintextcolor">Avatar image:</label>
-            <input type="file" value="Choose JPG File" class="form-control maintextcolor" id="avatar" placeholder="Select an image- your avatar" name="avatar"  accept="image/*"  required/>
-           
+            <input type="file" value="Choose JPG File" class="form-control maintextcolor" id="avatar" value=<%-userAvatar %> placeholder="Select an image- your avatar" name="avatar"  accept="image/*"  required/>
             <div class="valid-feedback">Valid.</div>
             <div class="invalid-feedback">Please fill out this field.</div>
           </div>
 
+        <h5><%-captcha %></h5>
+
+        <div class="d-flex">
+            <img id="demoShow" class="m-2"/>
+        </div>
         
       <button type="button" class="btn m-2 btn-primary">Submit</button>
       </form>
 
-    <img id="demoShow"/>
-</section>
     
+</section>
+ 
     
 
 <script>
     // Example starter JavaScript for disabling form submissions if there are invalid fields
 
     window.onload=()=>{
-       
         let form = document.querySelector('form.was-validated');
         let btn = form.querySelector('.btn');
-     btn.addEventListener('click',(event)=>{
-        let valid = form.checkValidity();
-        console.log(valid);
-        if(!valid){
-            return;
-        }
-        readFile();
+
+     btn.addEventListener('click',async (event)=>{
+       let regData= await getFormData();
+       let sent = await sendDataToServer(regData.results);
+       if (sent.status) {
+           window.setTimeout(()=>{
+            // current base URL
+            const currentUrl = new URL(document.location.href)
+            window.location = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
+          },2000);
+          
+       }
+       
      })
 
      
         
     }
 
+    async function getFormData(formSelector='myForm') {
+        let form = document.querySelector('.myForm');
+        //is a form valid?
+        let validated = form.checkValidity();
+        if (!validated) {
+            return {status:false, msg:'Form hasn`t filled correctly'}
+        }
+        let avatar;
+        try{
+            avatar = await readFile();
+        } catch(e){
+            return {status:false, error:e}
+        }
+        //if there are all Ok
+        return {
+            status:true,
+            results: {
+                usrName: form.querySelector('#usrName').value,
+                usrPassword: form.querySelector('#password').value,
+                usrAvatar: avatar,
+                captcha: form.querySelector('#captchaCode').value,
+            }
+        }
+
+    }
+
 function readFile () {
-  
-    // (A) GET SELECTED FILE
-    let selected = document.getElementById("avatar")
-    .files[0];
-    // (B) READ SELECTED FILE
-    let reader = new FileReader();
-    reader.addEventListener("load", () => {
-        let y = reader.result;
-       // sendDataToServer(null,y);
-        document.getElementById("demoShow").src = reader.result;
+    return new Promise((resolve, reject) => {
+        const PICTURE_HEIGHT = 64;
+            // (A) GET SELECTED FILE
+            let imageFile = document.getElementById("avatar").files[0];
+                // (B) READ SELECTED FILE
+            let reader = new FileReader();
+            //start read
+            reader.readAsDataURL(imageFile);
+            //error event handler
+            reader.addEventListener('error', (x)=>reject(x));
+            //load event handler
+            reader.addEventListener("load", (e) => {
+                let currentImageData = e.target.result;
+                  //create an image
+                let img= document.createElement('img');
+                  //assign reading result to the one
+                img.src =  e.target.result;
+                    //when an image has  loaded
+                img.onload=(event)=>{
+                    // Dynamically create a canvas element
+                       var canvas = document.createElement("canvas");
+                    //actual resizing
+                        var ctx = canvas.getContext("2d");
+                    console.log(`Image wh: ${img.width},${img.height}`);
+
+                      //calculate aspect ratio
+                    let aspectRatio = img.width / img.height;
+                      //calculate a new height
+                    let newWidth = (PICTURE_HEIGHT * aspectRatio) | 0;
+                      //set canvas sizes
+                    ctx.canvas.width=newWidth;
+                    ctx.canvas.height=PICTURE_HEIGHT;
+                      // Actual resizing
+                     ctx.drawImage(img, 0, 0, newWidth, PICTURE_HEIGHT);
+                      //  convert to 'DataUrl' and assign it to a variable
+                    var dataurl = canvas.toDataURL(imageFile.type);
+                      //OPTIONAL: show a result in DOM img element
+                    document.getElementById("demoShow").src = dataurl;
+                    //return a scaled image
+                    resolve( dataurl);
+                }
+
+            });
+        
     });
-    reader.readAsDataURL(selected);
+
 }
 
-async function sendDataToServer (url, img) {
+function setStatusString(string="",success=true) {
+    let strNode = document.querySelector('#statusString');
+    if (success) {
+        strNode.classList.remove('text-danger');
+        strNode.classList.add('text-success');
+    } else {
+        strNode.classList.add('text-danger');
+        strNode.classList.remove('text-success');
+    }
+    strNode.innerText = string;
+   
+}
+
+async function sendDataToServer ( regData) {
      //define the adress - where you want to send
     const currentUrl = new URL(document.location.href)
     let response;
@@ -90,18 +179,27 @@ async function sendDataToServer (url, img) {
      url = `${currentUrl.origin}${currentUrl.pathname}data${currentUrl.port}`;
     const options={
         headers:{"Content-type":"application/json;charset=utf-8"},
-        body:JSON.stringify({clientData: img}),
+        body:JSON.stringify(regData),
         method:'post'
     }
     try{
         response = await fetch(`${url}`,options);
     } catch(e){
+        setStatusString(e.toString,false);
         return {status:false, err:e}
     }
+    //check status
+    if (response.status == 201){
+        setStatusString('User created successfully!')
+        return {status: true}
+    } else {
+
+      response = await response.json();
+      setStatusString(response.msg, false);
+      return {status: false}
+
+    }
        
-   if (response.ok) {
-        return {status:true}
-   }
 
 }
 </script>

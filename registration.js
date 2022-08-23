@@ -1,3 +1,6 @@
+
+import svgCaptcha from 'svg-captcha';
+
 export default class UserRegistration {
     constructor(cryptoProcedures, dbInterface) {
        //making a hide property
