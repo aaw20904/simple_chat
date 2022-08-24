@@ -68,12 +68,19 @@
        let regData= await getFormData();
        let sent = await sendDataToServer(regData.results);
        if (sent.status) {
+        setStatusString(sent.msg, true);
            window.setTimeout(()=>{
             // current base URL
             const currentUrl = new URL(document.location.href)
             window.location = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
           },2000);
           
+       } else {
+        setStatusString(sent.msg,false);
+        //is there a captcha? (it was a wrong captcha code)
+        if (sent.value){
+          redefineCaptcha(sent.value);
+        } 
        }
        
      })
@@ -107,6 +114,12 @@
         }
 
     }
+
+function redefineCaptcha(img){
+  let node = document.querySelector('svg');
+  node.innerHTML = img;
+
+}
 
 function readFile () {
     return new Promise((resolve, reject) => {
@@ -185,19 +198,25 @@ async function sendDataToServer ( regData) {
     try{
         response = await fetch(`${url}`,options);
     } catch(e){
-        setStatusString(e.toString,false);
-        return {status:false, err:e}
+        
+        return {status:false, msg:e, value:null}
     }
+    //save stsatus code 
+    let statusCode = response.status;
+
     //check status
-    if (response.status == 201){
-        setStatusString('User created successfully!')
-        return {status: true}
-    } else {
+    if (response.status == 201) {
+        let jsonData = await response.json();  
+        return {status: true, msg: jsonData.msg, value:null}
+    } else if (response.status == 303) {
 
       response = await response.json();
-      setStatusString(response.msg, false);
-      return {status: false}
+      //setStatusString(response.msg, false);
+      //redefineCaptcha(response.image);
+      return {status: false, msg:response.msg, value:response.image};
 
+    } else {
+      return {status: false, msg:'Unknown error!', value:null}
     }
        
 

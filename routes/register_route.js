@@ -22,13 +22,23 @@ registerRouter.post('/data', async (req, res)=>{
     //is a captcha code correct?
     let checkingCaptcha = await registerRouter._layers77
         .registrationLayer.isRegistrationCookieValid(req.cookies.regisrationInfo, req.body.captcha)
-    //303 already exists
+    //---303 status code: conflict
     if (checkingCaptcha.value) {
         res.status(201)
         res.json({msg:"User has been created successfully!"});
-    } else   {
+    } else  {
+        //if a captcha isn`t correcct - generate a new token and captcha
+        let newToken = await registerRouter._layers77
+           .registrationLayer.createRegistrationCookieAndCaptcha();
+
         res.status(303);
-        res.json({msg:checkingCaptcha.msg});
+        //set a new token
+         res.cookie('regisrationInfo', newToken.results.cookie ,{ sameSite: 'None', secure:true });
+         //send a new captcha
+        res.json({
+                msg: checkingCaptcha.msg,
+                image: newToken.results.image,
+            });
     }
 
 })
