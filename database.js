@@ -409,7 +409,7 @@ async incrementFailLoginAttempts (usrId) {
          let db = this.privateMembers.get(this);
          return new Promise((resolve, reject) => {
              db.query( `SELECT * FROM chat.messages order by sent;`, (err, rows)=>{
-                 if(err) {
+                 if (err) {
                      reject(err)
                  } else  {
                      /**returns an array of objects-"strings"  */
