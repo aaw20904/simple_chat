@@ -419,7 +419,7 @@ async incrementFailLoginAttempts (usrId) {
          });
     }
  
-    /********** FOR A D M I N ******/
+    /********** F O R  A D M I N ******/
     async getAllUsersWithStatus() {
         //get a private member of class
             let db = this.privateMembers.get(this);

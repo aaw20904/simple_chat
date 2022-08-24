@@ -215,8 +215,10 @@ async function sendDataToServer ( regData) {
       //redefineCaptcha(response.image);
       return {status: false, msg:response.msg, value:response.image};
 
-    } else {
-      return {status: false, msg:'Unknown error!', value:null}
+    } else if (response.status == 404) {
+      return {status: false, msg:'Network error!', value:null}
+    }else if (response.status == 500) {
+      return {status: false, msg:'Server error!', value:null}
     }
        
 
