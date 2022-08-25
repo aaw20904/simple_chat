@@ -68,6 +68,7 @@ registerRouter._layers77 = layers77;
     layers77.authenticationLayer = new UserAuthentication(layers77.cryptoLayer, layers77.databaseLayer);
     layers77.authorizeLayer = new AuthorizationUser(layers77.databaseLayer, layers77.cryptoLayer, layers77.authenticationLayer);
     layers77.registrationLayer = new UserRegistration(layers77.cryptoLayer, layers77.databaseLayer);
+    console.log(await layers77.databaseLayer.getAllTheChat());
     //2 let result = layers77.registrationLayer.createRegistrationCookieAndCaptcha();
     //2 layers77.registrationLayer.isRegistrationCookieValid(result.results.cookie, result.results.text);
     // let newKeys = await layers77.cryptoLayer.generateSymmetricCryptoKey();   
