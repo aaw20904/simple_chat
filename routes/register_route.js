@@ -49,8 +49,10 @@ registerRouter.post('/data', async (req, res)=>{
 
         }
         //if the user has been written successfully
-        res.status(201)
+        res.clearCookie('regisrationInfo');
+        res.status(201);
         res.json({msg:"User has been created successfully!"});
+        return;
     } else  {
         //if a captcha isn`t correcct - generate a new token and captcha
         let newToken = await registerRouter._layers77

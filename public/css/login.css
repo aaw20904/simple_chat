@@ -1,0 +1,28 @@
+.bg-primary{
+    background-color: mistyrose !important;
+}
+
+.text-primary{
+    color: darkslategray !important;
+}
+
+
+.btn-primary{
+    background-color: olive !important;
+    color:white !important;
+    border:1px solid olive !important;
+    transition: all ease 0.3s;
+}
+
+.btn-primary:hover{
+    background-color: white !important;
+    color:olive !important;
+}
+
+.maincontainer {
+    border-radius: 16px !important;
+}
+
+.freespace-background{
+    background-color:beige;
+}

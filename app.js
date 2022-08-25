@@ -9,6 +9,7 @@
 
  */
 import  registerRouter  from './routes/register_route.js'
+import loginRouter from './routes/login_route.js'
 import UserRegistration from "./registration.js";
 import AuthorizationUser from './authorization.js';
 import DBinterface  from './database.js';
@@ -34,8 +35,9 @@ let layers77= {
   authorizeLayer: null,
   registrationLayer: null,
 }
-//init global interfaces in route
+//init global interfaces in routes
 registerRouter._layers77 = layers77;
+loginRouter._layers77 = layers77;
  
 
 
@@ -68,7 +70,7 @@ registerRouter._layers77 = layers77;
     layers77.authenticationLayer = new UserAuthentication(layers77.cryptoLayer, layers77.databaseLayer);
     layers77.authorizeLayer = new AuthorizationUser(layers77.databaseLayer, layers77.cryptoLayer, layers77.authenticationLayer);
     layers77.registrationLayer = new UserRegistration(layers77.cryptoLayer, layers77.databaseLayer);
-    console.log(await layers77.databaseLayer.getAllTheChat());
+   
     //2 let result = layers77.registrationLayer.createRegistrationCookieAndCaptcha();
     //2 layers77.registrationLayer.isRegistrationCookieValid(result.results.cookie, result.results.text);
     // let newKeys = await layers77.cryptoLayer.generateSymmetricCryptoKey();   
@@ -100,11 +102,11 @@ registerRouter._layers77 = layers77;
     //2 let y1 = layers77.cryptoLayer.symmDecrypt(x1.value);
     //2 console.log(y1.value.toString('utf-8'));
     ///console.log(y1.toString("utf-8"))
-    let cookie =  layers77.authenticationLayer.createCookie(17);
+    //2 let cookie =  layers77.authenticationLayer.createCookie(17);
      //2 console.log(cookie);
      // console.log(layers77.authenticationLayer.readCookie(cookie.value).results)
-    let raw = await layers77.authenticationLayer.authenticateUserByCookie(cookie.value);
-   console.log(raw.results, raw.status)
+    //2 let raw = await layers77.authenticationLayer.authenticateUserByCookie(cookie.value);
+   //2 console.log(raw.results, raw.status)
      //await layers77.databaseLayer.readUserShortlyByID(18)
      //let res = await  layers77.authenticationLayer.authenticateUserByCookie(cookie)
      //2 let hash = await layers77.cryptoLayer.createPasswordHash("password");
@@ -122,6 +124,7 @@ registerRouter._layers77 = layers77;
   // set the view engine to ejs
 //app.set('view engine', 'ejs');
 app.use("/register", registerRouter);
+app.use("/login", loginRouter);
 app.use(express.json());
 app.use(express.static('public'));
 

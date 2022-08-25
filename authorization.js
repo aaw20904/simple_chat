@@ -39,7 +39,7 @@ export default class AuthorizationUser {
       //set a session as active
        await dbInterface.setSessionActive(userInfo.results.usrId);
       //returns user data
-      return {status:true, msg:'Authorized successfull',results:userInfo.results}
+      return {status:true, msg: 'Authorized successfull', results: userInfo.results}
 
     }
 
