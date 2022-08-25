@@ -41,7 +41,7 @@ export default class UserAuthentication {
         try {
              decrypted = cryptoProc.symmDecrypt(encrypted).value;
         } catch(e) {
-            return {status:false, error:e.reason}
+            return {status:false, msg:e.reason}
         }
             //parse on parts
         let date = Number(decrypted.readBigInt64BE(0));

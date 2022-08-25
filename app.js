@@ -8,8 +8,10 @@
    }
 
  */
+ import cookieParser from "cookie-parser"
 import  registerRouter  from './routes/register_route.js'
 import loginRouter from './routes/login_route.js'
+import logoffRouter from './routes/logoff_route.js'
 import UserRegistration from "./registration.js";
 import AuthorizationUser from './authorization.js';
 import DBinterface  from './database.js';
@@ -125,8 +127,12 @@ loginRouter._layers77 = layers77;
 //app.set('view engine', 'ejs');
 app.use("/register", registerRouter);
 app.use("/login", loginRouter);
+app.use("/logoff", logoffRouter);
 app.use(express.json());
 app.use(express.static('public'));
+app.use(cookieParser());
+
+ 
 
 app.get('/',(req, res)=>{
   res.render('okay.ejs',{time: new Date().toLocaleTimeString()});
