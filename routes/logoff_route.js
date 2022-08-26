@@ -31,3 +31,5 @@ logoffRouter.get("/",async (req, res)=>{
   }
 
 }); 
+
+export {logoffRouter as default}

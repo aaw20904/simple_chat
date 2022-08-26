@@ -12,6 +12,7 @@
 import  registerRouter  from './routes/register_route.js'
 import loginRouter from './routes/login_route.js'
 import logoffRouter from './routes/logoff_route.js'
+import adminRouter from "./routes/admin_route.js"
 import UserRegistration from "./registration.js";
 import AuthorizationUser from './authorization.js';
 import DBinterface  from './database.js';
@@ -40,6 +41,7 @@ let layers77= {
 //init global interfaces in routes
 registerRouter._layers77 = layers77;
 loginRouter._layers77 = layers77;
+adminRouter._layers77 = layers77;
  
 
 
@@ -128,6 +130,8 @@ loginRouter._layers77 = layers77;
 app.use("/register", registerRouter);
 app.use("/login", loginRouter);
 app.use("/logoff", logoffRouter);
+app.use("/admin", adminRouter);
+
 app.use(express.json());
 app.use(express.static('public'));
 app.use(cookieParser());
