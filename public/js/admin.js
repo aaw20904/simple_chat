@@ -66,18 +66,18 @@ class MessageList{
                         }) {
         //create main container
         let mainContainer = document.createElement('article');
-        mainContainer.classList.add('border','message-box-radius','border-primary','message-box-normal-bg','d-flex','flex-column','justify-content-center','align-items-center');
+        mainContainer.classList.add( 'message-box-radius', 'message-box-normal-bg','d-flex','flex-column','justify-content-center','align-items-center');
         //attributes
         mainContainer.setAttribute('data-msgid', arg.msgId);
         mainContainer.setAttribute('data-usrid', arg.usrId);
         //items
         //A) usrName
         let usrNameD = document.createElement('h6');
-            usrNameD.setAttribute('class','d-flex message-name-text  justify-content-center align-items-center');
+            usrNameD.setAttribute('class','d-flex message-name-text ms-2 justify-content-center align-items-center');
             usrNameD.innerText = arg.usrName;
         //B) message
         let messageD = document.createElement('div');
-            messageD.setAttribute('class',' message-msg-text message-box-radius message-normal-bg p-1 m-1');
+            messageD.setAttribute('class',' message-msg-text message-box-radius message-normal-bg p-1 my-1 mx-2');
             messageD.innerText = arg.message;
         //C)date 
         let sentD = document.createElement('div');
@@ -89,7 +89,7 @@ class MessageList{
             avatarD.classList.add('my-2','rounded')
         ///the first string - username and date
         let firstString = document.createElement('div');
-            firstString.setAttribute('class','d-flex flex-row px-3 my-1 justify-content-between align-items-center  w-100');
+            firstString.setAttribute('class','d-flex flex-row px-2 my-1 justify-content-start align-items-center  w-100');
             //assign childs
             firstString.appendChild(avatarD);
             firstString.appendChild(usrNameD);
