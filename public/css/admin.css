@@ -31,9 +31,13 @@
 
 body{
     box-sizing: border-box !important;
+    width:100vw !important;
 }
 .message-box-normal-bg{
  background-color:palegoldenrod !important;
+}
+.message-box-radius{
+  border-radius: 10px !important;
 }
 .message-normal-bg{
 background-color:lightyellow !important;
