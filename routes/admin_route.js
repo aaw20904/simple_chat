@@ -2,8 +2,8 @@ import  express from "express"
 import cookieParser from "cookie-parser"
 let adminRouter = express.Router();
 
-adminRouter.use(cookieParser());
-adminRouter.use(express.json());
+adminRouter.use(cookieParser({extended:true}));
+adminRouter.use(express.json({extended:true}));
 
 
 adminRouter.get('/', (req, res)=>{
@@ -21,6 +21,10 @@ adminRouter.post('/data',async (req,res)=>{
         res.json({error:e})
         return;
     }  
+        query.results.forEach(element => {
+            element.usrAvatar = element.usrAvatar.toString("utf-8")
+        });
+
         res.status(200);
         res.json(query.results);
   

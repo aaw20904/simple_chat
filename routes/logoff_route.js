@@ -3,7 +3,7 @@ import  express from "express"
 import cookieParser from "cookie-parser"
  let logoffRouter = express.Router();
 
- logoffRouter.use(express.json());
+ logoffRouter.use(express.json({extended:true}));
  logoffRouter.use(cookieParser())
 
 

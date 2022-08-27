@@ -2,7 +2,7 @@ import  express from "express"
 import cookieParser from "cookie-parser"
  let registerRouter = express.Router();
 
- registerRouter.use(express.json());
+ registerRouter.use(express.json({extended:true}));
  registerRouter.use(cookieParser())
  registerRouter.use( (req, res, next)=>{
     console.log(Date.now());
@@ -13,7 +13,7 @@ registerRouter.get('/',async (req,res)=> {
     let cookieAndcaptcha = await registerRouter._layers77
        .registrationLayer.createRegistrationCookieAndCaptcha();
     res.cookie('regisrationInfo',cookieAndcaptcha.results.cookie,{ sameSite: 'None',secure:true });
-    res.render('reg.ejs',{val: new Date().toLocaleTimeString(), captcha:cookieAndcaptcha.results.image, userName:"Bob", userPassword:"1",userAvatar:"*"})
+    res.render('reg.ejs',{val: new Date().toLocaleTimeString(), captcha:cookieAndcaptcha.results.image, userName:"UncleBob", userPassword:"1",userAvatar:"*"})
 })
 
 registerRouter.post('/data', async (req, res)=>{
@@ -26,7 +26,7 @@ registerRouter.post('/data', async (req, res)=>{
     if (checkingCaptcha.value) {
         //when a captcha is correct - try to write a new user in the RDBS
         //convert an image avatar
-        let avatarImage = new Buffer.from(req.body.usrAvatar,'base64');
+        let avatarImage =   Buffer.from(req.body.usrAvatar,"utf-8");
         //try to register
        let rdbmsResult = await registerRouter._layers77
         .registrationLayer.registerUserInSystem({

@@ -132,7 +132,7 @@ app.use("/login", loginRouter);
 app.use("/logoff", logoffRouter);
 app.use("/admin", adminRouter);
 
-app.use(express.json());
+app.use(express.json({extended:true}));
 app.use(express.static('public'));
 app.use(cookieParser());
 

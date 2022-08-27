@@ -1,4 +1,5 @@
 window.onload=async ()=>{
+    let msgList = new MessageList();
      //define the adress - where you want to send
     const currentUrl = new URL(document.location.href)
     let response;
@@ -23,15 +24,46 @@ window.onload=async ()=>{
     }
     //read JSON data 
     let jsonData = await response.json();
-    let image = jsonData[0].usrAvatar;
-    let x = Array.prototype.join(image.data);
-     console.log(x);
+     
+  let chatItem =  msgList.createMessageItem(jsonData[0]);
+    document.querySelector('.messageList').appendChild(chatItem);
+    
 }
 
-class messageList{
+/******************** */
+
+function arrayBufferToBase64( buffer ) {
+	var binary = '';
+	var bytes = new Uint8Array( buffer );
+	var len = bytes.byteLength;
+	for (var i = 0; i < len; i++) {
+		binary += String.fromCharCode( bytes[ i ] );
+	}
+	return window.btoa( binary );
+}
+
+
+function base64ToArrayBuffer(base64) {
+    var binary_string =  window.atob(base64);
+    var len = binary_string.length;
+    var bytes = new Uint8Array( len );
+    for (var i = 0; i < len; i++)        {
+        bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes.buffer;
+}
+
+class MessageList{
   //create an DOM item with user name message time and the avatar (one message) 
   //usrName, usrId, msgId, message, sent, usrAvatar
-    createMessageItem (arg={usrName:null, sent:null, usrId:null, msgId:null, message:null, usrAvatar:null}) {
+    createMessageItem (arg={
+                            usrName:null, 
+                            sent:null,
+                            usrId:null,
+                            msgId:null, 
+                            message:null, 
+                            usrAvatar:null
+                        }) {
         //create main container
         let mainContainer = document.createElement('article');
         mainContainer.classList.add('border','border-primary','message-box-normal-bg','d-flex','flex-column','justify-content-center','align-items-center');
@@ -40,25 +72,33 @@ class messageList{
         mainContainer.setAttribute('data-usrid', arg.usrId);
         //items
         //A) usrName
-        let usrNameD = document.createElement('div');
-            usrNameD.setAttribute('class','d-flex user-text justify-content-center align-items-center');
+        let usrNameD = document.createElement('h5');
+            usrNameD.setAttribute('class','d-flex message-name-text justify-content-center align-items-center');
         
             usrNameD.innerText = arg.usrName;
         //B) message
         let messageD = document.createElement('div');
-            messageD.setAttribute('class','border message-text border-primary message-normal-bg p-1 m-1');
+            messageD.setAttribute('class','border message-msg-text border-primary message-normal-bg p-1 m-1');
             messageD.innerText = arg.message;
         //C)date 
         let sentD = document.createElement('div');
-            sentD.setAttribute('class','time-text')
+            sentD.setAttribute('class','message-date-text ')
+            sentD.innerText = arg.sent;
         //D)image 
         let avatarD = document.createElement('img');
-            avatarD.src = usrAvatar;
+            avatarD.src = arg.usrAvatar;
         ///the first string - username and date
         let firstString = document.createElement('div');
-            firstString.setAttribute('class','d-flex flex-row justify-content-center align items-center p-1');
+            firstString.setAttribute('class','d-flex flex-row justify-content-between align-items-center p-1 w-100');
             //assign childs
             firstString.appendChild(avatarD);
             firstString.appendChild(usrNameD);
+
+            //assign all the children
+            mainContainer.appendChild(firstString);
+            mainContainer.appendChild(messageD);
+            mainContainer.appendChild(sentD);
+            return mainContainer;
+
     }
 }

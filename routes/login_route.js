@@ -2,7 +2,7 @@ import  express from "express"
 import cookieParser from "cookie-parser"
 let loginRouter = express.Router();
 
- loginRouter.use(express.urlencoded());
+ loginRouter.use(express.urlencoded({extended:true}));
  loginRouter.use(cookieParser());
 
  loginRouter.get('/',async (req, res)=>{
