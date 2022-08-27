@@ -127,7 +127,7 @@ async function sendDataToServer ( regData) {
     let response;
     // current base URL
     // url = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
-     url = `${currentUrl.origin}${currentUrl.pathname}data${currentUrl.port}`;
+     url = `${currentUrl.origin}${currentUrl.pathname}/data${currentUrl.port}`;
     const options={
         headers:{"Content-type":"application/json;charset=utf-8"},
         body:JSON.stringify(regData),
