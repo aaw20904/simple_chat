@@ -423,8 +423,8 @@ async incrementFailLoginAttempts (usrId) {
     async getAllUsersWithStatus() {
         //get a private member of class
             let db = this.privateMembers.get(this);
-            let sqlQuery = "SELECT usrName, failLogins, CASE WHEN (usrStatus&0x00000001) THEN 'active' ELSE 'logoff' END login_state,"+
-            "CASE WHEN (usrStatus&0x00000010) THEN 'locked' ELSE 'unlocked' END usr_lock  FROM users NATURAL JOIN users_names;";
+            let sqlQuery = "SELECT usrName, usrId, failLogins, CASE WHEN (usrStatus&0x00000001) THEN true ELSE false END login_state,"+
+            "CASE WHEN (usrStatus&0x00000010) THEN true ELSE false END usr_lock  FROM users NATURAL JOIN users_names;";
             return new Promise((resolve, reject) => {
                 db.query(sqlQuery,(err,rows)=>{
                     if(err){reject(err)}

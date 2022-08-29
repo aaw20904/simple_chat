@@ -64,12 +64,12 @@ class MessageList{
   //create an DOM item with user name message time and the avatar (one message) 
   //usrName, usrId, msgId, message, sent, usrAvatar
     createMessageItem (arg={
-                            usrName:null, 
-                            sent:null,
-                            usrId:null,
-                            msgId:null, 
-                            message:null, 
-                            usrAvatar:null
+                            usrName: null, 
+                            sent: null,
+                            usrId: null,
+                            msgId: null, 
+                            message: null, 
+                            usrAvatar: null
                         }) {
         //create main container
         let mainContainer = document.createElement('article');

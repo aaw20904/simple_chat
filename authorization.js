@@ -26,12 +26,14 @@ export default class AuthorizationUser {
      
       if (!userInfo.status) {
          //if user not found-
-        return {status:false, msg:"Bad username or password!"}
+        return {status:false, msg:"Bad username or password!", value:null}
       }
+      //is a user locked?
+      
       //checking a password
       let compareResult = await cryptoInterface.validatePassword(password, userInfo.results.usrPassword.toString('utf-8'))
       if (!compareResult.value ) {
-        return {status:false, msg:"Bad username or password!"}
+        return {status:false, msg:"Bad username or password!", value:userInfo.results.usrId}
       }
       //if the credantails correct - 
       //generate a cookie

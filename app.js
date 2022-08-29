@@ -42,8 +42,7 @@ let layers77= {
 registerRouter._layers77 = layers77;
 loginRouter._layers77 = layers77;
 adminRouter._layers77 = layers77;
- 
-
+logoffRouter._layers77 = layers77;
 
     const connectionDB = mysql.createConnection({
         user: DATABASE_USER,
