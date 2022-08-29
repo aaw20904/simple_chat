@@ -33,27 +33,42 @@ body{
     box-sizing: border-box !important;
     width:100vw !important;
 }
+
 .message-box-normal-bg{
- background-color:palegoldenrod !important;
+  background-color:palegoldenrod !important;
 }
+
+
 .message-box-radius{
   border-radius: 10px !important;
 }
+
 .message-normal-bg{
-background-color:lightyellow !important;
+  background-color:lightyellow !important;
+}
+
+.message-limits{
+  width:98% !important;
 }
 
 .message-name-text{
-    font-family: 'Roboto Mono';
+  font-family: 'Roboto Mono';
   color:darkslategray !important;
+   font-size: calc(12px + 0.8vw) !important;
 }
 
 .message-msg-text{
-    font-family: 'Roboto Mono';
- color:darkslategray !important;
+  font-family: 'Roboto Mono';
+  color:darkslategray !important;
+  font-size: calc(11px + 0.7vw);
 }
 
 .message-date-text{
-    font-family: 'Roboto Mono';
-color: darkslategray !important;
+  font-family: 'Roboto Mono';
+  color: darkslategray !important;
+   font-size: calc(9px + 0.5vw);
+}
+
+.border-primary{
+  border:2px solid olive !important;
 }

@@ -11,22 +11,29 @@ window.onload=async ()=>{
         body:JSON.stringify({date: new Date().getMilliseconds()}),
         method:'post'
     }
-    try{
-        response = await fetch(`${url}`,options);
-    } catch(e){
-        
-        return {status:false, msg:e, value:null}
+    try {
+        response = await fetch(`${url}`, options);
+    } catch (e) {
+        return {
+                status: false,
+                msg: e, 
+                value: null
+             }
     }
     //save stsatus code 
     let statusCode = response.status;
-    if(statusCode !== 200) {
+    if (statusCode !== 200) {
         return {status:false, msg:`${response.status},${response.statusText}`};
     }
     //read JSON data 
     let jsonData = await response.json();
      
-  let chatItem =  msgList.createMessageItem(jsonData[0]);
-  document.querySelector('.messageList').appendChild(chatItem);
+     jsonData.forEach(v=>{
+        let chatItem = msgList.createMessageItem(v);
+        let wrapped = msgList.createBtnWrapper(chatItem);
+        document.querySelector('.messageList').appendChild(wrapped);
+     })
+  
     
 }
 
@@ -66,7 +73,7 @@ class MessageList{
                         }) {
         //create main container
         let mainContainer = document.createElement('article');
-        mainContainer.classList.add( 'message-box-radius', 'message-box-normal-bg','d-flex','flex-column','justify-content-center','align-items-center');
+        mainContainer.classList.add( 'message-box-radius','w-100', 'mb-1','message-box-normal-bg','d-flex','flex-column','justify-content-start','align-items-center');
         //attributes
         mainContainer.setAttribute('data-msgid', arg.msgId);
         mainContainer.setAttribute('data-usrid', arg.usrId);
@@ -77,7 +84,7 @@ class MessageList{
             usrNameD.innerText = arg.usrName;
         //B) message
         let messageD = document.createElement('div');
-            messageD.setAttribute('class',' message-msg-text message-box-radius message-normal-bg p-1 my-1 mx-2');
+            messageD.setAttribute('class','message-msg-text message-box-radius message-normal-bg p-1 my-1 message-limits');
             messageD.innerText = arg.message;
         //C)date 
         let sentD = document.createElement('div');
@@ -99,6 +106,30 @@ class MessageList{
             mainContainer.appendChild(messageD);
             mainContainer.appendChild(sentD);
             return mainContainer;
+
+    }
+
+    ///wrapper for a button
+    createBtnWrapper(chatItem) {
+        //create a container 
+        let messageContainer = document.createElement('section');
+        //set attribute
+        messageContainer.setAttribute('data-message-id', chatItem.getAttribute('data-msgid'));
+        messageContainer.setAttribute('class','message-box-radius  border-primary message-box-normal-bg d-flex flex-column justify-content-center align-items-center w-100 my-1');
+        //a button`s row
+        let btnContainer = document.createElement('div');
+        btnContainer.setAttribute('class','d-flex flex-row justify-content-center align-items-end flex-column mt-2 p-0 message-limits');
+        //a button
+        let btn  = document.createElement('input');
+        btn.setAttribute('type','image');
+        btn.setAttribute('src','../images/close.png');
+        btn.setAttribute('style','height:30;width:30;');
+        //assign to a button
+        btnContainer.appendChild(btn);
+        //append children
+        messageContainer.appendChild(btnContainer);
+        messageContainer.appendChild(chatItem);
+        return messageContainer;
 
     }
 }
