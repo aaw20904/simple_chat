@@ -125,6 +125,7 @@ class MessageList{
         btn.setAttribute('type','image');
         btn.setAttribute('src','../images/close.png');
         btn.setAttribute('style','height:30px;width:30px;');
+        btn.setAttribute('class','btnRemove');
         //assign to a button
         btnContainer.appendChild(btn);
         //append children
@@ -169,16 +170,20 @@ class UserControl {
         //e) lock/unlock button
         let btnLock = document.createElement('input');
            btnLock.setAttribute('style',"width:30px; height:30px;");
+           btnLock.setAttribute('class','btnLock');
            //when user is locked - assign  corresponding image
             if (arg.usr_lock) {
-                btnLock.setAttribute('../images/locked_user.png');
+                btnLock.setAttribute('../images/lock.svg');
             } else {
-                btnLock.setAttribute('../images/unlocked_user.png');
+                btnLock.setAttribute('../images/unlock.svg');
             }
             items.push(btnLock);
         //f)Remove user buton
          let btnRemoveUser = document.createElement('input');
-         btnRemoveUser.setAttribute('style',"width:30px; height:30px;");
+            btnRemoveUser.setAttribute('style',"width:30px; height:30px;");
+            btnRemoveUser.setAttribute('class','btnRemove');
          //assign an image
+            btnRemoveUser.setAttribute('src','../images/close.png');
+            items.push(btnRemoveUser);
     }
 }
