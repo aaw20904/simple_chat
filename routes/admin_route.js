@@ -11,7 +11,7 @@ adminRouter.get('/', (req, res)=>{
 })
 
 adminRouter.post('/data',async (req,res)=>{
-    let queryChat;
+    let queryChat, queryUsers;
     try {
         queryChat = await adminRouter._layers77
                     .databaseLayer.getAllTheChat();
@@ -34,7 +34,7 @@ adminRouter.post('/data',async (req,res)=>{
         
 
         res.status(200);
-        res.json({chat:query.results, users:queryUsers.results});
+        res.json({chat:queryChat.results, users:queryUsers.results});
   
 })
 

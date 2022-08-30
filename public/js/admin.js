@@ -1,5 +1,6 @@
 window.onload=async ()=>{
     let msgList = new MessageList();
+    let usrControl = new UserControl();
      //define the adress - where you want to send
     const currentUrl = new URL(document.location.href)
     let response;
@@ -27,15 +28,21 @@ window.onload=async ()=>{
     }
     //read JSON data 
     let jsonData = await response.json();
-    chatData = jsonData.chat;
+    let chatData = jsonData.chat;
+    let usersData = jsonData.users;
      
      chatData.forEach(v=>{
         let chatItem = msgList.createMessageItem(v);
         let wrapped = msgList.createBtnWrapper(chatItem);
         document.querySelector('.messageList').appendChild(wrapped);
      })
+
+     usersData.forEach(v=>{
+        let userItem = usrControl.createUserControlItem(v);
+        document.querySelector('.messageList').appendChild(userItem);
+     })
+
   
-    
 }
 
 /******************** */
@@ -143,11 +150,11 @@ class UserControl {
         let messageContainer = document.createElement('section');
         //set attribute
         messageContainer.setAttribute('data-usr-id', arg.usrId);
-        messageContainer.setAttribute('class','message-box-radius  border-primary message-box-normal-bg d-flex flex-column justify-content-center align-items-center w-100 my-1');
+        messageContainer.setAttribute('class','message-box-radius  border-primary message-box-normal-bg d-flex flex-wrap flex-row justify-content-around align-items-center w-100 my-1');
         //a) first element - an image
         let avatarItem = document.createElement('img');
             avatarItem.src = arg.usrAvatar;
-            avatarD.classList.add('my-2','rounded','m-1');
+            avatarItem.classList.add('my-2','rounded','m-1');
             items.push(avatarItem);
         //b) user name
         let usrNameItem = document.createElement('h6');
@@ -166,24 +173,66 @@ class UserControl {
         let isLoginItem = document.createElement('div');
             isLoginItem.setAttribute('class','m-1');
             isLoginItem.innerText = arg.login_state;
+
             items.push(isLoginItem);
         //e) lock/unlock button
-        let btnLock = document.createElement('input');
+        let btnLock = document.createElement('div');
            btnLock.setAttribute('style',"width:30px; height:30px;");
-           btnLock.setAttribute('class','btnLock');
+           btnLock.setAttribute('class','btnLock d-block');
+        let btnLockImg = document.createElement('img');
            //when user is locked - assign  corresponding image
             if (arg.usr_lock) {
-                btnLock.setAttribute('../images/lock.svg');
+                btnLockImg.setAttribute('src','../images/lock.svg');
             } else {
-                btnLock.setAttribute('../images/unlock.svg');
+                btnLockImg.setAttribute('src','../images/unlock.svg');
             }
+            //animation on click
+             btnLockImg.onclick=(evt)=>{
+                evt.target.classList.add('clickAnimation');
+                window.setTimeout(()=>{
+                    evt.target.classList.remove('clickAnimation')
+                },1000)
+            }
+            btnLock.appendChild(btnLockImg);
+
             items.push(btnLock);
-        //f)Remove user buton
-         let btnRemoveUser = document.createElement('input');
+        //f) clear fail attempts button
+        let btnClearFailAttempts = document.createElement('div');
+          btnClearFailAttempts.setAttribute('style',"width:30px; height:30px;");
+          btnClearFailAttempts.setAttribute('class','btnClearFailAttepts d-block');
+        let btnClearFailAttemptsImg = document.createElement('img')
+            btnClearFailAttemptsImg.onclick=(evt)=>{
+                evt.target.classList.add('clickAnimation');
+                window.setTimeout(()=>{
+                    evt.target.classList.remove('clickAnimation')
+                },1000)
+            }
+            //assign an image
+           btnClearFailAttemptsImg.setAttribute('src','../images/clear_fail_attempts.svg');
+           btnClearFailAttempts.appendChild(btnClearFailAttemptsImg);
+           items.push(btnClearFailAttempts);
+        //g)Remove user buton
+         let btnRemoveUser = document.createElement('div');
             btnRemoveUser.setAttribute('style',"width:30px; height:30px;");
             btnRemoveUser.setAttribute('class','btnRemove');
-         //assign an image
-            btnRemoveUser.setAttribute('src','../images/close.png');
+             //assign an image
+         let btnRemoveUserImg = document.createElement('img');
+            btnRemoveUserImg.setAttribute('class','rounded');
+            btnRemoveUserImg.setAttribute('src','../images/remove.svg');
+            //animation on click
+             btnRemoveUserImg.onclick=(evt)=>{
+                evt.target.classList.add('clickAnimation');
+                window.setTimeout(()=>{
+                    evt.target.classList.remove('clickAnimation')
+                },1000)
+            }
+            btnRemoveUser.appendChild(btnRemoveUserImg);
             items.push(btnRemoveUser);
+         ///////assign children to the parent
+         items.forEach(item=>{
+            messageContainer.appendChild(item);
+         })
+         return messageContainer;
+
     }
 }
