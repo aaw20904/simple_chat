@@ -11,22 +11,30 @@ adminRouter.get('/', (req, res)=>{
 })
 
 adminRouter.post('/data',async (req,res)=>{
-    let query;
+    let queryChat;
     try {
-        query = await adminRouter._layers77
+        queryChat = await adminRouter._layers77
                     .databaseLayer.getAllTheChat();
+        queryUsers = await adminRouter._layers77
+                    .databaseLayer.getAllUsersWithStatus();
 
     } catch(e) {
         res.status(500);
         res.json({error:e})
         return;
     }  
-        query.results.forEach(element => {
+       //convert to strings
+        queryChat.results.forEach(element => {
             element.usrAvatar = element.usrAvatar.toString("utf-8")
         });
 
+        queryUsers.results.forEach(element => {
+            element.usrAvatar = element.usrAvatar.toString("utf-8")
+        });
+        
+
         res.status(200);
-        res.json(query.results);
+        res.json({chat:query.results, users:queryUsers.results});
   
 })
 

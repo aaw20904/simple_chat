@@ -13,6 +13,7 @@ import  registerRouter  from './routes/register_route.js'
 import loginRouter from './routes/login_route.js'
 import logoffRouter from './routes/logoff_route.js'
 import adminRouter from "./routes/admin_route.js"
+import pswChangeRouter from "./routes/psw_change_route.js";
 import UserRegistration from "./registration.js";
 import AuthorizationUser from './authorization.js';
 import DBinterface  from './database.js';
@@ -43,6 +44,7 @@ registerRouter._layers77 = layers77;
 loginRouter._layers77 = layers77;
 adminRouter._layers77 = layers77;
 logoffRouter._layers77 = layers77;
+pswChangeRouter._layers77 = layers77;
 
     const connectionDB = mysql.createConnection({
         user: DATABASE_USER,
@@ -70,8 +72,12 @@ logoffRouter._layers77 = layers77;
     let keys = await layers77.databaseLayer.readKey(); 
     //create an instance init key and vect
     layers77.cryptoLayer = new CryptoProcedures(keys.results );
-    layers77.authenticationLayer = new UserAuthentication(layers77.cryptoLayer, layers77.databaseLayer);
-    layers77.authorizeLayer = new AuthorizationUser(layers77.databaseLayer, layers77.cryptoLayer, layers77.authenticationLayer);
+    layers77.authenticationLayer = new UserAuthentication(layers77.cryptoLayer, layers77.databaseLayer,{
+                                                                AUTH_COOKIE_LIFE_TIME:36000,//all the fields are in  milliseconds
+                                                                AUTH_COOKIE_UPDATE_THRESHOLD:1800,
+                                                                AUTH_FAIL_ATTEMPTS:10,
+                                                                });
+    layers77.authorizeLayer = new AuthorizationUser(layers77.databaseLayer, layers77.cryptoLayer, layers77.authenticationLayer,{AUTH_FAIL_ATTEMPTS:10});
     layers77.registrationLayer = new UserRegistration(layers77.cryptoLayer, layers77.databaseLayer);
    
     //2 let result = layers77.registrationLayer.createRegistrationCookieAndCaptcha();
@@ -130,6 +136,7 @@ app.use("/register", registerRouter);
 app.use("/login", loginRouter);
 app.use("/logoff", logoffRouter);
 app.use("/admin", adminRouter);
+app.use("/changepassword", pswChangeRouter);
 
 app.use(express.json({extended:true}));
 app.use(express.static('public'));

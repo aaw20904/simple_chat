@@ -16,21 +16,15 @@ loginRouter.post('/data', async (req, res)=>{
     //checking a user
     let usrValidation = await loginRouter._layers77
         .authorizeLayer.authorizeUser(req.body.usrName, req.body.usrPassword);
-    //is a user locked?
-    
+   
     //when credantails are incorrect
     if (!usrValidation.status) {
-        //if a user exists - increment bad attempts
-        if (usrValidation.value) {
-            await loginRouter._layers77
-                    .databaseLayer.incrementFailLoginAttempts(usrValidation.value);
-        }
         
          res.render('login.ejs',{statusColor: "text-danger", statusString: usrValidation.msg, usrName:req.body.usrName});
          return;
     }
     //when success - assign a cookie
-    res.cookie('sessionInfo', usrValidation.results.token, { sameSite: 'None',secure:true });
+    res.cookie('sessionInfo', usrValidation.results.token, { sameSite: 'None', secure:true });
    
     //redirect to root
     res.redirect('../');

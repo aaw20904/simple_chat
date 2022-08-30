@@ -8,7 +8,7 @@ window.onload=async ()=>{
      url = `${currentUrl.origin}${currentUrl.pathname}/data${currentUrl.port}`;
     const options={
         headers:{"Content-type":"application/json;charset=utf-8"},
-        body:JSON.stringify({date: new Date().getMilliseconds()}),
+        body:JSON.stringify({command:'chat'}),
         method:'post'
     }
     try {
@@ -27,8 +27,9 @@ window.onload=async ()=>{
     }
     //read JSON data 
     let jsonData = await response.json();
+    chatData = jsonData.chat;
      
-     jsonData.forEach(v=>{
+     chatData.forEach(v=>{
         let chatItem = msgList.createMessageItem(v);
         let wrapped = msgList.createBtnWrapper(chatItem);
         document.querySelector('.messageList').appendChild(wrapped);
@@ -123,7 +124,7 @@ class MessageList{
         let btn  = document.createElement('input');
         btn.setAttribute('type','image');
         btn.setAttribute('src','../images/close.png');
-        btn.setAttribute('style','height:30;width:30;');
+        btn.setAttribute('style','height:30px;width:30px;');
         //assign to a button
         btnContainer.appendChild(btn);
         //append children
@@ -131,5 +132,53 @@ class MessageList{
         messageContainer.appendChild(chatItem);
         return messageContainer;
 
+    }
+}
+
+class UserControl {
+    createUserControlItem (arg={usrAvatar:'x' ,usrName:'x', usrId:0, failLogins:0, usr_lock:false, login_state:true}) {
+        let items =[];
+        //create a container 
+        let messageContainer = document.createElement('section');
+        //set attribute
+        messageContainer.setAttribute('data-usr-id', arg.usrId);
+        messageContainer.setAttribute('class','message-box-radius  border-primary message-box-normal-bg d-flex flex-column justify-content-center align-items-center w-100 my-1');
+        //a) first element - an image
+        let avatarItem = document.createElement('img');
+            avatarItem.src = arg.usrAvatar;
+            avatarD.classList.add('my-2','rounded','m-1');
+            items.push(avatarItem);
+        //b) user name
+        let usrNameItem = document.createElement('h6');
+            usrNameItem.setAttribute('class','d-flex message-name-text ms-2 justify-content-center align-items-center');
+            usrNameItem.innerText = arg.usrName;
+            items.push(usrNameItem);
+        //c) fail attempts
+        let failAttemptsItem = document.createElement('div');
+            failAttemptsItem.setAttribute('class','m-1');
+            failAttemptsItem.innerText = arg.failLogins;
+            items.push(failAttemptsItem);
+        /*let lockItem = document.createElement('div');
+            lockItem.setAttribute('class','m-1');
+            lockItem.innerText  = arg.usr_lock;*/
+        //d) is log in
+        let isLoginItem = document.createElement('div');
+            isLoginItem.setAttribute('class','m-1');
+            isLoginItem.innerText = arg.login_state;
+            items.push(isLoginItem);
+        //e) lock/unlock button
+        let btnLock = document.createElement('input');
+           btnLock.setAttribute('style',"width:30px; height:30px;");
+           //when user is locked - assign  corresponding image
+            if (arg.usr_lock) {
+                btnLock.setAttribute('../images/locked_user.png');
+            } else {
+                btnLock.setAttribute('../images/unlocked_user.png');
+            }
+            items.push(btnLock);
+        //f)Remove user buton
+         let btnRemoveUser = document.createElement('input');
+         btnRemoveUser.setAttribute('style',"width:30px; height:30px;");
+         //assign an image
     }
 }

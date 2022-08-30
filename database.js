@@ -142,7 +142,7 @@
                             usrId:ref.usrId,
                             usrPassword:ref.usrPassword,
                             usrAvatar:ref.usrAvatar,
-                            fail:ref.failLogins,
+                            failLogins:ref.failLogins,
                             locked:Boolean((ref.usrStatus & 0x00000010)),
                             login:Boolean((ref.usrStatus & 0x00000001)),
                         }
@@ -300,8 +300,7 @@
             db.query(`UPDATE users SET usrStatus=usrStatus|0x00000010 WHERE usrId=?`, [usrId], (err, rows)=>{
                 if(err) {
                     reject(err)
-                } else if (rows.affectedRows == 0) 
-                {
+                } else if (rows.affectedRows == 0) {
                     resolve({status:false, msg:'User not found!'});
                 } else {
                     resolve({status:true, msg:`Updated ${rows.affectedRows} row`})
@@ -423,7 +422,7 @@ async incrementFailLoginAttempts (usrId) {
     async getAllUsersWithStatus() {
         //get a private member of class
             let db = this.privateMembers.get(this);
-            let sqlQuery = "SELECT usrName, usrId, failLogins, CASE WHEN (usrStatus&0x00000001) THEN true ELSE false END login_state,"+
+            let sqlQuery = "SELECT usrAvatar ,usrName, usrId, failLogins,  CASE WHEN (usrStatus&0x00000001) THEN true ELSE false END login_state,"+
             "CASE WHEN (usrStatus&0x00000010) THEN true ELSE false END usr_lock  FROM users NATURAL JOIN users_names;";
             return new Promise((resolve, reject) => {
                 db.query(sqlQuery,(err,rows)=>{

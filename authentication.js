@@ -1,7 +1,11 @@
 
 
 export default class UserAuthentication {
-    constructor (CryptoProcedures, DBinterface) {
+    constructor (CryptoProcedures, DBinterface, userConstraints={
+                                                                AUTH_COOKIE_LIFE_TIME:36000,
+                                                                AUTH_COOKIE_UPDATE_THRESHOLD:1800,
+                                                                AUTH_FAIL_ATTEMPTS:10,
+                                                                }) {
              //making a hide property
          this.privateMembers = new WeakMap();
              //assign a 'private' - it may be an object
@@ -9,6 +13,7 @@ export default class UserAuthentication {
              //an instance of the CryptoProcedures class
         cryproProcedures: CryptoProcedures,
         dbInterface:  DBinterface,
+        userConstraints: userConstraints,
        });
     }
 
@@ -50,14 +55,12 @@ export default class UserAuthentication {
     }
   /***HIGH_LEVEL_METHOD: CONTROL a cookie   */
     async authenticateUserByCookie (arg="123") {
-            //in mSeconds
-        const AUTH_COOKIE_LIFE_TIME = 36000;
-        const AUTH_COOKIE_UPDATE_THRESHOLD = 1800;
-        const AUTH_FAIL_ATTEMPTS = 25;
+         
         let newCookie = null;
             //get a private member
         let cryptoProc = this.privateMembers.get(this).cryproProcedures;
         let dbInterface = this.privateMembers.get(this).dbInterface;
+        let userConstraints = this.privateMembers.get(this).userConstraints;
         if(!arg){
              //RETURTN ->@ C) unauthorized.
             return {status:false, msg:"Cookie is null", error:'NL'}
@@ -92,20 +95,20 @@ export default class UserAuthentication {
             //calc difference in milliSeconds
        let ellapsed = currentTime - token.results.timestamp;
             //5) has a token`s lifetime gone?
-       if (ellapsed > AUTH_COOKIE_LIFE_TIME) {
+       if (ellapsed > userConstraints.AUTH_COOKIE_LIFE_TIME) {
             //clear sessoin
             await dbInterface.clearSessionActive(token.results.usrId);
             //RETURTN ->@ C) unauthorized.
             return {status: false, msg:'Lifetime has gone!', error:"TD" }
        }
             //6) Has a user achived maximum fail attempts?
-        if (userInfo.results.fail > AUTH_FAIL_ATTEMPTS) {
+        if (userInfo.results.fail > userConstraints.AUTH_FAIL_ATTEMPTS) {
             return {status: false, msg:'Too many fail login attempts!You are cocked! Please call to the Admin', error:"AF" }
         }
             //7) Can a token been updated?
-       if (ellapsed > AUTH_COOKIE_UPDATE_THRESHOLD) {
+       if (ellapsed > userConstraints.AUTH_COOKIE_UPDATE_THRESHOLD) {
             //generate a new auth cookie
-        newCookie = this.createCookie(token.results.usrId).value;
+            newCookie = this.createCookie(token.results.usrId).value;
             //RETURN->@ A) authorized, update cokie(token)  needed 
         return {status:true, msg:"Successfully authenticated", results:{ mustUpdated:true, info:userInfo.results, cookie:newCookie}}
        } else {
