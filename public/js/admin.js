@@ -295,14 +295,14 @@ class UserControl {
 class CryptoKeyControl {
     makeKeyNode (key='1ab2c5d8e1f9') {
         let main = document.createElement('article');
-        main.setAttribute('class','d-flex flex-row justify-content-center align-items-center key-bg');
+        main.setAttribute('class','d-flex flex-column justify-content-center align-items-center key-bg w-100');
         let firstString = document.createElement('div');
         //first row
         firstString.classList.add('key-text','d-flex','text-left','justify-content-center','align-items-center','p-1');
         firstString.innerText = 'Update current symmetrical Key:'
         //second row
         let secondString = document.createElement('div');
-        secondString.setAttribute('class','d-flex flex-column justify-content-around align-items-center p-1');
+        secondString.setAttribute('class','d-flex flex-row justify-content-around align-items-center p-1 w-100');
         let codeValue=document.createElement('div');
         codeValue.setAttribute('class','key-text symKeyString');
         codeValue.innerText = key;
@@ -310,7 +310,7 @@ class CryptoKeyControl {
         let btn = document.createElement('div');
         //button image
         let img = document.createElement('img');
-        img.setAttribute('src','../images/generate.svg');
+        img.setAttribute('src','../images/key.svg');
         img.onclick=(evt)=>{
                 evt.target.classList.add('clickAnimation');
                 window.setTimeout(()=>{
