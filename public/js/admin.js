@@ -1,6 +1,8 @@
 window.onload=async ()=>{
     let msgList = new MessageList();
     let usrControl = new UserControl();
+    let keyControl = new CryptoKeyControl();
+
      //define the adress - where you want to send
     const currentUrl = new URL(document.location.href)
     let response;
@@ -37,11 +39,10 @@ window.onload=async ()=>{
         document.querySelector('.messageList').appendChild(wrapped);
      })
 
-     usersData.forEach(v=>{
-        let userItem = usrControl.createUserControlItem(v);
-        document.querySelector('.messageList').appendChild(userItem);
-     })
-
+     let myTable = usrControl.createTable(usersData);
+     document.querySelector('.container').appendChild(myTable);
+     
+      document.querySelector('.container').appendChild(keyControl.makeKeyNode('a4s4dsa364d64fes354efs'));
   
 }
 
@@ -128,11 +129,23 @@ class MessageList{
         let btnContainer = document.createElement('div');
         btnContainer.setAttribute('class','d-flex flex-row justify-content-center align-items-end flex-column mt-2 p-0 message-limits');
         //a button
-        let btn  = document.createElement('input');
+        let btn  = document.createElement('div');
         btn.setAttribute('type','image');
-        btn.setAttribute('src','../images/close.png');
+         
         btn.setAttribute('style','height:30px;width:30px;');
-        btn.setAttribute('class','btnRemove');
+        btn.setAttribute('class','btnRemove d-block');
+        let btnImg = document.createElement('img');
+            btnImg.setAttribute('class','rounded cursor-pointer');
+            btnImg.setAttribute('src','../images/remove.svg');
+            //animation on click
+             btnImg.onclick=(evt)=>{
+                evt.target.classList.add('clickAnimation');
+                window.setTimeout(()=>{
+                    evt.target.classList.remove('clickAnimation')
+                },1000)
+            }
+        btn.appendChild(btnImg);
+
         //assign to a button
         btnContainer.appendChild(btn);
         //append children
@@ -144,13 +157,14 @@ class MessageList{
 }
 
 class UserControl {
-    createUserControlItem (arg={usrAvatar:'x' ,usrName:'x', usrId:0, failLogins:0, usr_lock:false, login_state:true}) {
+    createUserControlItemRow (arg={usrAvatar:'x' ,usrName:'x', usrId:0, failLogins:0, usr_lock:false, login_state:true}) {
         let items =[];
-        //create a container 
-        let messageContainer = document.createElement('section');
+        //create a container <TR> - a table of a row
+        let messageContainer = document.createElement('tr');
         //set attribute
         messageContainer.setAttribute('data-usr-id', arg.usrId);
-        messageContainer.setAttribute('class','message-box-radius  border-primary message-box-normal-bg d-flex flex-wrap flex-row justify-content-around align-items-center w-100 my-1');
+        //message-box-radius  border-primary message-box-normal-bg d-flex flex-wrap flex-row justify-content-around align-items-center w-100 my-1
+        messageContainer.setAttribute('class','py-1');
         //a) first element - an image
         let avatarItem = document.createElement('img');
             avatarItem.src = arg.usrAvatar;
@@ -158,12 +172,12 @@ class UserControl {
             items.push(avatarItem);
         //b) user name
         let usrNameItem = document.createElement('h6');
-            usrNameItem.setAttribute('class','d-flex message-name-text ms-2 justify-content-center align-items-center');
+            usrNameItem.setAttribute('class','d-flex users-text ms-2 justify-content-center align-items-center');
             usrNameItem.innerText = arg.usrName;
             items.push(usrNameItem);
         //c) fail attempts
         let failAttemptsItem = document.createElement('div');
-            failAttemptsItem.setAttribute('class','m-1');
+            failAttemptsItem.setAttribute('class','m-1','users-text');
             failAttemptsItem.innerText = arg.failLogins;
             items.push(failAttemptsItem);
         /*let lockItem = document.createElement('div');
@@ -171,15 +185,16 @@ class UserControl {
             lockItem.innerText  = arg.usr_lock;*/
         //d) is log in
         let isLoginItem = document.createElement('div');
-            isLoginItem.setAttribute('class','m-1');
+            isLoginItem.setAttribute('class','m-1','users-text');
             isLoginItem.innerText = arg.login_state;
 
             items.push(isLoginItem);
         //e) lock/unlock button
         let btnLock = document.createElement('div');
-           btnLock.setAttribute('style',"width:30px; height:30px;");
-           btnLock.setAttribute('class','btnLock d-block');
+           
+            btnLock.setAttribute('class','btnLock d-block');
         let btnLockImg = document.createElement('img');
+            btnLockImg.classList.add('cursor-pointer');
            //when user is locked - assign  corresponding image
             if (arg.usr_lock) {
                 btnLockImg.setAttribute('src','../images/lock.svg');
@@ -198,9 +213,10 @@ class UserControl {
             items.push(btnLock);
         //f) clear fail attempts button
         let btnClearFailAttempts = document.createElement('div');
-          btnClearFailAttempts.setAttribute('style',"width:30px; height:30px;");
+         
           btnClearFailAttempts.setAttribute('class','btnClearFailAttepts d-block');
-        let btnClearFailAttemptsImg = document.createElement('img')
+        let btnClearFailAttemptsImg = document.createElement('img');
+            btnClearFailAttemptsImg.classList.add('cursor-pointer');
             btnClearFailAttemptsImg.onclick=(evt)=>{
                 evt.target.classList.add('clickAnimation');
                 window.setTimeout(()=>{
@@ -213,11 +229,11 @@ class UserControl {
            items.push(btnClearFailAttempts);
         //g)Remove user buton
          let btnRemoveUser = document.createElement('div');
-            btnRemoveUser.setAttribute('style',"width:30px; height:30px;");
+             
             btnRemoveUser.setAttribute('class','btnRemove');
              //assign an image
          let btnRemoveUserImg = document.createElement('img');
-            btnRemoveUserImg.setAttribute('class','rounded');
+            btnRemoveUserImg.setAttribute('class','rounded cursor-pointer');
             btnRemoveUserImg.setAttribute('src','../images/remove.svg');
             //animation on click
              btnRemoveUserImg.onclick=(evt)=>{
@@ -230,9 +246,83 @@ class UserControl {
             items.push(btnRemoveUser);
          ///////assign children to the parent
          items.forEach(item=>{
-            messageContainer.appendChild(item);
+            let td = document.createElement('td');
+            td.setAttribute('style','vertical-align:middle;');
+            td.classList.add('text-center');
+            td.appendChild(item);
+            messageContainer.appendChild(td);
          })
          return messageContainer;
 
+    }
+
+    createTable(arg=[]) {
+          //main table node 
+        let tableNode = document.createElement('table');
+        tableNode.classList.add('table','table-striped');
+        let tbody = document.createElement('tbody');
+         // tbody.classList.add('users-body-bg');
+         //header
+        let thead = document.createElement('thead');
+        thead.classList.add('users-head-bg');
+        let theadTr = document.createElement('tr');
+         //create column names and assign it to <tr>
+        let fields =[ 'Avatar', 'Name', 'fails','isLogin', 'lock_btn','clear_fails','remove_btn' ];
+        fields.forEach(y=>{
+            let node = document.createElement('th');
+            node.classList.add('users-text', 'text-center')
+            node.innerText = y;
+            theadTr.appendChild(node)
+        })
+         //assemble thead
+        thead.appendChild(theadTr);
+         //assemble tbody
+        arg.forEach(y=>{
+            let row = this.createUserControlItemRow(y);
+            //row.classList.add('border-primary');
+            tbody.appendChild(row);
+        })
+
+        //whole table
+        tableNode.appendChild(thead);
+        tableNode.appendChild(tbody);
+
+    return tableNode;
+
+    }
+}
+
+class CryptoKeyControl {
+    makeKeyNode (key='1ab2c5d8e1f9') {
+        let main = document.createElement('article');
+        main.setAttribute('class','d-flex flex-row justify-content-center align-items-center key-bg');
+        let firstString = document.createElement('div');
+        //first row
+        firstString.classList.add('key-text','d-flex','text-left','justify-content-center','align-items-center','p-1');
+        firstString.innerText = 'Update current symmetrical Key:'
+        //second row
+        let secondString = document.createElement('div');
+        secondString.setAttribute('class','d-flex flex-column justify-content-around align-items-center p-1');
+        let codeValue=document.createElement('div');
+        codeValue.setAttribute('class','key-text symKeyString');
+        codeValue.innerText = key;
+        //button
+        let btn = document.createElement('div');
+        //button image
+        let img = document.createElement('img');
+        img.setAttribute('src','../images/generate.svg');
+        img.onclick=(evt)=>{
+                evt.target.classList.add('clickAnimation');
+                window.setTimeout(()=>{
+                    evt.target.classList.remove('clickAnimation')
+                },1000)
+        }
+        btn.appendChild(img);
+        //appen chids to 2-nd row
+        secondString.appendChild(codeValue);
+        secondString.appendChild(btn);
+        main.appendChild(firstString);
+        main.appendChild(secondString);
+        return main;
     }
 }

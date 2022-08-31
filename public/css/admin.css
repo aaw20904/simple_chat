@@ -69,8 +69,27 @@ body{
    font-size: calc(9px + 0.5vw);
 }
 
+.users-text{
+  font-family: 'Roboto Mono';
+  color:darkslategray !important;
+  font-size: calc(11px + 0.7vw);
+}
+
+.users-head-bg{
+  background-color:mediumaquamarine !important;
+}
+
+.users-body-bg{
+  background-color:palegreen !important;
+}
+
 .border-primary{
   border:2px solid olive !important;
+}
+
+.table-striped>tbody>tr:nth-child(odd)>td, 
+.table-striped>tbody>tr:nth-child(odd)>th {
+    background-color: #eeffee !important; /* Choose your own color here */
 }
 
 @keyframes btnClickAnimation {
@@ -104,5 +123,9 @@ body{
 }
 
 .clickAnimation{
-  animation: btnClickAnimation 1s ease 0s 1 normal forwards;
+  animation: btnClickAnimation 0.5s ease 0s 1 normal forwards;
+}
+
+.cursor-pointer{
+  cursor: pointer !important;
 }
