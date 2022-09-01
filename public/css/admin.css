@@ -27,19 +27,17 @@
          url('../fonts/roboto-mono-v22-latin_cyrillic-500.svg#RobotoMono') format('svg'); /* Legacy iOS */
   }
   
-  
-
-body{
+body {
     box-sizing: border-box !important;
     width:100vw !important;
 }
 
-.message-box-normal-bg{
+.message-box-normal-bg {
   background-color:palegoldenrod !important;
 }
 
 
-.message-box-radius{
+.message-box-radius {
   border-radius: 10px !important;
 }
 
@@ -47,49 +45,81 @@ body{
   background-color:lightyellow !important;
 }
 
-.message-limits{
+.message-limits {
   width:98% !important;
 }
 
-.message-name-text{
+.message-name-text {
   font-family: 'Roboto Mono';
   color:darkslategray !important;
    font-size: calc(12px + 0.8vw) !important;
 }
 
-.message-msg-text{
+.message-msg-text {
   font-family: 'Roboto Mono';
   color:darkslategray !important;
   font-size: calc(11px + 0.7vw);
 }
 
-.message-date-text{
+.message-date-text {
   font-family: 'Roboto Mono';
   color: darkslategray !important;
    font-size: calc(9px + 0.5vw);
 }
 
-.users-text{
+.users-text {
   font-family: 'Roboto Mono';
   color:darkslategray !important;
   font-size: calc(11px + 0.7vw);
 }
 
-.users-head-bg{
-  background-color:mediumaquamarine !important;
+.users-head-bg {
+  background-color:palegoldenrod !important;
 }
 
-.users-body-bg{
+.users-body-bg {
   background-color:palegreen !important;
 }
 
-.border-primary{
+.users-box-radius {
+  border-radius: 12px !important;
+}
+
+.border-primary {
   border:2px solid olive !important;
 }
 
 .table-striped>tbody>tr:nth-child(odd)>td, 
 .table-striped>tbody>tr:nth-child(odd)>th {
-    background-color: #eeffee !important; /* Choose your own color here */
+    background-color: snow !important; /* Choose your own color here */
+}
+
+.regenkey-bg {
+  background-color:coral !important;
+}
+
+.regenkey-text {
+   color:#331611 !important;
+   font-family: 'Roboto Mono';
+   font-size: calc(11px + 0.7vw);
+}
+
+.regenkey-box-radius{
+   border-radius: 12px !important;
+}
+
+.cleaner-bg {
+   background-color:lightcoral !important;
+}
+
+.cleaner-text {
+   font-family: 'Roboto Mono';
+   font-size: calc(11px + 0.7vw);
+   color:#331611 !important;
+}
+
+.cleaner-box-radius {
+   border-radius: 12px !important;
 }
 
 @keyframes btnClickAnimation {
