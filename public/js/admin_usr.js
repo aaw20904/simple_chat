@@ -90,7 +90,7 @@ class UserControl {
 
     clearAttemptsValue (usrId) {
         let tableNode = document.querySelector('tbody');
-        let targetNode = tableNode.querySelector(`failAtt`);
+        let targetNode = tableNode.querySelector(`.fail-att`);
         targetNode.innerText = '0';
     }
 
@@ -116,7 +116,7 @@ class UserControl {
             items.push(usrNameItem);
         //c) fail attempts
         let failAttemptsItem = document.createElement('div');
-            failAttemptsItem.setAttribute('class','m-1','users-text','failAtt');
+            failAttemptsItem.setAttribute('class','m-1 users-text fail-att');
             failAttemptsItem.innerText = arg.failLogins;
             items.push(failAttemptsItem);
         /*let lockItem = document.createElement('div');
@@ -203,7 +203,7 @@ class UserControl {
          btnClearFailAttempts.addEventListener('click', async (evt)=>{
             let res = await priv.onClearFail(evt);
             if (res.status) {
-                this.clearAttemptsValue(res.usrId)
+                this.clearAttemptsValue(res.value)
             }
          })
 

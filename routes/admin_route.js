@@ -72,7 +72,7 @@ adminRouter.post('/command', async (req,res)=>{
         case 'clear':
              try {
                 result = await adminRouter._layers77
-                        .databaseLayer.learUserFailLoginAttempts(req.body.data);
+                        .databaseLayer.clearUserFailLoginAttempts(req.body.data);
                 if (result.status) {
                     res.json({status:true, msg:result.msg})
                     return
