@@ -23,7 +23,7 @@ class UserControl {
              netResult = await networkInteractor.removeUser(usrId);
              if (netResult.status) {
                 //when success
-                statusNodeIndicator(true, netResult.msg);
+                statusNodeIndicator(true, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
              }
              netResult.value = usrId;
              return netResult;
@@ -41,7 +41,7 @@ class UserControl {
             
              //change DOM elements 
              if (!netResult.status) {
-                statusNodeIndicator(false, netResult.msg);
+                statusNodeIndicator(false, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
                 return netResult;
              }
              //when locked - then unlock
@@ -66,9 +66,9 @@ class UserControl {
              netResult = await networkInteractor.clearFail(usrId);
              if (netResult.status) {
                 //when success
-                statusNodeIndicator(true, netResult.msg);
+                statusNodeIndicator(true, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
              } else {
-                statusNodeIndicator(false, netResult.msg);
+                statusNodeIndicator(false, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
              }
              netResult.value = usrId;
              return netResult;
