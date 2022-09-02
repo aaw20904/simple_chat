@@ -1,67 +1,57 @@
 window.onload=async()=>{
-  //define the adress - where you want to send
-    const currentUrl = new URL(document.location.href)
-    let response;
-    // current base URL
-    // url = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
-     url = `${currentUrl.protocol}//${currentUrl.hostname}/admin/data${currentUrl.port}`;
-    const options={
-        headers:{"Content-type":"application/json;charset=utf-8"},
-        body:JSON.stringify({ 
-               command:'users'
-            }),
-        method:'post'
-    }
-    try {
-        response = await fetch(url, options);
-    } catch (e) {
-        return {
-                status: false,
-                msg: e, 
-                value: null
-             }
-    }
-    //save stsatus code 
-    let statusCode = response.status;
-    if (statusCode !== 200) {
-        return {status:false, msg:`${response.status},${response.statusText}`};
-    }
-    //read JSON data 
-    let jsonData = await response.json();
-    //let chatData = jsonData.chat;
-    let usersData = jsonData.users; 
   
-    let usrCtrl = new UserControl();
-    document.querySelector('.tableWrapper').appendChild(usrCtrl.createTable(usersData));
+  
+    let usrCtrl = new UserControl(new NetworkInteractor(), setStatusString);
+    document.querySelector('.tableWrapper').appendChild(await usrCtrl.createTable());
 
 
 }
 
 class UserControl {
-    constructor (networkInterractor=null, statusNode=null) {
+    constructor (networkInteractor=null, statusNodeIndicator=(status=true, msg="*")=>{}) {
         
         //making a hide property
       this.privateMembers = new WeakMap();
        //assign a 'private' - it may be an object
-      this.privateMembers.set(this,{
-        network: networkInterractor,
-        statusNode: statusNode,
+      this.privateMembers.set(this, {
+        networkInteractor: networkInteractor,
+        statusNodeIndicator: statusNodeIndicator,
         onRemove: (evt)=>{
 
         },
-        onLock: (evt)=>{
-
+        onLock: async (evt, usrId)=>{
+            let btnState = evt.currentTarget.getAttribute('data-btn-state');
+             //try to change 
+             let netResult = await networkInteractor.setLock(usrId);
+             //change DOM elements 
+             if (!netResult.status) {
+                statusNodeIndicator(false, netResult.msg);
+                return;
+             }
+             //when locked - then unlock
+            if ( btnState == 'true') {
+                //clear lock attribute
+                evt.currentTarget.setAttribute('data-btn-state', 'false');
+                //change an image
+                evt.currentTarget.firstChild.setAttribute('src','../images/unlock.svg');
+            } else {
+                //set lock attribute
+                evt.currentTarget.setAttribute('data-btn-state','true');
+                //change an image
+                evt.currentTarget.firstChild.setAttribute('src','../images/lock.svg');
+            }
+            statusNodeIndicator(true, netResult.msg);
         },
-        onUnlock: (evt)=>{
-
-        },
+       
         onClearFail: (evt)=>{
 
-        }
+        },
       })    
     }
     createUserControlItemRow (arg={usrAvatar:'x' ,usrName:'x', usrId:0, failLogins:0, usr_lock:false, login_state:true}) {
         let items =[];
+        //get private members
+        let priv = this.privateMembers.get(this);
         //create a container <TR> - a table of a row
         let messageContainer = document.createElement('tr');
         //set attribute
@@ -151,19 +141,13 @@ class UserControl {
             items.push(btnRemoveUser);
         /////ADD  E V E N T   L I S T E N E R S
          //I)
-         btnLock.addEventListener('click',(evt)=>{
-            //when locked - then unlock
-            if ( evt.currentTarget.getAttribute('data-btn-state') ) {
-                //clear lock attribute
-                evt.currentTarget.setAttribute('data-btn-state',false);
-                //change an image
-                evt.currentTarget.firstChild.setAttribute('src','../images/unlock.svg');
-            } else {
-                //set lock attribute
-                evt.currentTarget.setAttribute('data-btn-state',true);
-                //change an image
-                evt.currentTarget.firstChild.setAttribute('src','../images/lock.svg');
-            }
+         btnLock.addEventListener('click',async (evt)=>{
+          try{
+            await priv.onLock(evt, messageContainer.getAttribute('data-usr-id'));
+          } catch(e){
+            setStatusString(false,e);
+          }
+           
          })
 
          ///////assign children to the parent
@@ -178,9 +162,17 @@ class UserControl {
 
     }
 
-    createTable (arg=[]) {
-          //get private members
-         let priv = this.privateMembers.get(this);
+    async createTable (arg=[]) {
+         //get private members
+        let priv = this.privateMembers.get(this);
+        //get data from the network
+        let tableRows = await priv.networkInteractor.getRows();
+        if (!tableRows.status){
+            let node = document.createElement('h5');
+            h5.innerText = priv.msg;
+            return node
+        }
+        arg = tableRows.value;
         let tableWrapper = document.createElement('article');
         tableWrapper.classList.add('d-flex','justify-content-center','align-items-center');
           //main table node 
@@ -216,14 +208,163 @@ class UserControl {
     return tableWrapper;
 
     }
-    
-
-
    
 }
 
+function setStatusString (status=true, msg='*') {
+  let node = document.querySelector('#statusString');
+  if(status) {
+    node.setAttribute('class','text-success');
+  } else {
+    node.setAttribute('class','text-danger');
+  }
+  node.innerText = msg;
+}
+
+
+
 class NetworkInteractor {
-    main(){
+    
+    async setLock(usrId) {
+            //define the adress - where you want to send
+            const currentUrl = new URL(document.location.href)
+            let resp;
+            // current base URL
+            // url = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
+            url = `${currentUrl.protocol}//${currentUrl.hostname}/admin/data${currentUrl.port}`;
+            const options={
+                headers:{"Content-type":"application/json;charset=utf-8"},
+                body:JSON.stringify({ 
+                    command: 'lock', 
+                    data: usrId,
+                }),
+                method:'post',
+            }
+            try {
+                resp = await fetch(url, options);
+            } catch (e) {
+                return {
+                        status: false,
+                        msg: e, 
+                        value: null
+                    }
+            }
+            //save stsatus code 
+            let statusCode = resp.status;
+            if (statusCode !== 200) {
+                return {status:false, msg:`${resp.status}, ${resp.statusText}`};
+            }
+            //read JSON data 
+            let jsonData = await resp.json();
+            return jsonData;
+    }
+
+    async clearLock(usrId) {
+            //define the adress - where you want to send
+            const currentUrl = new URL(document.location.href)
+            let resp;
+            // current base URL
+            // url = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
+            url = `${currentUrl.protocol}//${currentUrl.hostname}/admin/data${currentUrl.port}`;
+            const options={
+                headers:{"Content-type":"application/json;charset=utf-8"},
+                body:JSON.stringify({ 
+                    command: 'unlock', 
+                    data: usrId,
+                }),
+                method:'post',
+            }
+            try {
+                resp = await fetch(url, options);
+            } catch (e) {
+                return {
+                        status: false,
+                        msg: e, 
+                        value: null
+                    }
+            }
+            //save stsatus code 
+            let statusCode = resp.status;
+            if (statusCode !== 200) {
+                return {status:false, msg:`${resp.status}, ${resp.statusText}`};
+            }
+            //read JSON data 
+            let jsonData = await resp.json();
+            return jsonData;
+    }
+
+    async getRows () {
+         //define the adress - where you want to send
+            const currentUrl = new URL(document.location.href)
+            let resp;
+            // current base URL
+            // url = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
+           let  url = `${currentUrl.protocol}//${currentUrl.hostname}/admin/data${currentUrl.port}`;
+            const options={
+                headers:{"Content-type":"application/json;charset=utf-8"},
+                body:JSON.stringify({ 
+                    command: 'users', 
+                    
+                }),
+                method:'post',
+            }
+            try {
+                resp = await fetch(url, options);
+            } catch (e) {
+                return {
+                        status: false,
+                        msg: e, 
+                        value: null
+                    }
+            }
+            //save stsatus code 
+            let statusCode = resp.status;
+            if (statusCode !== 200) {
+                return {status:false, msg:`${resp.status}, ${resp.statusText}`};
+            }
+            //read JSON data 
+            let jsonData = await resp.json();
+            return jsonData;
+    }
+
+    async removeUser(usrId) {
 
     }
+
+    async _sendCommand (usrId, command) {
+
+                //define the adress - where you want to send
+            const currentUrl = new URL(document.location.href)
+            let resp;
+            // current base URL
+            // url = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
+            url = `${currentUrl.protocol}//${currentUrl.hostname}/admin/data${currentUrl.port}`;
+            const options={
+                headers:{"Content-type":"application/json;charset=utf-8"},
+                body:JSON.stringify({ 
+                    command: command, 
+                    data: usrId,
+                }),
+                method:'post',
+            }
+            try {
+                resp = await fetch(url, options);
+            } catch (e) {
+                return {
+                        status: false,
+                        msg: e, 
+                        value: null
+                    }
+            }
+            //save stsatus code 
+            let statusCode = resp.status;
+            if (statusCode !== 200) {
+                return {status:false, msg:`${resp.status}, ${resp.statusText}`};
+            }
+            //read JSON data 
+            let jsonData = await resp.json();
+            return jsonData;
+    }
+
+
 }

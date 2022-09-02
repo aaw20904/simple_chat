@@ -103,7 +103,7 @@ adminRouter.post('/data',async (req,res)=>{
                          element.usrAvatar = element.usrAvatar.toString("utf-8")
                     });
             res.status(200);
-            res.json({ users:queryUsers.results});
+            res.json({status:true, value:queryUsers.results});
             break;
             case 'chat':
             queryChat = await adminRouter._layers77
