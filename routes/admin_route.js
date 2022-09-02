@@ -69,7 +69,7 @@ adminRouter.post('/command', async (req,res)=>{
           }
         break;
         //clear fail attempts 
-        case 'clrFail':
+        case 'clrfail':
              try {
                 result = await adminRouter._layers77
                         .databaseLayer.learUserFailLoginAttempts(req.body.data);

@@ -1,9 +1,7 @@
 window.onload=async()=>{
   
-  
     let usrCtrl = new UserControl(new NetworkInteractor(), setStatusString);
-    document.querySelector('.tableWrapper').appendChild(await usrCtrl.createTable());
-
+    document.querySelector('.tableWrapper').appendChild(await usrCtrl.createTable());  
 
 }
 
@@ -16,13 +14,30 @@ class UserControl {
       this.privateMembers.set(this, {
         networkInteractor: networkInteractor,
         statusNodeIndicator: statusNodeIndicator,
-        onRemove: (evt)=>{
-
+        onRemove: async (evt)=>{
+            let usrId = evt.target.parentNode.parentNode.parentNode.getAttribute('data-usr-id');
+            //try to remove
+            //try to change 
+             let netResult;
+             netResult = await networkInteractor.removeUser(usrId);
+             if (netResult.status) {
+                //when success
+                statusNodeIndicator(true, netResult.msg);
+             }
+             netResult.value = usrId;
+             return netResult;
+             
         },
         onLock: async (evt, usrId)=>{
-            let btnState = evt.currentTarget.getAttribute('data-btn-state');
+            let btnState = evt.target.getAttribute('data-btn-state');
              //try to change 
-             let netResult = await networkInteractor.setLock(usrId);
+             let netResult;
+             if (btnState == 'true') {
+                netResult = await networkInteractor.clearLock(usrId);
+             } else {
+                 netResult = await networkInteractor.setLock(usrId);
+             }
+            
              //change DOM elements 
              if (!netResult.status) {
                 statusNodeIndicator(false, netResult.msg);
@@ -31,22 +46,34 @@ class UserControl {
              //when locked - then unlock
             if ( btnState == 'true') {
                 //clear lock attribute
-                evt.currentTarget.setAttribute('data-btn-state', 'false');
+                evt.target.setAttribute('data-btn-state', 'false');
                 //change an image
-                evt.currentTarget.firstChild.setAttribute('src','../images/unlock.svg');
+                evt.target.setAttribute('src','../images/unlock.svg');
             } else {
                 //set lock attribute
-                evt.currentTarget.setAttribute('data-btn-state','true');
+                evt.target.setAttribute('data-btn-state','true');
                 //change an image
-                evt.currentTarget.firstChild.setAttribute('src','../images/lock.svg');
+                evt.target.setAttribute('src','../images/lock.svg');
             }
-            statusNodeIndicator(true, netResult.msg);
+            statusNodeIndicator(true, `${netResult.msg} ${new Date().toLocaleTimeString()}`);
         },
        
         onClearFail: (evt)=>{
 
         },
       })    
+    }
+
+    removeUserControlItemRow(usrId) {
+        let tableNode = document.querySelector('tbody');
+        let targetNode = tableNode.querySelector(`[data-usr-id="${usrId}"]`);
+        if (targetNode) {
+            tableNode.removeChild(targetNode);
+            return {status:true}
+        } else {
+            return {status:false}
+        }
+        
     }
     createUserControlItemRow (arg={usrAvatar:'x' ,usrName:'x', usrId:0, failLogins:0, usr_lock:false, login_state:true}) {
         let items =[];
@@ -90,10 +117,10 @@ class UserControl {
            //when user is locked - assign  corresponding image
             if (arg.usr_lock) {
                 btnLockImg.setAttribute('src','../images/lock.svg');
-                btnLockImg.setAttribute('data-btn-state',true);
+                btnLockImg.setAttribute('data-btn-state','true');
             } else {
                 btnLockImg.setAttribute('src','../images/unlock.svg');
-                 btnLockImg.setAttribute('data-btn-state',false);
+                 btnLockImg.setAttribute('data-btn-state','false');
             }
             //animation on click
           /*   btnLockImg.onclick=(evt)=>{
@@ -142,12 +169,15 @@ class UserControl {
         /////ADD  E V E N T   L I S T E N E R S
          //I)
          btnLock.addEventListener('click',async (evt)=>{
-          try{
+          
             await priv.onLock(evt, messageContainer.getAttribute('data-usr-id'));
-          } catch(e){
-            setStatusString(false,e);
-          }
            
+         })
+         btnRemoveUser.addEventListener('click',async (evt)=>{
+            let res =  await priv.onRemove(evt);
+            if(res.status) {
+                this.removeUserControlItemRow(res.value);
+            }
          })
 
          ///////assign children to the parent
@@ -226,37 +256,7 @@ function setStatusString (status=true, msg='*') {
 class NetworkInteractor {
     
     async setLock(usrId) {
-            //define the adress - where you want to send
-            const currentUrl = new URL(document.location.href)
-            let resp;
-            // current base URL
-            // url = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
-            url = `${currentUrl.protocol}//${currentUrl.hostname}/admin/data${currentUrl.port}`;
-            const options={
-                headers:{"Content-type":"application/json;charset=utf-8"},
-                body:JSON.stringify({ 
-                    command: 'lock', 
-                    data: usrId,
-                }),
-                method:'post',
-            }
-            try {
-                resp = await fetch(url, options);
-            } catch (e) {
-                return {
-                        status: false,
-                        msg: e, 
-                        value: null
-                    }
-            }
-            //save stsatus code 
-            let statusCode = resp.status;
-            if (statusCode !== 200) {
-                return {status:false, msg:`${resp.status}, ${resp.statusText}`};
-            }
-            //read JSON data 
-            let jsonData = await resp.json();
-            return jsonData;
+            return await this._sendCommand(usrId,'lock');
     }
 
     async clearLock(usrId) {
@@ -265,7 +265,7 @@ class NetworkInteractor {
             let resp;
             // current base URL
             // url = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
-            url = `${currentUrl.protocol}//${currentUrl.hostname}/admin/data${currentUrl.port}`;
+           let  url = `${currentUrl.protocol}//${currentUrl.hostname}/admin/command${currentUrl.port}`;
             const options={
                 headers:{"Content-type":"application/json;charset=utf-8"},
                 body:JSON.stringify({ 
@@ -327,8 +327,8 @@ class NetworkInteractor {
             return jsonData;
     }
 
-    async removeUser(usrId) {
-
+    async removeUser (usrId) {
+        return await this._sendCommand(usrId,'delete'); 
     }
 
     async _sendCommand (usrId, command) {
@@ -338,7 +338,7 @@ class NetworkInteractor {
             let resp;
             // current base URL
             // url = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
-            url = `${currentUrl.protocol}//${currentUrl.hostname}/admin/data${currentUrl.port}`;
+            let  url = `${currentUrl.protocol}//${currentUrl.hostname}/admin/command${currentUrl.port}`;
             const options={
                 headers:{"Content-type":"application/json;charset=utf-8"},
                 body:JSON.stringify({ 
