@@ -14,6 +14,7 @@ class UserControl {
       this.privateMembers.set(this, {
         networkInteractor: networkInteractor,
         statusNodeIndicator: statusNodeIndicator,
+        /***event listeners  */
         onRemove: async (evt)=>{
             let usrId = evt.target.parentNode.parentNode.parentNode.getAttribute('data-usr-id');
             //try to remove
@@ -41,7 +42,7 @@ class UserControl {
              //change DOM elements 
              if (!netResult.status) {
                 statusNodeIndicator(false, netResult.msg);
-                return;
+                return netResult;
              }
              //when locked - then unlock
             if ( btnState == 'true') {
@@ -56,10 +57,21 @@ class UserControl {
                 evt.target.setAttribute('src','../images/lock.svg');
             }
             statusNodeIndicator(true, `${netResult.msg} ${new Date().toLocaleTimeString()}`);
+            return netResult;
         },
        
-        onClearFail: (evt)=>{
-
+        onClearFail: async (evt)=>{
+             let usrId = evt.target.parentNode.parentNode.parentNode.getAttribute('data-usr-id');
+               let netResult;
+             netResult = await networkInteractor.clearFail(usrId);
+             if (netResult.status) {
+                //when success
+                statusNodeIndicator(true, netResult.msg);
+             } else {
+                statusNodeIndicator(false, netResult.msg);
+             }
+             netResult.value = usrId;
+             return netResult;
         },
       })    
     }
@@ -75,6 +87,13 @@ class UserControl {
         }
         
     }
+
+    clearAttemptsValue (usrId) {
+        let tableNode = document.querySelector('tbody');
+        let targetNode = tableNode.querySelector(`failAtt`);
+        targetNode.innerText = '0';
+    }
+
     createUserControlItemRow (arg={usrAvatar:'x' ,usrName:'x', usrId:0, failLogins:0, usr_lock:false, login_state:true}) {
         let items =[];
         //get private members
@@ -97,7 +116,7 @@ class UserControl {
             items.push(usrNameItem);
         //c) fail attempts
         let failAttemptsItem = document.createElement('div');
-            failAttemptsItem.setAttribute('class','m-1','users-text');
+            failAttemptsItem.setAttribute('class','m-1','users-text','failAtt');
             failAttemptsItem.innerText = arg.failLogins;
             items.push(failAttemptsItem);
         /*let lockItem = document.createElement('div');
@@ -166,17 +185,25 @@ class UserControl {
             }
             btnRemoveUser.appendChild(btnRemoveUserImg);
             items.push(btnRemoveUser);
-        /////ADD  E V E N T   L I S T E N E R S
+        /////ADD  E V E N T   L I S T E N E R S/////////////////
          //I)
          btnLock.addEventListener('click',async (evt)=>{
           
             await priv.onLock(evt, messageContainer.getAttribute('data-usr-id'));
            
          })
+         //II)
          btnRemoveUser.addEventListener('click',async (evt)=>{
             let res =  await priv.onRemove(evt);
             if(res.status) {
                 this.removeUserControlItemRow(res.value);
+            }
+         })
+         //III)
+         btnClearFailAttempts.addEventListener('click', async (evt)=>{
+            let res = await priv.onClearFail(evt);
+            if (res.status) {
+                this.clearAttemptsValue(res.usrId)
             }
          })
 
@@ -325,6 +352,10 @@ class NetworkInteractor {
             //read JSON data 
             let jsonData = await resp.json();
             return jsonData;
+    }
+
+    async clearFail(usrId) {
+        return await this._sendCommand(usrId,'clear'); 
     }
 
     async removeUser (usrId) {
