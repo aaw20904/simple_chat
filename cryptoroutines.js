@@ -42,6 +42,14 @@ export default class CryptoProcedures {
         priv.keyAndVect.initVect = arg.initVect;
     }
 
+    async generateRandomString (len) {
+        return new Promise((resolve, reject) => {
+            crypto.randomBytes(len, (err,buf)=>{
+                if (err) {reject(err) }
+                resolve(buf.toString('hex'));
+            })
+        });
+    }
    
    async generateSymmetricCryptoKey() {
             //get a private member of class

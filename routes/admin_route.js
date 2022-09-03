@@ -7,7 +7,7 @@ adminRouter.use(express.json({extended:true}));
 
 
 adminRouter.get('/', (req, res)=>{
-  res.render('admin.ejs',{date:new Date().toLocaleTimeString()});
+  res.render('admin.ejs',{status:'text-success',text:''});
 })
 
 adminRouter.get('/usercontrol', (req, res)=>{
@@ -85,6 +85,42 @@ adminRouter.post('/command', async (req,res)=>{
             res.end();
           }
         break;
+        //remove a message
+        case 'delmsg':
+          try{
+               result = await adminRouter._layers77
+                        .databaseLayer.removeUserMessage(req.body.data);
+              if (result.status) {
+                  res.json({status:true, msg:result.msg})
+                  return
+              } else {
+                  res.json({status:false, msg:result.msg})
+                  return
+              }
+          } catch(e) {
+            res.status(500);
+            res.end();
+          }
+        break;
+        //update a symmetric key
+          case 'key':
+            try{
+                let key = await adminRouter._layers77
+                           .cryptoLayer.generateSymmetricCryptoKey();
+                let recordStatus = await adminRouter._layers77
+                            .databaseLayer.updateKey(key.results);
+                let decorationString = await adminRouter._layers77
+                  .cryptoLayer.generateRandomString(8);
+                if (recordStatus.status) {
+                    res.json({status:true, msg:recordStatus.msg, value:decorationString});
+                }
+                    res.json({status:false, msg:recordStatus.msg});
+                
+                           
+             } catch(e){
+                 res.json({status:false, msg:e});
+            }
+            break;
         default:
         res.status(400);
         res.end();

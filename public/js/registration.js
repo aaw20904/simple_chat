@@ -1,9 +1,14 @@
  window.onload=()=>{
         let form = document.querySelector('form.was-validated');
         let btn = form.querySelector('.btn');
-
+ ///on REGISTER button handler
      btn.addEventListener('click',async (event)=>{
        let regData= await getFormData();
+       //when data are not valid
+       if(!regData.status) {
+        setStatusString(regData.msg,false);
+        return;
+       }
        let sent = await sendDataToServer(regData.results);
        if (sent.status) {
         setStatusString(sent.msg, true);
@@ -35,9 +40,9 @@
             return {status:false, msg:'Form hasn`t filled correctly'}
         }
         let avatar;
-        try{
+        try {
             avatar = await readFile();
-        } catch(e){
+        } catch(e) {
             return {status:false, error:e}
         }
         //if there are all Ok

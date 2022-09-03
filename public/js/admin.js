@@ -1,6 +1,7 @@
 window.onload=async ()=>{
-    let msgList = new MessageList();
-    let usrControl = new UserControl();
+    
+    let networkInteractor = new NetworkInteractor();
+    let msgList = new MessageList(networkInteractor,statusNodeIndicator);
     let keyControl = new CryptoKeyControl();
     let cleanControl = new ChatCleaner();
      //define the adress - where you want to send
@@ -39,37 +40,61 @@ window.onload=async ()=>{
         document.querySelector('.messageList').appendChild(wrapped);
      })
 
-     let myTable = usrControl.createTable(usersData);
+     
      
      document.querySelector('.messageList').appendChild(keyControl.makeKeyNode('a4s4dsa364d64fes354efs'));
      document.querySelector('.container').appendChild(cleanControl.createCleaner());
-     document.querySelector('.container').appendChild(myTable);
+ 
 }
 
 /******************** */
-
-function arrayBufferToBase64( buffer ) {
-	var binary = '';
-	var bytes = new Uint8Array( buffer );
-	var len = bytes.byteLength;
-	for (var i = 0; i < len; i++) {
-		binary += String.fromCharCode( bytes[ i ] );
-	}
-	return window.btoa( binary );
-}
-
-
-function base64ToArrayBuffer(base64) {
-    var binary_string =  window.atob(base64);
-    var len = binary_string.length;
-    var bytes = new Uint8Array( len );
-    for (var i = 0; i < len; i++)        {
-        bytes[i] = binary_string.charCodeAt(i);
+function statusNodeIndicator(status=true, text='*'){
+    let node = document.querySelector('.statind');
+    if(status){
+        node.classList.remove('text-danger');
+        node.classList.add('text-success');
+    } else {
+        node.classList.remove('text-success');
+        node.classList.add('text-danger');
     }
-    return bytes.buffer;
+    node.innerText = text;
 }
 
 class MessageList{
+    constructor(networkInteractor = null, statusNodeIndicator=null) {
+               //making a hide property
+      this.privateMembers = new WeakMap();
+      //assign a 'private' - it may be an object
+     this.privateMembers.set(this, {
+            myVar:1123,
+            networkInteractor: networkInteractor,
+            statusNodeIndicator: statusNodeIndicator,
+            getMessageId: (evt)=>{
+                let result = evt.target.parentNode.parentNode.parentNode.getAttribute('data-message-id');
+                return result;
+            },
+            /***event listeners  */
+            onRemove: async  (evt)=>{
+                let members = this.privateMembers.get(this);
+                let msgId = members.getMessageId(evt); //evt.target.parentNode.parentNode.parentNode.getAttribute('data-message-id');
+                //try to remove
+                //try to change 
+                    let netResult;
+                    netResult = await  members.networkInteractor.removeMessage(msgId);
+                    if (netResult.status) {
+                        //when success
+                        members.statusNodeIndicator(true, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
+                    } else {
+                        //when fail
+                        members.statusNodeIndicator(false, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
+                    }
+                    netResult.value = msgId;
+                    return netResult;
+            },
+       
+       
+        })
+    }
   //create an DOM item with user name message time and the avatar (one message) 
   //usrName, usrId, msgId, message, sent, usrAvatar
     createMessageItem (arg={
@@ -80,6 +105,8 @@ class MessageList{
                             message: null, 
                             usrAvatar: null
                         }) {
+        //get private members
+        let priv = this.privateMembers.get(this);
         //create main container
         let mainContainer = document.createElement('article');
         mainContainer.classList.add( 'message-box-radius','w-100', 'mb-1','message-box-normal-bg','d-flex','flex-column','justify-content-start','align-items-center');
@@ -118,8 +145,23 @@ class MessageList{
 
     }
 
+    //----!-delete only a message item - PLEASE DON'T USE IT!
+    removeMessageItem (msgId) {
+        let childNode = document.querySelector(`[data-msgid=${msgId}]`);
+        let parentNode = childNode.parentNode;
+        parentNode.removeChild(childNode);
+    }
+  /////remove an  item with a wrapper - USE IT 
+    removeWrappedMessageItem (msgId) {
+        let childNode = document.querySelector(`[data-message-id='${msgId}']`);
+        let parentNode = childNode.parentNode;
+        parentNode.removeChild(childNode);
+    }
+
     ///wrapper for a button
     createBtnWrapper(chatItem) {
+         //get private members
+          let priv = this.privateMembers.get(this);
         //create a container 
         let messageContainer = document.createElement('section');
         //set attribute
@@ -148,6 +190,14 @@ class MessageList{
 
         //assign to a button
         btnContainer.appendChild(btn);
+        ////event  L I S T E N E R S
+        btn.onclick=async (evt)=>{
+            let result = await priv.onRemove(evt);
+            if(result.status) {
+                //when successs-remove a  node
+                this.removeWrappedMessageItem(result.value);
+            }
+        }
         //append children
         messageContainer.appendChild(btnContainer);
         messageContainer.appendChild(chatItem);
@@ -233,4 +283,53 @@ class ChatCleaner {
         return mainNode;
         
     }
+}
+
+class NetworkInteractor {
+    
+    async removeMessage(msgId) {
+            return await this._sendCommand(msgId,'delmsg');
+    }
+
+    async updateKey () {
+        return await this._sendCommand(msgId,'key');
+    }
+
+
+    async _sendCommand (data, command) {
+
+                //define the adress - where you want to send
+            const currentUrl = new URL(document.location.href)
+            let resp;
+            // current base URL
+            // url = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
+            let  url = `${currentUrl.protocol}//${currentUrl.hostname}/admin/command${currentUrl.port}`;
+            const options={
+                headers:{"Content-type":"application/json;charset=utf-8"},
+                body:JSON.stringify({ 
+                    command: command, 
+                    data: data,
+                }),
+                method:'post',
+            }
+            try {
+                resp = await fetch(url, options);
+            } catch (e) {
+                return {
+                        status: false,
+                        msg: e, 
+                        value: null
+                    }
+            }
+            //save stsatus code 
+            let statusCode = resp.status;
+            if (statusCode !== 200) {
+                return {status:false, msg:`${resp.status}, ${resp.statusText}`};
+            }
+            //read JSON data 
+            let jsonData = await resp.json();
+            return jsonData;
+    }
+
+
 }

@@ -14,34 +14,39 @@ class UserControl {
       this.privateMembers.set(this, {
         networkInteractor: networkInteractor,
         statusNodeIndicator: statusNodeIndicator,
+        getUsrId: (evt)=>{
+           return evt.target.parentNode.parentNode.parentNode.getAttribute('data-usr-id');
+        },
         /***event listeners  */
         onRemove: async (evt)=>{
-            let usrId = evt.target.parentNode.parentNode.parentNode.getAttribute('data-usr-id');
+            let members = this.privateMembers.get(this);
+            let usrId = members.getUsrId(evt);
             //try to remove
             //try to change 
              let netResult;
-             netResult = await networkInteractor.removeUser(usrId);
+             netResult = await  members.networkInteractor.removeUser(usrId);
              if (netResult.status) {
                 //when success
-                statusNodeIndicator(true, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
+                members.statusNodeIndicator(true, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
              }
              netResult.value = usrId;
              return netResult;
              
         },
         onLock: async (evt, usrId)=>{
+            let members = this.privateMembers.get(this);
             let btnState = evt.target.getAttribute('data-btn-state');
              //try to change 
              let netResult;
              if (btnState == 'true') {
-                netResult = await networkInteractor.clearLock(usrId);
+                netResult = await members.networkInteractor.clearLock(usrId);
              } else {
-                 netResult = await networkInteractor.setLock(usrId);
+                 netResult = await members.networkInteractor.setLock(usrId);
              }
             
              //change DOM elements 
              if (!netResult.status) {
-                statusNodeIndicator(false, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
+                members.statusNodeIndicator(false, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
                 return netResult;
              }
              //when locked - then unlock
@@ -56,19 +61,20 @@ class UserControl {
                 //change an image
                 evt.target.setAttribute('src','../images/lock.svg');
             }
-            statusNodeIndicator(true, `${netResult.msg} ${new Date().toLocaleTimeString()}`);
+            members.statusNodeIndicator(true, `${netResult.msg} ${new Date().toLocaleTimeString()}`);
             return netResult;
         },
        
         onClearFail: async (evt)=>{
+            let members = this.privateMembers.get(this);
              let usrId = evt.target.parentNode.parentNode.parentNode.getAttribute('data-usr-id');
                let netResult;
-             netResult = await networkInteractor.clearFail(usrId);
+             netResult = await members.networkInteractor.clearFail(usrId);
              if (netResult.status) {
                 //when success
-                statusNodeIndicator(true, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
+                members.statusNodeIndicator(true, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
              } else {
-                statusNodeIndicator(false, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
+                members.statusNodeIndicator(false, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
              }
              netResult.value = usrId;
              return netResult;
