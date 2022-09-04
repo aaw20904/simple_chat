@@ -209,7 +209,44 @@ class MessageList{
 
 
 class CryptoKeyControl {
+    constructor(networkInteractor = null, statusNodeIndicator=null) {
+        //making a hide property
+this.privateMembers = new WeakMap();
+//assign a 'private' - it may be an object
+this.privateMembers.set(this, {
+    
+     networkInteractor: networkInteractor,
+     statusNodeIndicator: statusNodeIndicator,
+     getMessageId: (evt)=>{
+         let result = evt.target.parentNode.parentNode.parentNode.getAttribute('data-message-id');
+         return result;
+     },
+     /***event listeners  */
+     onUpdate: async  (evt)=>{
+         let members = this.privateMembers.get(this);
+         let msgId = members.getMessageId(evt); //evt.target.parentNode.parentNode.parentNode.getAttribute('data-message-id');
+         //try to update
+         
+             let netResult;
+             netResult = await  members.networkInteractor.updateKey();
+             if (netResult.status) {
+                 //when success
+                 members.statusNodeIndicator(true, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
+             } else {
+                 //when fail
+                 members.statusNodeIndicator(false, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
+             }
+            
+             return netResult;
+     },
+
+
+ })
+}
+    ///
+    
     makeKeyNode (key='1ab2c5d8e1f9') {
+
         let mainNode = document.createElement('article');
         mainNode.setAttribute('class','d-flex regenkey-box-radius m-1 flex-column justify-content-center align-items-center regenkey-bg w-100');
         let firstString = document.createElement('div');
@@ -233,6 +270,14 @@ class CryptoKeyControl {
                 window.setTimeout(()=>{
                     evt.target.classList.remove('clickAnimation')
                 },1000)
+        }
+        //BTN EVT LISTENER
+        btn.onclick=(evt)=>{
+
+            let res = await priv.onUpdate();
+            if (res.status) {
+                codeValue.value = res.value;
+            }
         }
         btn.appendChild(img);
         //appen chids to 2-nd row
@@ -292,7 +337,7 @@ class NetworkInteractor {
     }
 
     async updateKey () {
-        return await this._sendCommand(msgId,'key');
+        return await this._sendCommand(true,'key');
     }
 
 
