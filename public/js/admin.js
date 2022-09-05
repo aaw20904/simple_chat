@@ -244,7 +244,7 @@ class CryptoKeyControl {
         codeValue.innerText = key;
         //button
         let btn = document.createElement('div');
-        btn.setAttribute('class','cursor-pointer');
+        btn.setAttribute('class','cursor-pointer mx-2');
         //button image
         let img = document.createElement('img');
         img.setAttribute('src','../images/key.svg');
@@ -326,10 +326,41 @@ class ChatCleaner {
         let priv = this.privateMembers.get(this);
         //create a main node
         let mainNode = document.createElement('article');
-        mainNode.setAttribute('class','m-1 cleaner-bg cleaner-text cleaner-box-radius p-2 d-flex flex-row justify-content-around align-items-center w-100');
+        mainNode.setAttribute('class','m-1 cleaner-bg cleaner-text cleaner-box-radius p-3 d-flex flex-column justify-content-start align-items-center w-100');
+        
         let txtString1 = document.createElement('div');
-        txtString1.innerText = 'Remove  older than (days):'
+        txtString1.innerText = 'Remove  options:'
+        //user interface string
+        let uiRadios = document.createElement('div');
+        uiRadios.setAttribute('class','d-flex justify-content-center align-items-center flex-row ');
+        //radio buttons - by Day
+        let radioOne = document.createElement('input');
+            radioOne.setAttribute('type','radio');
+            radioOne.setAttribute('name','cleanerRadioTimeGroup');
+            radioOne.setAttribute('id','cleanerRadioDay');
+            radioOne.setAttribute('checked','');
+            radioOne.setAttribute('class','form-check-input m-1');
+        ///label - by Day
+        let radioLabelOne = document.createElement('label');
+            radioLabelOne.setAttribute('class','form-check-label message-msg-text');
+            radioLabelOne.innerText='Days';
+        //radio - by Hour
+        let radioTwo = document.createElement('input');
+            radioTwo.setAttribute('type','radio');
+            radioTwo.setAttribute('name','cleanerRadioTimeGroup');
+            radioTwo.setAttribute('id','cleanerRadioHour');
+            radioTwo.setAttribute('class','form-check-input m-1');
+        //label by hour
+         let radioLabelTwo = document.createElement('label');
+            radioLabelTwo.setAttribute('class','form-check-label message-msg-text');
+            radioLabelTwo.innerText='Hours';
+               //group radios and labels together
+            uiRadios.appendChild(radioOne);
+            uiRadios.appendChild(radioLabelOne);
+            uiRadios.appendChild(radioTwo);
+            uiRadios.appendChild(radioLabelTwo);
 
+       //'clear' button
         let btnRemove = document.createElement('div');
             btnRemove.setAttribute('class','btnRemove');
              //assign an image
@@ -349,6 +380,7 @@ class ChatCleaner {
             }
 
         btnRemove.appendChild(btnRemoveImg);
+       ///a button wrapper
         let olderThat = document.createElement('input');
         olderThat.setAttribute('type','number');
         olderThat.setAttribute('min', 1);
@@ -357,10 +389,22 @@ class ChatCleaner {
         olderThat.setAttribute('value', 1);
         olderThat.setAttribute('name', 'clean-limit');
         olderThat.setAttribute('class', 'form-control w-25 thresholtRemoveChat');
-        ///append child nodes
+      //seconf UI string 
+      let secondUIString = document.createElement('div');
+        secondUIString.setAttribute('class','d-flex justify-content-between align-items-center flex-row w-100');
+        secondUIString.appendChild(uiRadios);
+        secondUIString.appendChild(olderThat);
+
+      let thridCleanString = document.createElement('div');
+        thridCleanString.setAttribute('class','d-flex justify-content-between align-items-center flex-row w-100 message-msg-text my-2');
+      let removeText = document.createElement('div');
+        removeText.innerText = 'Clean messages older that..'
+        thridCleanString.appendChild(removeText);
+        thridCleanString.appendChild(btnRemove); 
+       ///append child nodes
         mainNode.appendChild(txtString1);
-        mainNode.appendChild(olderThat);
-        mainNode.appendChild(btnRemove);
+        mainNode.appendChild(secondUIString);
+        mainNode.appendChild(thridCleanString);
         return mainNode;
         
     }
