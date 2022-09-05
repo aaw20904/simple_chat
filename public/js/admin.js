@@ -1,56 +1,24 @@
 window.onload=async ()=>{
     
     let networkInteractor = new NetworkInteractor();
-    let msgList = new MessageList(networkInteractor,statusNodeIndicator);
-    let keyControl = new CryptoKeyControl();
-    let cleanControl = new ChatCleaner();
-     //define the adress - where you want to send
-    const currentUrl = new URL(document.location.href)
-    let response;
-    // current base URL
-    // url = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
-     url = `${currentUrl.origin}${currentUrl.pathname}/data${currentUrl.port}`;
-    const options={
-        headers:{"Content-type":"application/json;charset=utf-8"},
-        body:JSON.stringify({command:'chat'}),
-        method:'post'
+    let msgList = new MessageList(networkInteractor, statusNodeIndicator);
+    let keyControl = new CryptoKeyControl(networkInteractor, statusNodeIndicator);
+    let cleanControl = new ChatCleaner(networkInteractor, statusNodeIndicator, updateFunc);
+    
+    async function updateFunc() {
+        return await msgList.buildFullMessageList();
     }
-    try {
-        response = await fetch(`${url}`, options);
-    } catch (e) {
-        return {
-                status: false,
-                msg: e, 
-                value: null
-             }
-    }
-    //save stsatus code 
-    let statusCode = response.status;
-    if (statusCode !== 200) {
-        return {status:false, msg:`${response.status},${response.statusText}`};
-    }
-    //read JSON data 
-    let jsonData = await response.json();
-    let chatData = jsonData.chat;
-    let usersData = jsonData.users;
-     
-     chatData.forEach(v=>{
-        let chatItem = msgList.createMessageItem(v);
-        let wrapped = msgList.createBtnWrapper(chatItem);
-        document.querySelector('.messageList').appendChild(wrapped);
-     })
-
-     
-     
-     document.querySelector('.messageList').appendChild(keyControl.makeKeyNode('a4s4dsa364d64fes354efs'));
-     document.querySelector('.container').appendChild(cleanControl.createCleaner());
+   
+     document.querySelector('.mainWrap').appendChild(keyControl.makeKeyNode('a4s4dsa364d64fes354efs'));
+     document.querySelector('.mainWrap').appendChild(cleanControl.createCleaner()); 
+     document.querySelector('.mainWrap').appendChild(await msgList.buildFullMessageList());
  
 }
 
 /******************** */
-function statusNodeIndicator(status=true, text='*'){
+function statusNodeIndicator (status=true, text='*') {
     let node = document.querySelector('.statind');
-    if(status){
+    if (status) {
         node.classList.remove('text-danger');
         node.classList.add('text-success');
     } else {
@@ -94,6 +62,22 @@ class MessageList{
        
        
         })
+    }
+    async buildFullMessageList () {
+        let parentNode = document.createElement('div');
+        parentNode.setAttribute('class','d-flex, flex-column chatRoot w-100');
+        //get private members
+        let priv = this.privateMembers.get(this);
+        //read from network
+        let members = await priv.networkInteractor.getFullChat();
+        console.log(members);
+        //create nodes
+         members.value.forEach(y=>{
+            let node = this.createMessageItem(y);
+            node = this.createBtnWrapper(node);
+            parentNode.appendChild(node);
+         })
+         return parentNode;
     }
   //create an DOM item with user name message time and the avatar (one message) 
   //usrName, usrId, msgId, message, sent, usrAvatar
@@ -210,43 +194,42 @@ class MessageList{
 
 class CryptoKeyControl {
     constructor(networkInteractor = null, statusNodeIndicator=null) {
-        //making a hide property
-this.privateMembers = new WeakMap();
-//assign a 'private' - it may be an object
-this.privateMembers.set(this, {
-    
-     networkInteractor: networkInteractor,
-     statusNodeIndicator: statusNodeIndicator,
-     getMessageId: (evt)=>{
-         let result = evt.target.parentNode.parentNode.parentNode.getAttribute('data-message-id');
-         return result;
-     },
-     /***event listeners  */
-     onUpdate: async  (evt)=>{
-         let members = this.privateMembers.get(this);
-         let msgId = members.getMessageId(evt); //evt.target.parentNode.parentNode.parentNode.getAttribute('data-message-id');
-         //try to update
-         
-             let netResult;
-             netResult = await  members.networkInteractor.updateKey();
-             if (netResult.status) {
-                 //when success
-                 members.statusNodeIndicator(true, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
-             } else {
-                 //when fail
-                 members.statusNodeIndicator(false, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
-             }
-            
-             return netResult;
-     },
+                //making a hide property
+        this.privateMembers = new WeakMap();
+        //assign a 'private' - it may be an object
+        this.privateMembers.set(this, {
+            networkInteractor: networkInteractor,
+            statusNodeIndicator: statusNodeIndicator,
+            setKeyNodeText: (txt)=>{
+                let node = document.querySelector('.symKeyString');
+                node.innerText = txt;
+            },
+            /***event listeners  */
+            onUpdate: async  (evt)=>{
+                let members = this.privateMembers.get(this);
+                //try to update
+                    let netResult;
+                    netResult = await  members.networkInteractor.updateKey();
+                    if (netResult.status) {
+                        //when success
+                        //update key node
+                        members.setKeyNodeText(netResult.value);
+                        members.statusNodeIndicator(true, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
+                    } else {
+                        //when fail
+                        members.statusNodeIndicator(false, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
+                    }
+                    return netResult;
+            },
 
 
- })
+        })
 }
     ///
     
     makeKeyNode (key='1ab2c5d8e1f9') {
-
+        //get private members
+        let priv = this.privateMembers.get(this);
         let mainNode = document.createElement('article');
         mainNode.setAttribute('class','d-flex regenkey-box-radius m-1 flex-column justify-content-center align-items-center regenkey-bg w-100');
         let firstString = document.createElement('div');
@@ -272,7 +255,7 @@ this.privateMembers.set(this, {
                 },1000)
         }
         //BTN EVT LISTENER
-        btn.onclick=(evt)=>{
+        btn.onclick=async (evt)=>{
 
             let res = await priv.onUpdate();
             if (res.status) {
@@ -291,7 +274,56 @@ this.privateMembers.set(this, {
 
 
 class ChatCleaner {
+
+    constructor (networkInteractor = null, statusNodeIndicator=null, generateListFunction=()=>{return null}) {
+                //making a hide property
+        this.privateMembers = new WeakMap();
+        //assign a 'private' - it may be an object
+        this.privateMembers.set(this, {
+            networkInteractor: networkInteractor,
+            statusNodeIndicator: statusNodeIndicator,
+            generateFunction: generateListFunction,
+            getThreshold: (evt)=>{
+                let node = evt.target.parentNode.parentNode.querySelector('.thresholtRemoveChat')
+                return node.value;
+            },
+            getChatNodeAndParent: ()=>{
+                let child = document.querySelector('.chatRoot');
+                let parent = document.querySelector('.mainWrap');
+                return {parent:parent,child:child}
+            },
+            /***event listeners  */
+            onClean: async  (evt)=>{
+                let members = this.privateMembers.get(this);
+                //try to clean
+                    let netResult;
+                    netResult = await  members.networkInteractor.removeOld(members.getThreshold(evt));
+                    if (netResult.status) {
+                        //when success
+                        //update key node
+                        members.statusNodeIndicator(true, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
+                    } else {
+                        //when fail
+                        members.statusNodeIndicator(false, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
+                    }
+                    //regeneration of a new mesage list 
+                    let newNode = await members.generateFunction();
+                    //get node 
+                    let nodes = members.getChatNodeAndParent();
+                    //remove 
+                    nodes.parent.removeChild(nodes.child);
+                    //append new
+                    nodes.parent.appendChild(newNode);
+                    return netResult;
+            },
+        })
+    }
+
+
+
     createCleaner () {
+        //get private members
+        let priv = this.privateMembers.get(this);
         //create a main node
         let mainNode = document.createElement('article');
         mainNode.setAttribute('class','m-1 cleaner-bg cleaner-text cleaner-box-radius p-2 d-flex flex-row justify-content-around align-items-center w-100');
@@ -311,6 +343,10 @@ class ChatCleaner {
                     evt.target.classList.remove('clickAnimation')
                 },1000)
             }
+            //event listener on click
+            btnRemoveImg.onclick = async (evt) =>{
+                await priv.onClean(evt)
+            }
 
         btnRemove.appendChild(btnRemoveImg);
         let olderThat = document.createElement('input');
@@ -320,7 +356,7 @@ class ChatCleaner {
         olderThat.setAttribute('id', 'clean-limit');
         olderThat.setAttribute('value', 1);
         olderThat.setAttribute('name', 'clean-limit');
-        olderThat.setAttribute('class', 'form-control w-25');
+        olderThat.setAttribute('class', 'form-control w-25 thresholtRemoveChat');
         ///append child nodes
         mainNode.appendChild(txtString1);
         mainNode.appendChild(olderThat);
@@ -339,6 +375,42 @@ class NetworkInteractor {
     async updateKey () {
         return await this._sendCommand(true,'key');
     }
+
+    async removeOld (seconds) {
+        return await this._sendCommand(seconds,'remold');
+    }
+
+    async getFullChat () {
+         //define the adress - where you want to send
+    const currentUrl = new URL(document.location.href)
+    let response;
+    // current base URL
+    // url = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
+     let url = `${currentUrl.origin}${currentUrl.pathname}/data${currentUrl.port}`;
+    const options={
+        headers:{"Content-type":"application/json;charset=utf-8"},
+        body:JSON.stringify({command:'chat'}),
+        method:'post'
+    }
+    try {
+        response = await fetch(`${url}`, options);
+    } catch (e) {
+        return {
+                status: false,
+                msg: e, 
+                value: null
+             }
+    }
+    //save stsatus code 
+    let statusCode = response.status;
+    if (statusCode !== 200) {
+        return {status:false, msg:`${response.status},${response.statusText}`};
+    }
+    //read JSON data 
+    let jsonData = await response.json();
+       return jsonData;
+    }
+    
 
 
     async _sendCommand (data, command) {

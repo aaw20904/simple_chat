@@ -82,7 +82,7 @@ class UserControl {
       })    
     }
 
-    removeUserControlItemRow(usrId) {
+    removeUserControlItemRow (usrId) {
         let tableNode = document.querySelector('tbody');
         let targetNode = tableNode.querySelector(`[data-usr-id="${usrId}"]`);
         if (targetNode) {

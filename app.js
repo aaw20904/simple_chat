@@ -147,4 +147,4 @@ app.use(cookieParser());
 app.get('/',(req, res)=>{
   res.render('okay.ejs',{time: new Date().toLocaleTimeString()});
 })
-app.listen(80,()=>console.log('Listen...'))
+app.listen(80, ()=>console.log('Listen...'))

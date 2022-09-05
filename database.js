@@ -407,7 +407,7 @@ async incrementFailLoginAttempts (usrId) {
          //get a private member of class
          let db = this.privateMembers.get(this);
          return new Promise((resolve, reject) => {
-             db.query( `SELECT usrName, usrId, msgId, message, sent, usrAvatar FROM messages NATURAL JOIN users_names NATURAL JOIN users ORDER BY messages.sent DESC`, (err, rows)=>{
+             db.query( `SELECT usrName, usrId, msgId, message, sent, usrAvatar FROM messages NATURAL JOIN users_names NATURAL JOIN users ORDER BY messages.sent`, (err, rows)=>{
                  if (err) {
                      reject(err)
                  } else  {
@@ -509,6 +509,20 @@ async incrementFailLoginAttempts (usrId) {
                         resolve({status:false, msg:'Empty crypto keys!'})
                     }
                     resolve({status:true, results:rows[0]})
+                }
+            })
+        });
+    }
+
+    async removeOlderThat (seconds = 10) {
+        //get a private member of class
+        let db = this.privateMembers.get(this);
+        return new Promise((resolve, reject) => {
+            db.query( `DELETE  FROM messages WHERE  (UNIX_TIMESTAMP( NOW() ) - unix_timestamp(sent)) > ${seconds}`,  (err, rows)=>{
+                if(err) {
+                    reject(err)
+                } else {
+                    resolve({status:true, msg:`Deleted : ${rows.affectedRows} rows`});
                 }
             })
         });
