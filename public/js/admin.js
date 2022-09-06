@@ -401,10 +401,45 @@ class ChatCleaner {
         removeText.innerText = 'Clean messages older that..'
         thridCleanString.appendChild(removeText);
         thridCleanString.appendChild(btnRemove); 
+       ///forth string - autoclean options
+      let forthStringAutoClean = document.createElement('div');
+        forthStringAutoClean.setAttribute('class','p-1 message-msg-text border-top w-100') ;
+        forthStringAutoClean.innerText = 'Auto clean after a time period..';
+      ///five string -auto clean UI
+      let fiveStringUI = document.createElement('div');
+        fiveStringUI.setAttribute('class','d-flex flex-row justify-content-between align-items-center p-1 w-100')
+      let swClean = document.createElement('input');
+          swClean.setAttribute('type','checkbox');
+          swClean.setAttribute('role','switch');
+          swClean.setAttribute('id','autoCleanSwitch');
+          swClean.setAttribute('checked','');
+          swClean.setAttribute('class','mx-2 my-1 form-check-input form-switch')
+      let swCleanContainer = document.createElement('div');
+          swCleanContainer.setAttribute('class','form-check form-switch justify-content-center align-items-center d-flex flex-row my-1 mx-2');
+      let autoCleanLabel = document.createElement('div');
+          autoCleanLabel.setAttribute('class','message-msg-text text-success cleanStatus m-1');
+          autoCleanLabel.innerText='Enable';
+    //group a switch
+          swCleanContainer.appendChild(swClean);
+          swCleanContainer.appendChild(autoCleanLabel);
+    
+      let autoCleanInput = document.createElement('input');
+      //<input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1"></input>
+          autoCleanInput.setAttribute('type','number');
+          autoCleanInput.setAttribute('max','1000');
+          autoCleanInput.setAttribute('placeholder','1');
+          autoCleanInput.setAttribute('class','form-control');
+      let autoCleanInputContainer = document.createElement('div');
+          autoCleanInputContainer.appendChild(autoCleanInput);
+       ///five string
+          fiveStringUI.appendChild(swCleanContainer);
+          fiveStringUI.appendChild(autoCleanInputContainer);
        ///append child nodes
         mainNode.appendChild(txtString1);
         mainNode.appendChild(secondUIString);
         mainNode.appendChild(thridCleanString);
+        mainNode.appendChild(forthStringAutoClean);
+        mainNode.appendChild(fiveStringUI);
         return mainNode;
         
     }
