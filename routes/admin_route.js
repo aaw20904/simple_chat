@@ -127,10 +127,10 @@ adminRouter.post('/command', async (req,res)=>{
               
               try {
                 //there can be seconds!
-                let seconds = req.body.data;
+                let cleanPeriodInSeconds = Number(req.body.data);
                 //try o clean
               let result = await adminRouter._layers77
-                            .databaseLayer.removeOlderThat(seconds);
+                            .databaseLayer.removeOlderThat(cleanPeriodInSeconds);
                 if (result.status) {
                   res.json({status:true, msg: result.msg})
                 }
