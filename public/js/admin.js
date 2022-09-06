@@ -284,8 +284,17 @@ class ChatCleaner {
             statusNodeIndicator: statusNodeIndicator,
             generateFunction: generateListFunction,
             getThreshold: (evt)=>{
-                let node = evt.target.parentNode.parentNode.querySelector('.thresholtRemoveChat')
-                return node.value;
+                let node = evt.target.parentNode.parentNode.parentNode.querySelector('.thresholtRemoveChat')
+                let hours =  evt.target.parentNode.parentNode.parentNode.querySelector('#cleanerRadioHour');
+                let days =  evt.target.parentNode.parentNode.parentNode.querySelector('#cleanerRadioDay');
+                if(hours.checked) {
+                    //when hour selected - convert to seconds
+                    return node.value * 3600;
+                } else {
+                    //when day selected
+                    return node.value * 3600 * 24;
+                }
+               
             },
             getChatNodeAndParent: ()=>{
                 let child = document.querySelector('.chatRoot');
@@ -329,17 +338,17 @@ class ChatCleaner {
         mainNode.setAttribute('class','m-1 cleaner-bg cleaner-text cleaner-box-radius p-3 d-flex flex-column justify-content-start align-items-center w-100');
         
         let txtString1 = document.createElement('div');
-        txtString1.innerText = 'Remove  options:'
+        txtString1.innerText = 'Cleaning  options:'
         //user interface string
         let uiRadios = document.createElement('div');
-        uiRadios.setAttribute('class','d-flex justify-content-center align-items-center flex-row ');
+        uiRadios.setAttribute('class','d-flex justify-content-center align-items-center flex-row my-1');
         //radio buttons - by Day
         let radioOne = document.createElement('input');
             radioOne.setAttribute('type','radio');
             radioOne.setAttribute('name','cleanerRadioTimeGroup');
             radioOne.setAttribute('id','cleanerRadioDay');
             radioOne.setAttribute('checked','');
-            radioOne.setAttribute('class','form-check-input m-1');
+            radioOne.setAttribute('class','form-check-input mx-2');
         ///label - by Day
         let radioLabelOne = document.createElement('label');
             radioLabelOne.setAttribute('class','form-check-label message-msg-text');
@@ -349,7 +358,7 @@ class ChatCleaner {
             radioTwo.setAttribute('type','radio');
             radioTwo.setAttribute('name','cleanerRadioTimeGroup');
             radioTwo.setAttribute('id','cleanerRadioHour');
-            radioTwo.setAttribute('class','form-check-input m-1');
+            radioTwo.setAttribute('class','form-check-input mx-2');
         //label by hour
          let radioLabelTwo = document.createElement('label');
             radioLabelTwo.setAttribute('class','form-check-label message-msg-text');
@@ -398,7 +407,7 @@ class ChatCleaner {
       let thridCleanString = document.createElement('div');
         thridCleanString.setAttribute('class','d-flex justify-content-between align-items-center flex-row w-100 message-msg-text my-2');
       let removeText = document.createElement('div');
-        removeText.innerText = 'Clean messages older that..'
+        removeText.innerText = 'Push to clean messages older that..'
         thridCleanString.appendChild(removeText);
         thridCleanString.appendChild(btnRemove); 
        ///forth string - autoclean options

@@ -126,8 +126,8 @@ adminRouter.post('/command', async (req,res)=>{
             case 'remold':
               
               try {
-                //converting to seconds
-                let seconds = req.body.data * 86400;
+                //there can be seconds!
+                let seconds = req.body.data;
                 //try o clean
               let result = await adminRouter._layers77
                             .databaseLayer.removeOlderThat(seconds);
