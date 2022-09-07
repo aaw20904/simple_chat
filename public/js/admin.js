@@ -458,8 +458,30 @@ class ChatCleaner {
           fiveStringUI.appendChild(swCleanContainer);
           fiveStringUI.appendChild(autoCleanInputContainer);
        //six static text string
-          let sixStringInfo = document.createElement('div');
-          sixStringInfo.setAttribute('class','message-msg-text border-top w-100')
+        let sixStringInfo = document.createElement('div');
+          sixStringInfo.setAttribute('class','message-msg-text border-top w-100');
+       //seven srting
+        let sevenString = document.createElement('div');
+          sevenString.setAttribute('class','d-flex flex-row justify-content-beween align-items-center p-1 m-1 w-100');
+             
+        let inpCleanTime = document.createElement('input');
+          inpCleanTime.setAttribute('type','time');
+          inpCleanTime.setAttribute('class','form-control m-1');
+          inpCleanTime.setAttribute('id','cleanTimeInput');
+          inpCleanTime.setAttribute('min','00:00');
+          inpCleanTime.setAttribute('max','11:59');
+          //apply button
+        let btnApplyClean = document.createElement('ibutton');
+          btnApplyClean.setAttribute('type','button');
+          btnApplyClean.setAttribute('class','btn btn-primary message-msg-text m-1 btnApplyClean');
+          btnApplyClean.innerText = 'Apply..';
+          let  inpCleanTimeContainer = document.createElement('div');
+           inpCleanTimeContainer.setAttribute('class','d-inline');
+           inpCleanTimeContainer.appendChild(btnApplyClean);
+
+          sevenString.appendChild(inpCleanTime);
+          sevenString.appendChild(inpCleanTimeContainer);
+
        ///append child nodes
           sixStringInfo.innerText='Start time of cleaning';
         mainNode.appendChild(txtString1);
@@ -468,6 +490,7 @@ class ChatCleaner {
         mainNode.appendChild(forthStringAutoClean);
         mainNode.appendChild(fiveStringUI);
         mainNode.appendChild(sixStringInfo);
+        mainNode.appendChild(sevenString);
         return mainNode;
         
     }
