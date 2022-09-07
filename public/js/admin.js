@@ -10,7 +10,8 @@ window.onload=async ()=>{
     }
    
      document.querySelector('.mainWrap').appendChild(keyControl.makeKeyNode('a4s4dsa364d64fes354efs'));
-     document.querySelector('.mainWrap').appendChild(cleanControl.createCleaner()); 
+     let y = await cleanControl.createCleaner()
+     document.querySelector('.mainWrap').appendChild(y); 
      document.querySelector('.mainWrap').appendChild(await msgList.buildFullMessageList());
  
 }
@@ -274,11 +275,10 @@ class CryptoKeyControl {
 
 
 class ChatCleaner {
-
     constructor (networkInteractor = null, statusNodeIndicator=null, generateListFunction=()=>{return null}) {
                 //making a hide property
         this.privateMembers = new WeakMap();
-        //assign a 'private' - it may be an object
+        //assign a 'private' member of the class- it may be an object
         this.privateMembers.set(this, {
             networkInteractor: networkInteractor,
             statusNodeIndicator: statusNodeIndicator,
@@ -288,10 +288,10 @@ class ChatCleaner {
                 let hours =  evt.target.parentNode.parentNode.parentNode.querySelector('#cleanerRadioHour');
                 let days =  evt.target.parentNode.parentNode.parentNode.querySelector('#cleanerRadioDay');
                 if(hours.checked) {
-                    //when hour selected - convert to seconds
+                    //when hour selected - return  a period as seconds
                     return node.value * 3600;
-                } else {
-                    //when day selected
+                } else if (days.checked) {
+                    //when day selected - return a  period as seconds
                     return node.value * 3600 * 24;
                 }
                
@@ -302,6 +302,7 @@ class ChatCleaner {
                 return {parent:parent,child:child}
             },
             /***event listeners  */
+            //single clean - button event listener subroutine
             onClean: async  (evt)=>{
                 let members = this.privateMembers.get(this);
                 //try to clean
@@ -330,9 +331,22 @@ class ChatCleaner {
 
 
 
-    createCleaner () {
+   async createCleaner () {
         //get private members
         let priv = this.privateMembers.get(this);
+        //query clean options from the network
+         
+             let autocleanOpt = await priv.networkInteractor.getCleanOptions();
+          
+          
+       if (!autocleanOpt.status) {
+            let errorNode = document.createElement('h2');
+            errorNode.classList.add('text-danger', 'h2','roboto-font-family');
+            errorNode.innerText = autocleanOpt.msg;
+            return errorNode;
+        }
+       
+       
         //create a main node
         let mainNode = document.createElement('article');
         mainNode.setAttribute('class','m-1 cleaner-bg cleaner-text cleaner-box-radius p-3 d-flex flex-column justify-content-start align-items-center w-100');
@@ -413,7 +427,7 @@ class ChatCleaner {
        ///forth string - autoclean options
       let forthStringAutoClean = document.createElement('div');
         forthStringAutoClean.setAttribute('class','p-1 message-msg-text border-top w-100') ;
-        forthStringAutoClean.innerText = 'Auto clean after a time period..';
+        forthStringAutoClean.innerText = 'Clean period (Days):';
       ///five string -auto clean UI
       let fiveStringUI = document.createElement('div');
         fiveStringUI.setAttribute('class','d-flex flex-row justify-content-between align-items-center p-1 w-100')
@@ -427,7 +441,7 @@ class ChatCleaner {
           swCleanContainer.setAttribute('class','form-check form-switch justify-content-center align-items-center d-flex flex-row my-1 mx-2');
       let autoCleanLabel = document.createElement('div');
           autoCleanLabel.setAttribute('class','message-msg-text text-success cleanStatus m-1');
-          autoCleanLabel.innerText='Enable';
+          autoCleanLabel.innerText='Enable autoclean';
     //group a switch
           swCleanContainer.appendChild(swClean);
           swCleanContainer.appendChild(autoCleanLabel);
@@ -443,12 +457,17 @@ class ChatCleaner {
        ///five string
           fiveStringUI.appendChild(swCleanContainer);
           fiveStringUI.appendChild(autoCleanInputContainer);
+       //six static text string
+          let sixStringInfo = document.createElement('div');
+          sixStringInfo.setAttribute('class','message-msg-text border-top w-100')
        ///append child nodes
+          sixStringInfo.innerText='Start time of cleaning';
         mainNode.appendChild(txtString1);
         mainNode.appendChild(secondUIString);
         mainNode.appendChild(thridCleanString);
         mainNode.appendChild(forthStringAutoClean);
         mainNode.appendChild(fiveStringUI);
+        mainNode.appendChild(sixStringInfo);
         return mainNode;
         
     }
@@ -469,15 +488,23 @@ class NetworkInteractor {
     }
 
     async getFullChat () {
-         //define the adress - where you want to send
+         return await this._queryData('chat');
+    }
+    
+    async getCleanOptions () {
+        return await this._queryData('cln_opt');
+    }
+
+    async _queryData (comm) {
+        //define the adress - where you want to send
     const currentUrl = new URL(document.location.href)
     let response;
     // current base URL
     // url = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
-     let url = `${currentUrl.origin}${currentUrl.pathname}/data${currentUrl.port}`;
+     let url = `${currentUrl.origin}${currentUrl.pathname}data${currentUrl.port}`;
     const options={
         headers:{"Content-type":"application/json;charset=utf-8"},
-        body:JSON.stringify({command:'chat'}),
+        body:JSON.stringify({command:comm}),
         method:'post'
     }
     try {
@@ -498,8 +525,6 @@ class NetworkInteractor {
     let jsonData = await response.json();
        return jsonData;
     }
-    
-
 
     async _sendCommand (data, command) {
 

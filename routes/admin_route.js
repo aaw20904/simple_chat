@@ -123,14 +123,28 @@ adminRouter.post('/command', async (req,res)=>{
                  return;
             }
             break;
+          //remove messages older that
             case 'remold':
-              
               try {
                 //there can be seconds!
                 let cleanPeriodInSeconds = Number(req.body.data);
                 //try o clean
               let result = await adminRouter._layers77
                             .databaseLayer.removeOlderThat(cleanPeriodInSeconds);
+                if (result.status) {
+                  res.json({status:true, msg: result.msg})
+                }
+              } catch (e) {
+                 res.json({status:false, msg:e});
+                 return;
+              }
+            break;
+            case 'cln_opt':
+            try {
+                 
+                //try to update
+              let result = await adminRouter._layers77
+                            .databaseLayer.updateCleanOptions({period:Number(req.body.period)|0, enable:Number(req.body.enable)|0})
                 if (result.status) {
                   res.json({status:true, msg: result.msg})
                 }
@@ -149,6 +163,7 @@ adminRouter.post('/data',async (req,res)=>{
     let queryChat, queryUsers;
     try {
         switch (req.body.command) {
+          //get info about users
             case'users':
               queryUsers = await adminRouter._layers77
                       .databaseLayer.getAllUsersWithStatus();
@@ -159,6 +174,7 @@ adminRouter.post('/data',async (req,res)=>{
               res.status(200);
               res.json({status:true, value:queryUsers.results});
             break;
+            //get all the chat mesages
             case 'chat':
               queryChat = await adminRouter._layers77
                       .databaseLayer.getAllTheChat();
@@ -169,6 +185,16 @@ adminRouter.post('/data',async (req,res)=>{
               res.status(200);
               res.json({status: true, value:queryChat.results});
             break;
+            //get clean options
+            case 'cln_opt':
+               queryChat = await adminRouter._layers77
+                      .databaseLayer.getCleanOptions();
+               res.status(200);
+               res.json({status:true, results:queryChat.results});
+            break;
+            default:
+            res.status(400);
+            res.end();
         }
     
     } catch(e) {

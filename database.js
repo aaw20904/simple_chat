@@ -528,6 +528,34 @@ async incrementFailLoginAttempts (usrId) {
         });
     }
 
+    async updateCleanOptions (arg={period:24, enable:(1|0)}) {
+        //get a private member of class
+        let db = this.privateMembers.get(this);
+        return new Promise((resolve, reject) => {
+            db.query( `UPDATE  clean_mode SET cln_period=${arg.period}, cln_en=${arg.enable} WHERE pk=16;`,  (err, rows)=>{
+                if(err) {
+                    reject(err)
+                } else {
+                    resolve({status:true, msg:`Updated : ${rows.affectedRows} rows`});
+                }
+            })
+        });
+    }
+
+    async getCleanOptions () {
+          //get a private member of class
+        let db = this.privateMembers.get(this);
+        return new Promise((resolve, reject) => {
+            db.query( `SELECT cln_period, cln_en FROM  clean_mode;`,  (err, rows)=>{
+                if(err) {
+                    reject(err)
+                } else {
+                    resolve({status:true, results:rows[0]});
+                }
+            })
+        });
+    }
+
     
 
 
