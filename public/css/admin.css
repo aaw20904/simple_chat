@@ -27,6 +27,20 @@
          url('../fonts/roboto-mono-v22-latin_cyrillic-500.svg#RobotoMono') format('svg'); /* Legacy iOS */
   }
   
+
+  .image_rotate {
+    animation: rotation 3s infinite linear;
+}
+
+@keyframes rotation {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(359deg);
+    }
+}
+
 body {
     box-sizing: border-box !important;
     width:100vw !important;
@@ -88,6 +102,8 @@ body {
 .border-primary {
   border:2px solid olive !important;
 }
+
+
 
 .roboto-font-family{
   font-family: 'Roboto Mono';

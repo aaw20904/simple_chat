@@ -283,6 +283,69 @@ class ChatCleaner {
             networkInteractor: networkInteractor,
             statusNodeIndicator: statusNodeIndicator,
             generateFunction: generateListFunction,
+            setAutoCleanBtnUnits: (arg='hours')=>{
+
+                let btnHours = document.querySelector('#clnUnitsHour');
+                let btnDays =  document.querySelector('#clnUnitsDay');
+                switch (arg) {
+                    case 'hours':
+                      //remove attribute 
+                        btnDays.removeAttribute('checked')
+                      //set the new
+                        btnHours.setAttribute('checked','');
+                    break;
+                    case 'days':
+                    //remove attribute 
+                        btnHours.removeAttribute('checked')
+                      //set the new
+                        btnDays.setAttribute('checked','');
+                    break;
+                    default:
+                    return {status:false}
+                }
+                return {status:true};
+            },
+            activateAutoCleatInput: (state='true') =>{
+                let clnInput = document.querySelector('#autoCleanPeriodInput');
+                if (true) {
+
+                } else {
+                    clnInput.setAttribute('disabled','');
+                }
+                return {status:true};
+            },
+             activateAutoCleanStartTime: (state='true')=>{
+
+             },
+             activateButtonApply: (state='true')=> {
+
+             },
+             activateBtnStart: (state=true)=>{
+
+
+             },
+             activateBtnStop: (state=true)=> {
+
+             },
+             setAutoCleanStatus: (state='true')=> {
+
+             },
+             getAutoCleanTime: ()=>{
+
+             },
+             setAutoCleanPeriod: (buttons='hour'/**day*/)=>{
+
+             },
+
+             setAutoCleanTime: (time)=>{
+
+             },
+             /**in Seconds */
+             getAutoCleanPeriod: ()=>{
+
+             },
+
+
             getThreshold: (evt)=>{
                 let node = evt.target.parentNode.parentNode.parentNode.querySelector('.thresholtRemoveChat')
                 let hours =  evt.target.parentNode.parentNode.parentNode.querySelector('#cleanerRadioHour');
@@ -330,14 +393,11 @@ class ChatCleaner {
     }
 
 
-
    async createCleaner () {
         //get private members
         let priv = this.privateMembers.get(this);
         //query clean options from the network
-         
              let autocleanOpt = await priv.networkInteractor.getCleanOptions();
-          
           
        if (!autocleanOpt.status) {
             let errorNode = document.createElement('h2');
@@ -389,7 +449,7 @@ class ChatCleaner {
              //assign an image
             let btnRemoveImg = document.createElement('img');
             btnRemoveImg.setAttribute('class','rounded cursor-pointer');
-            btnRemoveImg.setAttribute('src','../images/remove.svg');
+            btnRemoveImg.setAttribute('src','../images/clean.svg');
             //animation on click
              btnRemoveImg.onclick=(evt)=>{
                 evt.target.classList.add('clickAnimation');
@@ -399,6 +459,7 @@ class ChatCleaner {
             }
             //event listener on click
             btnRemoveImg.onclick = async (evt) =>{
+                //OK priv.setAutoCleanBtnUnits('days');
                 await priv.onClean(evt)
             }
 
@@ -414,76 +475,134 @@ class ChatCleaner {
         olderThat.setAttribute('class', 'form-control w-25 thresholtRemoveChat');
       //seconf UI string 
       let secondUIString = document.createElement('div');
-        secondUIString.setAttribute('class','d-flex justify-content-between align-items-center flex-row w-100');
+        secondUIString.setAttribute('class','d-flex justify-content-between align-items-center flex-row my-1 w-100');
         secondUIString.appendChild(uiRadios);
         secondUIString.appendChild(olderThat);
 
       let thridCleanString = document.createElement('div');
         thridCleanString.setAttribute('class','d-flex justify-content-between align-items-center flex-row w-100 message-msg-text my-2');
       let removeText = document.createElement('div');
-        removeText.innerText = 'Push to clean messages older that..'
+        removeText.innerText = 'Single cleaning older that..'
         thridCleanString.appendChild(removeText);
         thridCleanString.appendChild(btnRemove); 
        ///forth string - autoclean options
       let forthStringAutoClean = document.createElement('div');
         forthStringAutoClean.setAttribute('class','p-1 message-msg-text border-top w-100') ;
-        forthStringAutoClean.innerText = 'Clean period (Days):';
+        forthStringAutoClean.innerText = 'Auto-clean period..';
       ///five string -auto clean UI
       let fiveStringUI = document.createElement('div');
-        fiveStringUI.setAttribute('class','d-flex flex-row justify-content-between align-items-center p-1 w-100')
-      let swClean = document.createElement('input');
-          swClean.setAttribute('type','checkbox');
-          swClean.setAttribute('role','switch');
-          swClean.setAttribute('id','autoCleanSwitch');
-          swClean.setAttribute('checked','');
-          swClean.setAttribute('class','mx-2 my-1 form-check-input form-switch')
-      let swCleanContainer = document.createElement('div');
-          swCleanContainer.setAttribute('class','form-check form-switch justify-content-center align-items-center d-flex flex-row my-1 mx-2');
-      let autoCleanLabel = document.createElement('div');
-          autoCleanLabel.setAttribute('class','message-msg-text text-success cleanStatus m-1');
-          autoCleanLabel.innerText='Enable autoclean';
+        fiveStringUI.setAttribute('class','d-flex flex-row justify-content-between align-items-center  w-100 my-1')
+       /* let swClean = document.createElement('input');
+        swClean.setAttribute('type','checkbox');
+        swClean.setAttribute('role','switch');
+        swClean.setAttribute('id','autoCleanSwitch');
+        swClean.setAttribute('checked','');
+        swClean.setAttribute('class','mx-2 my-1 form-check-input form-switch')
+    let swCleanContainer = document.createElement('div');
+        swCleanContainer.setAttribute('class','form-check form-switch justify-content-center align-items-center d-flex flex-row my-1 mx-2');
+    let autoCleanLabel = document.createElement('div');
+        autoCleanLabel.setAttribute('class','message-msg-text text-success cleanStatus m-1');
+        autoCleanLabel.innerText='Enable autoclean'; */
+           
+          //radios for time unit choose
+     let rTimeChooseHour = document.createElement('input');
+         rTimeChooseHour.setAttribute('type','radio');
+         rTimeChooseHour.setAttribute('name','clnRadioChooseGroup');
+         rTimeChooseHour.setAttribute('id','clnUnitsHour');
+         rTimeChooseHour.setAttribute('class','form-check-input mx-2');
+    let rLabelChooseHour = document.createElement('label');
+        rLabelChooseHour.setAttribute('class','form-check-label message-msg-text');
+        rLabelChooseHour.innerText='Hours';
+
+     let rTimeChooseDay = document.createElement('input');
+        rTimeChooseDay.setAttribute('type','radio');
+        rTimeChooseDay.setAttribute('name','clnRadioChooseGroup');
+        rTimeChooseDay.setAttribute('id','clnUnitsDay');
+        rTimeChooseDay.setAttribute('class','form-check-input mx-2');
+
+    let rLabelChooseDay = document.createElement('label');
+        rLabelChooseDay.setAttribute('class','form-check-label message-msg-text');
+        rLabelChooseDay.innerText = 'Days';
+    let rTimeChooseContainer = document.createElement('div');
+        rTimeChooseContainer.setAttribute('class','d-flex flex-row justify-content-center align-items-center my-1');
+        rTimeChooseContainer.appendChild(rTimeChooseHour);
+        rTimeChooseContainer.appendChild(rLabelChooseHour);
+        rTimeChooseContainer.appendChild(rTimeChooseDay);
+        rTimeChooseContainer.appendChild(rLabelChooseDay);
     //group a switch
-          swCleanContainer.appendChild(swClean);
-          swCleanContainer.appendChild(autoCleanLabel);
-    
+       
       let autoCleanInput = document.createElement('input');
       //<input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1"></input>
           autoCleanInput.setAttribute('type','number');
           autoCleanInput.setAttribute('max','1000');
           autoCleanInput.setAttribute('placeholder','1');
+          autoCleanInput.setAttribute('id','autoCleanPeriodInput')
           autoCleanInput.setAttribute('class','form-control');
       let autoCleanInputContainer = document.createElement('div');
           autoCleanInputContainer.appendChild(autoCleanInput);
        ///five string
-          fiveStringUI.appendChild(swCleanContainer);
+          fiveStringUI.appendChild(rTimeChooseContainer);
           fiveStringUI.appendChild(autoCleanInputContainer);
        //six static text string
         let sixStringInfo = document.createElement('div');
-          sixStringInfo.setAttribute('class','message-msg-text border-top w-100');
+          sixStringInfo.setAttribute('class','message-msg-text border-top w-100 my-1 py-1');
+           sixStringInfo.innerText='Start autocleaning process at..';
        //seven srting
         let sevenString = document.createElement('div');
-          sevenString.setAttribute('class','d-flex flex-row justify-content-beween align-items-center p-1 m-1 w-100');
+          sevenString.setAttribute('class','d-flex flex-row justify-content-between align-items-center p-1 m-1 w-100');
              
         let inpCleanTime = document.createElement('input');
           inpCleanTime.setAttribute('type','time');
-          inpCleanTime.setAttribute('class','form-control m-1');
+          inpCleanTime.setAttribute('class','form-control m-1 roboto-font-family');
           inpCleanTime.setAttribute('id','cleanTimeInput');
           inpCleanTime.setAttribute('min','00:00');
           inpCleanTime.setAttribute('max','11:59');
+        
           //apply button
-        let btnApplyClean = document.createElement('ibutton');
+        let btnApplyClean = document.createElement('button');
           btnApplyClean.setAttribute('type','button');
-          btnApplyClean.setAttribute('class','btn btn-primary message-msg-text m-1 btnApplyClean');
+          btnApplyClean.setAttribute('class','btn btn-primary roboto-font-family   btnApplyClean');
           btnApplyClean.innerText = 'Apply..';
-          let  inpCleanTimeContainer = document.createElement('div');
-           inpCleanTimeContainer.setAttribute('class','d-inline');
-           inpCleanTimeContainer.appendChild(btnApplyClean);
+          let  inpCleanTimeContainer = document.createElement('article');
+           inpCleanTimeContainer.setAttribute('class','d-inline m-1');
+           inpCleanTimeContainer.appendChild(inpCleanTime);
 
-          sevenString.appendChild(inpCleanTime);
-          sevenString.appendChild(inpCleanTimeContainer);
+         
+          sevenString.appendChild(inpCleanTimeContainer); 
+          sevenString.appendChild(btnApplyClean );
+        //eight string 
+        let txtEightString = document.createElement('div');
+        txtEightString.setAttribute('class','d-flex flex-row justify-content-between align-items-center  my-1 border-top p-1 w-100');
+        let txtEightOne = document.createElement('div');
+            txtEightOne.setAttribute('class',' my-1 p-1 message-msg-text'); 
+            txtEightOne.innerText = 'process status:'
+         let txtEightStatusString = document.createElement('div');
+           txtEightStatusString.classList.add('text-success','message-msg-text');
+           txtEightStatusString.innerText = 'Running..';
+         let  txtEightStatusIcon = document.createElement('img');
+           txtEightStatusIcon.setAttribute('class','rounded image_rotate');
+           txtEightStatusIcon.setAttribute('src','/images/run.svg');
+           //grouping eight string
+           txtEightString.appendChild(txtEightOne);
+           txtEightString.appendChild(txtEightStatusString);
+           txtEightString.appendChild(txtEightStatusIcon);
+           //ten string 
+     let tenStringControlProc = document.createElement('div');
+           tenStringControlProc.setAttribute('class','d-flex flex-row justify-content-between align-items-center w-100');
+     let procStartBtn = document.createElement('button');
+         procStartBtn.setAttribute('class','processStart btn roboto-font-family btn-primary mx-1');
+         procStartBtn.innerText = 'Start process..';
+     let procStopBtn = document.createElement('button');
+         procStopBtn.setAttribute('class','processStop roboto-font-family btn btn-primary mx-1');
+         procStopBtn.innerText = 'Stop process..';
+         tenStringControlProc.appendChild(procStartBtn);
+         tenStringControlProc.appendChild(procStopBtn);
+
+
+        
 
        ///append child nodes
-          sixStringInfo.innerText='Start time of cleaning';
+         
         mainNode.appendChild(txtString1);
         mainNode.appendChild(secondUIString);
         mainNode.appendChild(thridCleanString);
@@ -491,6 +610,8 @@ class ChatCleaner {
         mainNode.appendChild(fiveStringUI);
         mainNode.appendChild(sixStringInfo);
         mainNode.appendChild(sevenString);
+        mainNode.appendChild(txtEightString);
+        mainNode.appendChild(tenStringControlProc);
         return mainNode;
         
     }

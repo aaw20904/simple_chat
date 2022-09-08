@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW 2019 (64-Bit) -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="7mm" height="7mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 70 70"
+ xmlns:xlink="http://www.w3.org/1999/xlink"
+ xmlns:xodm="http://www.corel.com/coreldraw/odm/2003">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str4 {stroke:#2B2A29;stroke-width:2;stroke-miterlimit:22.9256}
+    .str2 {stroke:#A75F4A;stroke-width:2;stroke-miterlimit:22.9256}
+    .str0 {stroke:#2B2A29;stroke-width:0.762;stroke-miterlimit:22.9256}
+    .str1 {stroke:#898778;stroke-width:0.762;stroke-miterlimit:22.9256}
+    .str3 {stroke:#846573;stroke-width:0.762;stroke-miterlimit:22.9256}
+    .fil4 {fill:none}
+    .fil1 {fill:#898778}
+    .fil0 {fill:#FBD9CA}
+    .fil3 {fill:#846573}
+    .fil2 {fill:#A75F4A}
+   ]]>
+  </style>
+ </defs>
+ <g id="Слой_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <rect class="fil0 str0" x="-0.822" y="0.915" width="70.524" height="69.444"/>
+  <polygon class="fil1 str1" points="8.285,13.413 11.124,11.709 29.024,36.163 25.817,36.767 "/>
+  <path class="fil2 str2" d="M22.395 38.106l7.011 -4.17c0,0 0.245,2.919 2.191,4.787 1.567,1.505 4.755,1.65 6.379,2.245 12.73,4.663 19.541,10.377 16.56,9.141 -2.981,-1.237 -23.003,-11.349 -17.884,-7.419l14.837 11.393c0,0 -15.236,-10.598 -16.427,-9.803 -1.192,0.794 14.279,11.568 13.485,12.76 -0.795,1.191 -14.413,-11.171 -15.738,-10.376 -1.325,0.795 15.429,12.371 13.972,12.768 -1.457,0.397 -4.325,2.54 -14.775,-8.202 -2.572,-2.644 -1.903,-7.034 -3.938,-9.384 -2.07,-2.39 -5.784,-3.674 -5.673,-3.74z"/>
+  <polygon class="fil3 str3" points="26.597,41.805 31.85,37.227 32.543,38.15 27.539,42.959 "/>
+  <path class="fil4 str4" d="M64.818 44.829c0.991,-1.057 2.376,-2.029 2.494,-3.613"/>
+  <path class="fil4 str4" d="M59.745 43.905c0.991,-1.057 2.377,-2.028 2.494,-3.613"/>
+  <path class="fil4 str4" d="M53.535 43.224c0.991,-1.056 2.376,-2.028 2.494,-3.612"/>
+  <path class="fil4 str4" d="M59.397 50.366c0.991,-1.057 2.377,-2.028 2.494,-3.613"/>
+  <path class="fil4 str4" d="M62.382 37.933c0.991,-1.056 2.376,-2.028 2.494,-3.612"/>
+ </g>
+</svg>
