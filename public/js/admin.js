@@ -305,36 +305,79 @@ class ChatCleaner {
                 }
                 return {status:true};
             },
-            activateAutoCleatInput: (state='true') =>{
+            activateAutoCleatInput: (state=true) =>{
                 let clnInput = document.querySelector('#autoCleanPeriodInput');
-                if (true) {
+                let radioHours = document.querySelector('#clnUnitsHour')
+                let raioDays = document.querySelector('#clnUnitsDay');
+                if (state) {
+                    clnInput.removeAttribute('disabled');
+                    radioHours.removeAttribute('disabled');
+                    raioDays.removeAttribute('disabled');
 
                 } else {
                     clnInput.setAttribute('disabled','');
+                    radioHours.setAttribute('disabled','');
+                    raioDays.setAttribute('disabled','');
                 }
                 return {status:true};
             },
              activateAutoCleanStartTime: (state='true')=>{
-
+                let clnInput = document.querySelector('#cleanTimeInput');
+                if (state) {
+                    clnInput.removeAttribute('disabled');
+                } else {
+                    clnInput.setAttribute('disabled','');
+                }
+                return {status:true};
              },
              activateButtonApply: (state='true')=> {
-
+                let clnInput = document.querySelector('#btnApplyClean');
+                if (state) {
+                    clnInput.removeAttribute('disabled');
+                } else {
+                    clnInput.setAttribute('disabled','');
+                }
+                return {status:true};
              },
              activateBtnStart: (state=true)=>{
-
+                let clnInput = document.querySelector('#processStart');
+                if (state) {
+                    clnInput.removeAttribute('disabled');
+                } else {
+                    clnInput.setAttribute('disabled','');
+                }
+                return {status:true};
 
              },
              activateBtnStop: (state=true)=> {
-
+                let clnInput = document.querySelector('#processStop');
+                if (state) {
+                    clnInput.removeAttribute('disabled');
+                } else {
+                    clnInput.setAttribute('disabled','');
+                }
+                return {status:true};
              },
              setAutoCleanStatus: (state='true')=> {
-
+                let imgNode=document.querySelector('#icoStatusIndicator');
+                let statString=document.querySelector('#txtStatusIndicator');
+                if(state) {
+                    imgNode.classList.add('image_rotate');
+                    imgNode.setAttribute('src','/images/run.svg');
+                    statString.innerText='Running'
+                } else {
+                    imgNode.classList.remove('image_rotate');
+                    imgNode.setAttribute('src','/images/stop.svg');
+                    statString.innerText='Stopped'
+                }
              },
              getAutoCleanTime: ()=>{
-
+                let clnInput = document.querySelector('#cleanTimeInput');
+                return {status:true, value:clnInput.value}
              },
              setAutoCleanPeriod: (buttons='hour'/**day*/)=>{
-
+                let clnInput = document.querySelector('#autoCleanPeriodInput');
+                return {status:true, value:clnInput.value}
              },
 
              setAutoCleanTime: (time)=>{
@@ -460,6 +503,12 @@ class ChatCleaner {
             //event listener on click
             btnRemoveImg.onclick = async (evt) =>{
                 //OK priv.setAutoCleanBtnUnits('days');
+                //OK priv.activateAutoCleatInput(true);
+                //OK priv.activateAutoCleanStartTime(true);
+                //OK priv.activateButtonApply(false)
+               //OK  priv.activateButtonApply(true)
+              //OK priv.setAutoCleanStatus(true)
+
                 await priv.onClean(evt)
             }
 
@@ -561,7 +610,8 @@ class ChatCleaner {
           //apply button
         let btnApplyClean = document.createElement('button');
           btnApplyClean.setAttribute('type','button');
-          btnApplyClean.setAttribute('class','btn btn-primary roboto-font-family   btnApplyClean');
+          btnApplyClean.setAttribute('class','btn btn-primary roboto-font-family   ');
+          btnApplyClean.setAttribute('id','btnApplyClean')
           btnApplyClean.innerText = 'Apply..';
           let  inpCleanTimeContainer = document.createElement('article');
            inpCleanTimeContainer.setAttribute('class','d-inline m-1');
@@ -578,10 +628,12 @@ class ChatCleaner {
             txtEightOne.innerText = 'process status:'
          let txtEightStatusString = document.createElement('div');
            txtEightStatusString.classList.add('text-success','message-msg-text');
+           txtEightStatusString.setAttribute('id','txtStatusIndicator')
            txtEightStatusString.innerText = 'Running..';
          let  txtEightStatusIcon = document.createElement('img');
            txtEightStatusIcon.setAttribute('class','rounded image_rotate');
            txtEightStatusIcon.setAttribute('src','/images/run.svg');
+           txtEightStatusIcon.setAttribute('id','icoStatusIndicator')
            //grouping eight string
            txtEightString.appendChild(txtEightOne);
            txtEightString.appendChild(txtEightStatusString);
@@ -590,10 +642,12 @@ class ChatCleaner {
      let tenStringControlProc = document.createElement('div');
            tenStringControlProc.setAttribute('class','d-flex flex-row justify-content-between align-items-center w-100');
      let procStartBtn = document.createElement('button');
-         procStartBtn.setAttribute('class','processStart btn roboto-font-family btn-primary mx-1');
+         procStartBtn.setAttribute('class',' btn roboto-font-family btn-primary mx-1');
+         procStartBtn.setAttribute('id','processStart')
          procStartBtn.innerText = 'Start process..';
      let procStopBtn = document.createElement('button');
          procStopBtn.setAttribute('class','processStop roboto-font-family btn btn-primary mx-1');
+         procStopBtn.setAttribute('id','processStop')
          procStopBtn.innerText = 'Stop process..';
          tenStringControlProc.appendChild(procStartBtn);
          tenStringControlProc.appendChild(procStopBtn);
