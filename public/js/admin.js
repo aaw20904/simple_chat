@@ -283,46 +283,62 @@ class ChatCleaner {
             networkInteractor: networkInteractor,
             statusNodeIndicator: statusNodeIndicator,
             generateFunction: generateListFunction,
-            setAutoCleanBtnUnits: (arg='hours')=>{
-
-                let btnHours = document.querySelector('#clnUnitsHour');
-                let btnDays =  document.querySelector('#clnUnitsDay');
-                switch (arg) {
+            setAutoCleanPeriod: (arg={unit:'hours',value:1})=>{
+                let clnInput = document.getElementById('autoCleanPeriodInput');
+                let btnMinutes = document.getElementById('clnUnitsMinute');
+                let btnHours = document.getElementById('clnUnitsHour');
+                let btnDays =  document.getElementById('clnUnitsDay');
+                switch (arg.unit) {
                     case 'hours':
                       //remove attribute 
+                         btnMinutes.removeAttribute('checked')
                         btnDays.removeAttribute('checked')
                       //set the new
                         btnHours.setAttribute('checked','');
                     break;
                     case 'days':
                     //remove attribute 
+                         btnMinutes.removeAttribute('checked')
                         btnHours.removeAttribute('checked')
                       //set the new
                         btnDays.setAttribute('checked','');
                     break;
+                    case 'minutes':
+                     //remove attribute 
+                       btnDays.removeAttribute('checked')
+                       btnHours.removeAttribute('checked')
+                     //set the new
+                       btnMinutes.setAttribute('checked','')
+                    break;
                     default:
                     return {status:false}
                 }
+                //assign to input
+                clnInput.value = arg.value;
                 return {status:true};
             },
             activateAutoCleatInput: (state=true) =>{
-                let clnInput = document.querySelector('#autoCleanPeriodInput');
-                let radioHours = document.querySelector('#clnUnitsHour')
-                let raioDays = document.querySelector('#clnUnitsDay');
+                let clnInput = document.querySelector('.autoCleanPeriodInput');
+                let radioMinutes = document.getElementById('clnUnitsMinute')
+                let radioHours = document.getElementById('clnUnitsHour')
+                let raioDays = document.getElementById('clnUnitsDay');
                 if (state) {
                     clnInput.removeAttribute('disabled');
                     radioHours.removeAttribute('disabled');
                     raioDays.removeAttribute('disabled');
+                     radioMinutes.removeAttribute('disabled');
 
                 } else {
                     clnInput.setAttribute('disabled','');
                     radioHours.setAttribute('disabled','');
                     raioDays.setAttribute('disabled','');
+                    radioMinutes.setAttribute('disabled','');
+
                 }
                 return {status:true};
             },
              activateAutoCleanStartTime: (state='true')=>{
-                let clnInput = document.querySelector('#cleanTimeInput');
+                let clnInput = document.getElementById('cleanTimeInput');
                 if (state) {
                     clnInput.removeAttribute('disabled');
                 } else {
@@ -331,7 +347,7 @@ class ChatCleaner {
                 return {status:true};
              },
              activateButtonApply: (state='true')=> {
-                let clnInput = document.querySelector('#btnApplyClean');
+                let clnInput = document.getElementById('btnApplyClean');
                 if (state) {
                     clnInput.removeAttribute('disabled');
                 } else {
@@ -340,7 +356,7 @@ class ChatCleaner {
                 return {status:true};
              },
              activateBtnStart: (state=true)=>{
-                let clnInput = document.querySelector('#processStart');
+                let clnInput = document.getElementById('processStart');
                 if (state) {
                     clnInput.removeAttribute('disabled');
                 } else {
@@ -350,7 +366,7 @@ class ChatCleaner {
 
              },
              activateBtnStop: (state=true)=> {
-                let clnInput = document.querySelector('#processStop');
+                let clnInput = document.getElementById('processStop');
                 if (state) {
                     clnInput.removeAttribute('disabled');
                 } else {
@@ -359,8 +375,8 @@ class ChatCleaner {
                 return {status:true};
              },
              setAutoCleanStatus: (state='true')=> {
-                let imgNode=document.querySelector('#icoStatusIndicator');
-                let statString=document.querySelector('#txtStatusIndicator');
+                let imgNode=document.getElementById('icoStatusIndicator');
+                let statString=document.getElementById('txtStatusIndicator');
                 if(state) {
                     imgNode.classList.add('image_rotate');
                     imgNode.setAttribute('src','/images/run.svg');
@@ -371,36 +387,71 @@ class ChatCleaner {
                     statString.innerText='Stopped'
                 }
              },
-             getAutoCleanTime: ()=>{
-                let clnInput = document.querySelector('#cleanTimeInput');
-                return {status:true, value:clnInput.value}
+           
+             getAutoCleanPeriod: ( )=>{
+                let radioMinutes = document.getElementById('clnUnitsMinute')
+                let radioHours = document.getElementById('clnUnitsHour')
+                let radioDays = document.getElementById('clnUnitsDay');
+                let clnInput = document.getElementById('autoCleanPeriodInput');
+                //which units has been checked?
+                if (radioMinutes.checked) {
+                    return {status:true, results:{value:clnInput.value,unit:'min'}}
+                }
+
+                if (radioHours.checked) {
+                    return {status:true, results:{value:clnInput.value,unit:'hour'}}
+                }
+
+                if (radioDays.checked) {
+                    return {status:true, results:{value:clnInput.value,unit:'day'}}
+                }
+
+                return {status:false,value:null}
              },
-             setAutoCleanPeriod: (buttons='hour'/**day*/)=>{
-                let clnInput = document.querySelector('#autoCleanPeriodInput');
-                return {status:true, value:clnInput.value}
+            //@ string format with 4 digits and semicolon - '15:40'
+             setAutoCleanTime: (time='02:15')=>{
+                let node = document.getElementById('cleanTimeInput');
+                node.value = time;
+                return{status:true}
              },
-
-             setAutoCleanTime: (time)=>{
-
+                //returned 4 digits with a semicolon
+             getAutoCleanTime () {
+                let node = document.getElementById('cleanTimeInput');
+                return {status:true, value:node.value}
              },
-             /**in Seconds */
-             getAutoCleanPeriod: ()=>{
-
-             },
+             
 
 
-            getThreshold: (evt)=>{
-                let node = evt.target.parentNode.parentNode.parentNode.querySelector('.thresholtRemoveChat')
-                let hours =  evt.target.parentNode.parentNode.parentNode.querySelector('#cleanerRadioHour');
-                let days =  evt.target.parentNode.parentNode.parentNode.querySelector('#cleanerRadioDay');
+            getCleanThreshold: ()=>{
+                let node = document.querySelector('.thresholtRemoveChat')
+                let hours =  document.getElementById('cleanerRadioHourTh');
+                let days =  document.getElementById('cleanerRadioDayTh');
                 if(hours.checked) {
                     //when hour selected - return  a period as seconds
-                    return node.value * 3600;
+                    return {status:true, results:{value:node.value,unit:'hour'}}
                 } else if (days.checked) {
                     //when day selected - return a  period as seconds
-                    return node.value * 3600 * 24;
+                    return {status:true, results:{value:node.value,unit:'day'}}
                 }
                
+            },
+            setCleanThreshold: (arg={unit:'day',value:5})=> {
+                 let node = document.querySelector('.thresholtRemoveChat')
+                let hours =  document.getElementById('cleanerRadioHourTh');
+                let days =  document.getElementById('cleanerRadioDayTh');
+                if (arg.unit == 'day') {
+                   hours.removeAttribute('checked');
+                    days.setAttribute('checked','');
+                } else if (arg.unit == 'hour') { 
+                    days.removeAttribute('checked');
+                    hours.setAttribute('checked','');
+                } else {
+                    return {status:false}
+                }
+
+                node.value = arg.value;
+                return {status:true}
+
             },
             getChatNodeAndParent: ()=>{
                 let child = document.querySelector('.chatRoot');
@@ -413,7 +464,7 @@ class ChatCleaner {
                 let members = this.privateMembers.get(this);
                 //try to clean
                     let netResult;
-                    netResult = await  members.networkInteractor.removeOld(members.getThreshold(evt));
+                    netResult = await  members.networkInteractor.removeOld(members.getCleanThreshold().results);
                     if (netResult.status) {
                         //when success
                         //update key node
@@ -454,16 +505,20 @@ class ChatCleaner {
         let mainNode = document.createElement('article');
         mainNode.setAttribute('class','m-1 cleaner-bg cleaner-text cleaner-box-radius p-3 d-flex flex-column justify-content-start align-items-center w-100');
         
-        let txtString1 = document.createElement('div');
-        txtString1.innerText = 'Cleaning  options:'
+        let txtString1 = document.createElement('h5');
+          txtString1.setAttribute('class','roboto-font-family h5 my-1');
+          txtString1.innerText = 'Cleaning  options:'
+        let txtString1_1 = document.createElement('div');
+          txtString1_1.setAttribute('class','message-msg-text my-1 text-left w-100');
+          txtString1_1.innerText = 'Remove older that:'
         //user interface string
         let uiRadios = document.createElement('div');
-        uiRadios.setAttribute('class','d-flex justify-content-center align-items-center flex-row my-1');
+          uiRadios.setAttribute('class','d-flex justify-content-center align-items-center flex-row my-1');
         //radio buttons - by Day
         let radioOne = document.createElement('input');
             radioOne.setAttribute('type','radio');
             radioOne.setAttribute('name','cleanerRadioTimeGroup');
-            radioOne.setAttribute('id','cleanerRadioDay');
+            radioOne.setAttribute('id','cleanerRadioDayTh');
             radioOne.setAttribute('checked','');
             radioOne.setAttribute('class','form-check-input mx-2');
         ///label - by Day
@@ -474,7 +529,7 @@ class ChatCleaner {
         let radioTwo = document.createElement('input');
             radioTwo.setAttribute('type','radio');
             radioTwo.setAttribute('name','cleanerRadioTimeGroup');
-            radioTwo.setAttribute('id','cleanerRadioHour');
+            radioTwo.setAttribute('id','cleanerRadioHourTh');
             radioTwo.setAttribute('class','form-check-input mx-2');
         //label by hour
          let radioLabelTwo = document.createElement('label');
@@ -491,7 +546,7 @@ class ChatCleaner {
             btnRemove.setAttribute('class','btnRemove');
              //assign an image
             let btnRemoveImg = document.createElement('img');
-            btnRemoveImg.setAttribute('class','rounded cursor-pointer');
+            btnRemoveImg.setAttribute('class','rounded cursor-pointer mx-3');
             btnRemoveImg.setAttribute('src','../images/clean.svg');
             //animation on click
              btnRemoveImg.onclick=(evt)=>{
@@ -502,12 +557,17 @@ class ChatCleaner {
             }
             //event listener on click
             btnRemoveImg.onclick = async (evt) =>{
-                //OK priv.setAutoCleanBtnUnits('days');
+                 // priv.setAutoCleanPeriod({unit:'days',value:80});
+                //ok priv.getAutoCleanPeriod(); 
                 //OK priv.activateAutoCleatInput(true);
                 //OK priv.activateAutoCleanStartTime(true);
                 //OK priv.activateButtonApply(false)
                //OK  priv.activateButtonApply(true)
               //OK priv.setAutoCleanStatus(true)
+              //OK console.log(priv.getCleanThreshold());
+              ///OK priv.setCleanThreshold({unit:'hour',value:33});
+                console.log(priv.setAutoCleanTime('02:15'));
+              console.log(priv.getAutoCleanTime());
 
                 await priv.onClean(evt)
             }
@@ -519,7 +579,7 @@ class ChatCleaner {
         olderThat.setAttribute('min', 1);
         olderThat.setAttribute('max', 365);
         olderThat.setAttribute('id', 'clean-limit');
-        olderThat.setAttribute('value', 1);
+        olderThat.setAttribute('value', 3);
         olderThat.setAttribute('name', 'clean-limit');
         olderThat.setAttribute('class', 'form-control w-25 thresholtRemoveChat');
       //seconf UI string 
@@ -529,8 +589,9 @@ class ChatCleaner {
         secondUIString.appendChild(olderThat);
 
       let thridCleanString = document.createElement('div');
-        thridCleanString.setAttribute('class','d-flex justify-content-between align-items-center flex-row w-100 message-msg-text my-2');
+        thridCleanString.setAttribute('class','d-flex justify-content-start align-items-center flex-row w-100 message-msg-text my-2');
       let removeText = document.createElement('div');
+        removeText.setAttribute('class','h6 roboto-font-family ')
         removeText.innerText = 'Single cleaning older that..'
         thridCleanString.appendChild(removeText);
         thridCleanString.appendChild(btnRemove); 
@@ -554,10 +615,21 @@ class ChatCleaner {
         autoCleanLabel.innerText='Enable autoclean'; */
            
           //radios for time unit choose
+    let rTimeChooseMinute = document.createElement('input');
+         rTimeChooseMinute.setAttribute('type','radio');
+         rTimeChooseMinute.setAttribute('name','clnRadioChooseGroup');
+         rTimeChooseMinute.setAttribute('id','clnUnitsMinute');
+         rTimeChooseMinute.setAttribute('class','form-check-input mx-2');
+    let rLabelChooseMinute = document.createElement('label');
+        rLabelChooseMinute.setAttribute('class','form-check-label message-msg-text');
+        rLabelChooseMinute.innerText='Minutes';
+
      let rTimeChooseHour = document.createElement('input');
          rTimeChooseHour.setAttribute('type','radio');
          rTimeChooseHour.setAttribute('name','clnRadioChooseGroup');
          rTimeChooseHour.setAttribute('id','clnUnitsHour');
+         //default checked hours
+         rTimeChooseHour.setAttribute('checked','');
          rTimeChooseHour.setAttribute('class','form-check-input mx-2');
     let rLabelChooseHour = document.createElement('label');
         rLabelChooseHour.setAttribute('class','form-check-label message-msg-text');
@@ -574,6 +646,8 @@ class ChatCleaner {
         rLabelChooseDay.innerText = 'Days';
     let rTimeChooseContainer = document.createElement('div');
         rTimeChooseContainer.setAttribute('class','d-flex flex-row justify-content-center align-items-center my-1');
+         rTimeChooseContainer.appendChild(rTimeChooseMinute);
+        rTimeChooseContainer.appendChild(rLabelChooseMinute);
         rTimeChooseContainer.appendChild(rTimeChooseHour);
         rTimeChooseContainer.appendChild(rLabelChooseHour);
         rTimeChooseContainer.appendChild(rTimeChooseDay);
@@ -584,7 +658,7 @@ class ChatCleaner {
       //<input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1"></input>
           autoCleanInput.setAttribute('type','number');
           autoCleanInput.setAttribute('max','1000');
-          autoCleanInput.setAttribute('placeholder','1');
+          autoCleanInput.setAttribute('value','3');
           autoCleanInput.setAttribute('id','autoCleanPeriodInput')
           autoCleanInput.setAttribute('class','form-control');
       let autoCleanInputContainer = document.createElement('div');
@@ -658,6 +732,7 @@ class ChatCleaner {
        ///append child nodes
          
         mainNode.appendChild(txtString1);
+         mainNode.appendChild(txtString1_1);
         mainNode.appendChild(secondUIString);
         mainNode.appendChild(thridCleanString);
         mainNode.appendChild(forthStringAutoClean);
@@ -681,7 +756,13 @@ class NetworkInteractor {
         return await this._sendCommand(true,'key');
     }
 
-    async removeOld (seconds) {
+    async removeOld (timeObj={unit:'day',value:1}) {
+        let seconds;
+        if (timeObj.unit == 'day') {
+            seconds = 86400 * timeObj.value;
+        } else if (timeObj.unit == 'hour') {
+            seconds = 3600 * timeObj.value;
+        } 
         return await this._sendCommand(seconds,'remold');
     }
 
