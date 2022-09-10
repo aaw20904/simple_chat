@@ -566,8 +566,10 @@ class ChatCleaner {
               //OK priv.setAutoCleanStatus(true)
               //OK console.log(priv.getCleanThreshold());
               ///OK priv.setCleanThreshold({unit:'hour',value:33});
-                console.log(priv.setAutoCleanTime('02:15'));
-              console.log(priv.getAutoCleanTime());
+             //OK    console.log(priv.setAutoCleanTime('02:15'));
+             //OK console.log(priv.getAutoCleanTime());
+              //OK let uuu = this._convertCleanStartTimeToNumber("3:40");
+              //OK console.log(this._convertCleanStartTimeToString(uuu));
 
                 await priv.onClean(evt)
             }
@@ -743,6 +745,23 @@ class ChatCleaner {
         mainNode.appendChild(tenStringControlProc);
         return mainNode;
         
+    }
+
+    _convertCleanStartTimeToNumber (time='01:16') {
+        let result=0;
+        let substrings = time.split(':');
+        //minuts
+        result = Number(substrings[1])|0;
+        ///hours
+        result |= ((Number(substrings[0])|0) << 6);
+
+        return result
+    }
+
+    _convertCleanStartTimeToString (time=48) {
+        let hours = (time & 0xfc0) >> 6;
+        let minutes = time & 0x3f;
+        return `${hours.toString().padStart(2, '0')}:${minutes}`;
     }
 }
 

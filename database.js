@@ -546,7 +546,7 @@ async incrementFailLoginAttempts (usrId) {
           //get a private member of class
         let db = this.privateMembers.get(this);
         return new Promise((resolve, reject) => {
-            db.query( `SELECT cln_period, cln_en FROM  clean_mode;`,  (err, rows)=>{
+            db.query( `SELECT * FROM  clean_mode;`,  (err, rows)=>{
                 if(err) {
                     reject(err)
                 } else {
