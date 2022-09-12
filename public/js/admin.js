@@ -1,9 +1,9 @@
 window.onload=async ()=>{
-    
+    let notificator = new Toast();
     let networkInteractor = new NetworkInteractor();
-    let msgList = new MessageList(networkInteractor, statusNodeIndicator);
-    let keyControl = new CryptoKeyControl(networkInteractor, statusNodeIndicator);
-    let cleanControl = new ChatCleaner(networkInteractor, statusNodeIndicator, updateFunc);
+    let msgList = new MessageList(networkInteractor, statusNodeIndicator,notificator);
+    let keyControl = new CryptoKeyControl(networkInteractor, statusNodeIndicator,notificator);
+    let cleanControl = new ChatCleaner(networkInteractor, statusNodeIndicator, notificator, updateFunc);
     
     async function updateFunc() {
         return await msgList.buildFullMessageList();
@@ -17,8 +17,14 @@ window.onload=async ()=>{
      //OK cleanControl.applyDBCleanOptions();
      console.log(cleanControl.convertCleanOptionsToDB());
      document.querySelector('.mainWrap').appendChild(await msgList.buildFullMessageList());
+
+     /***/
+     
+     /***/
  
 }
+
+
 
 /******************** */
 function statusNodeIndicator (status=true, text='*') {
@@ -33,8 +39,32 @@ function statusNodeIndicator (status=true, text='*') {
     node.innerText = text;
 }
 
+class Toast {
+
+    showToast(status=true,msg='Helloword'){
+        let toastMsg = document.getElementById('toast_01');
+        if (status) {
+            toastMsg.classList.remove('text-danger')
+            toastMsg.classList.add('text-success')
+        } else {
+            toastMsg.classList.remove('text-success')
+            toastMsg.classList.add('text-danger')
+        }
+        toastMsg.innerText = msg;
+        let toastElem = document.querySelector('.toast');
+        toastElem = new bootstrap.Toast(toastElem);
+        toastElem.show();
+        /*var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+     var toastList = toastElList.map(function(toastEl) {
+       return new bootstrap.Toast(toastEl)
+     });
+     toastList.forEach(toast => toast.show()) ;*/
+    }
+
+}
+
 class MessageList{
-    constructor(networkInteractor = null, statusNodeIndicator=null) {
+    constructor(networkInteractor = null, statusNodeIndicator=null, notificator=null) {
                //making a hide property
       this.privateMembers = new WeakMap();
       //assign a 'private' - it may be an object
@@ -42,6 +72,7 @@ class MessageList{
             myVar:1123,
             networkInteractor: networkInteractor,
             statusNodeIndicator: statusNodeIndicator,
+            notificator: notificator,
             getMessageId: (evt)=>{
                 let result = evt.target.parentNode.parentNode.parentNode.getAttribute('data-message-id');
                 return result;
@@ -56,9 +87,11 @@ class MessageList{
                     netResult = await  members.networkInteractor.removeMessage(msgId);
                     if (netResult.status) {
                         //when success
+                        members.notificator.showToast(true,`${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
                         members.statusNodeIndicator(true, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
                     } else {
                         //when fail
+                        members.notificator.showToast(false,`${netResult.msg}, time: ${new Date().toLocaleTimeString()}`)
                         members.statusNodeIndicator(false, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
                     }
                     netResult.value = msgId;
@@ -198,13 +231,14 @@ class MessageList{
 
 
 class CryptoKeyControl {
-    constructor(networkInteractor = null, statusNodeIndicator=null) {
+    constructor(networkInteractor = null, statusNodeIndicator=null, notificator=null) {
                 //making a hide property
         this.privateMembers = new WeakMap();
         //assign a 'private' - it may be an object
         this.privateMembers.set(this, {
             networkInteractor: networkInteractor,
             statusNodeIndicator: statusNodeIndicator,
+            notificator: notificator,
             setKeyNodeText: (txt)=>{
                 let node = document.querySelector('.symKeyString');
                 node.innerText = txt;
@@ -219,10 +253,12 @@ class CryptoKeyControl {
                         //when success
                         //update key node
                         members.setKeyNodeText(netResult.value);
+                        members.notificator.showToast(true,`${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
                         members.statusNodeIndicator(true, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
                     } else {
                         //when fail
                         members.statusNodeIndicator(false, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
+                        members.notificator.showToast(false,`${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
                     }
                     return netResult;
             },
@@ -279,13 +315,14 @@ class CryptoKeyControl {
 
 
 class ChatCleaner {
-    constructor (networkInteractor = null, statusNodeIndicator=null, generateListFunction=()=>{return null}) {
+    constructor (networkInteractor = null, statusNodeIndicator=null, notificator=null, generateListFunction=()=>{return null} ) {
                 //making a hide property
         this.privateMembers = new WeakMap();
         //assign a 'private' member of the class- it may be an object
         this.privateMembers.set(this, {
             networkInteractor: networkInteractor,
             statusNodeIndicator: statusNodeIndicator,
+            notificator: notificator,
             generateFunction: generateListFunction,
             setAutoCleanPeriod: (arg={unit:'hour',value:1})=>{
                 let clnInput = document.getElementById('autoCleanPeriodInput');
@@ -435,7 +472,7 @@ class ChatCleaner {
                 return{status:true}
              },
                 //returned 4 digits with a semicolon
-             getAutoCleanTime () {
+             getAutoCleanTime: ()=> {
                 let node = document.getElementById('cleanTimeInput');
                 return {status:true, value:node.value}
              },
@@ -488,9 +525,11 @@ class ChatCleaner {
                     if (netResult.status) {
                         //when success
                         //update key node
+                        members.notificator.showToast(true,`${netResult.msg}, time: ${new Date().toLocaleTimeString()}`)
                         members.statusNodeIndicator(true, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
                     } else {
                         //when fail
+                        members.notificator.showToast(false,`${netResult.msg}, time: ${new Date().toLocaleTimeString()}`)
                         members.statusNodeIndicator(false, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
                     }
                     //regeneration of a new mesage list 
@@ -504,10 +543,7 @@ class ChatCleaner {
                     return netResult;
             },
 
-            ////save clean options click event listener
-            onSaveCleanOptions(evt) {
-                
-            }
+            
         })
     }
 
@@ -713,9 +749,12 @@ class ChatCleaner {
           btnApplyClean.setAttribute('class','btn btn-primary roboto-font-family   ');
           btnApplyClean.setAttribute('id','btnApplyClean')
           btnApplyClean.innerText = 'Save options..';
-          ///EVENT LISTENER <<< click >>>
-          btnApplyClean.onclick = async (evt)=>{
 
+          ///EVENT LISTENER <<< click >>>  SAVE OPTIONS
+          btnApplyClean.onclick = async (evt)=>{
+            let opts = this.convertCleanOptionsToDB();
+
+             
           }
 
           let  inpCleanTimeContainer = document.createElement('article');
