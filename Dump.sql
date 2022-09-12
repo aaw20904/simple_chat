@@ -1,3 +1,4 @@
+USE chat;
 -- MySQL dump 10.13  Distrib 8.0.29, for Win64 (x86_64)
 --
 -- Host: localhost    Database: chat
@@ -95,7 +96,7 @@ CREATE TABLE `sym_keys` (
 
 LOCK TABLES `sym_keys` WRITE;
 /*!40000 ALTER TABLE `sym_keys` DISABLE KEYS */;
-INSERT INTO `sym_keys` VALUES (1,_binary 'Џ[¤\М\НSуі3n\о\Ы\Т`#5ўm‘9рм‘‹”›',_binary '‚Б†ђ\Йчd·\еbOf1W');
+INSERT INTO `sym_keys` VALUES (1,_binary 'ВЏ[В¤\ГЊ\ГЌSГіВі3n\Г®В\Г›\Г’`#5ВўmВ‘9Г°Г¬В‘В‹В”В›',_binary 'В‚ГЃВ†Вђ\Г‰Г·dВ·\ГҐbOf1W');
 /*!40000 ALTER TABLE `sym_keys` ENABLE KEYS */;
 UNLOCK TABLES;
 
