@@ -25,9 +25,12 @@ DROP TABLE IF EXISTS `clean_mode`;
 CREATE TABLE `clean_mode` (
   `pk` int NOT NULL DEFAULT '16',
   `cln_period` int NOT NULL,
-  `cln_oldthat` int NOT NULL,
-  `cln_opts` int NOT NULL,
+  `cln_threshold` int NOT NULL,
   `cln_start` int NOT NULL,
+  `service_stat` tinyint NOT NULL,
+  `cln_period_unit` tinyint NOT NULL,
+  `cln_threshold_unit` tinyint NOT NULL,
+  `service_opts` tinyint NOT NULL,
   PRIMARY KEY (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -92,7 +95,7 @@ CREATE TABLE `sym_keys` (
 
 LOCK TABLES `sym_keys` WRITE;
 /*!40000 ALTER TABLE `sym_keys` DISABLE KEYS */;
-INSERT INTO `sym_keys` VALUES (1,_binary 'r\À_;uçò\“√†¯oÛΩñπ,\√\”]:\◊˝4ıíGtL≥á',_binary 'E\Â[¶y_1Ña≤\‡\"Có');
+INSERT INTO `sym_keys` VALUES (1,_binary 'è[§\Ã\ÕSÛ≥3n\Óò\€\“`#5¢më9Ïëãîõ',_binary 'Ç¡Üê\…˜d∑\ÂbOf1W');
 /*!40000 ALTER TABLE `sym_keys` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -158,4 +161,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-09-10 22:12:08
+-- Dump completed on 2022-09-12 16:16:56
