@@ -172,6 +172,16 @@ body {
 	}
 }
 
+input[disabled]{
+   background-color: lightgray !important;
+   color:darkgrey !important;
+}
+ button[disabled]{
+   background-color: lightgray !important;
+   color:darkgrey !important;
+   border:none !important;
+ }
+
 .clickAnimation{
   animation: btnClickAnimation 0.5s ease 0s 1 normal forwards;
 }

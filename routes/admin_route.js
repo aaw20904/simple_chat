@@ -153,6 +153,25 @@ adminRouter.post('/command', async (req,res)=>{
                  return;
               }
             break;
+            case 'sv_cln':
+            try {
+              let result = await adminRouter._layers77
+                        .databaseLayer.saveCleanOptions({
+                          cln_period: req.body.data.cln_period,
+                          cln_threshold: req.body.data.cln_threshold,
+                          cln_start: req.body.cln_start,
+                          service_stat: req.body.service_stat,
+                          cln_period_unit: req.body.cln_period_unit,
+                          cln_threshold_unit: req.body.cln_threshold_unit
+                        });
+              if (result.status) {
+                res.json({status:true, msg:result.results.affectedRows})
+              }
+            } catch(e) {
+              res.json({status:false, msg:e})
+
+            }
+            break;
         default:
         res.status(400);
         res.end();

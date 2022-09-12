@@ -556,6 +556,34 @@ async incrementFailLoginAttempts (usrId) {
         });
     }
 
+    async saveCleanOptions (opts={
+                    cln_period:1,
+                    cln_threshold:10,
+                    cln_start:'15:40',
+                    service_stat:0,
+                    cln_period_unit:0,
+                    cln_threshold_unit:0,
+
+            }){
+                        //get a private member of class
+                let db = this.privateMembers.get(this);
+                
+
+                return new Promise((resolve, reject) => {
+                    db.query( `UPDATE clean_mode SET cln_period=${opts.cln_period}, cln_threshold=${opts.cln_threshold}, `+
+                    ` cln_start=${opts.cln_start}, service_stat=${opts.service_stat}, cln_period_unit=${opts.cln_period_unit},`+
+                    `cln_threshold_unit=${opts.cln_threshold_unit} WHERE pk=16`,  (err, rows)=>{
+                        if(err) {
+                            reject(err)
+                        } else {
+                            resolve({status:true, results:rows[0]});
+                        }
+                    })
+                });
+
+
+    }
+
     
 
 
