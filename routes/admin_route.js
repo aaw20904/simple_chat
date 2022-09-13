@@ -6,6 +6,23 @@ adminRouter.use(cookieParser({extended:true}));
 adminRouter.use(express.json({extended:true}));
 
 
+/*functions for converting */
+adminRouter.convertTimeToInteger = (timeToConv)=>{
+        let result=0;
+        let substrings = timeToConv.split(':');
+        //minuts
+        result = Number(substrings[1])|0;
+        ///hours
+        result |= ((Number(substrings[0])|0) << 6);
+        return result;
+}
+
+adminRouter.convertIntegerToTime = (intToConv) =>{
+        let hours = (intToConv & 0xfc0) >> 6;
+        let minutes = intToConv & 0x3f;
+        return `${hours.toString().padStart(2, '0')}:${minutes}`;
+}
+
 adminRouter.get('/', (req, res)=>{
   res.render('admin.ejs',{status:'text-success',text:''});
 })
@@ -139,33 +156,24 @@ adminRouter.post('/command', async (req,res)=>{
                  return;
               }
             break;
+          
             case 'cln_opt':
-            try {
-                 
-                //try to update
-              let result = await adminRouter._layers77
-                            .databaseLayer.updateCleanOptions({period:Number(req.body.period)|0, enable:Number(req.body.enable)|0})
-                if (result.status) {
-                  res.json({status:true, msg: result.msg})
-                }
-              } catch (e) {
-                 res.json({status:false, msg:e});
-                 return;
-              }
-            break;
-            case 'sv_cln':
+            //save all the clean options to DB
+            //convert time to integer
+            req.body.data.cln_start = adminRouter.convertTimeToInteger(req.body.data.cln_start);
+
             try {
               let result = await adminRouter._layers77
                         .databaseLayer.saveCleanOptions({
                           cln_period: req.body.data.cln_period,
                           cln_threshold: req.body.data.cln_threshold,
-                          cln_start: req.body.cln_start,
-                          service_stat: req.body.service_stat,
-                          cln_period_unit: req.body.cln_period_unit,
-                          cln_threshold_unit: req.body.cln_threshold_unit
+                          cln_start: req.body.data.cln_start,
+                          service_stat: req.body.data.service_stat,
+                          cln_period_unit: req.body.data.cln_period_unit,
+                          cln_threshold_unit: req.body.data.cln_threshold_unit
                         });
               if (result.status) {
-                res.json({status:true, msg:result.results.affectedRows})
+                res.json({status:true, msg:`Updated ${result.results.affectedRows} row`})
               }
             } catch(e) {
               res.json({status:false, msg:e})
@@ -208,6 +216,11 @@ adminRouter.post('/data',async (req,res)=>{
             case 'cln_opt':
                queryChat = await adminRouter._layers77
                       .databaseLayer.getCleanOptions();
+              //convert integer to time
+              if (queryChat.results) {
+                 queryChat.results.cln_start = adminRouter.convertIntegerToTime(queryChat.results.cln_start);
+              }
+              
                res.status(200);
                res.json({status:true, results:queryChat.results});
             break;

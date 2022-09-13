@@ -129,7 +129,7 @@ body {
 }
 
 .cleaner-bg {
-   background-color:lightcoral !important;
+   background-color:burlywood !important;
 }
 
 .cleaner-text {
@@ -181,6 +181,14 @@ input[disabled]{
    color:darkgrey !important;
    border:none !important;
  }
+
+  input[type="radio"]:checked {
+  background-color: firebrick !important;
+  border: 2px solid firebrick !important;
+  
+} 
+
+ 
 
 .clickAnimation{
   animation: btnClickAnimation 0.5s ease 0s 1 normal forwards;

@@ -527,7 +527,7 @@ async incrementFailLoginAttempts (usrId) {
             })
         });
     }
-
+   /*
     async updateCleanOptions (arg={period:24, enable:(1|0)}) {
         //get a private member of class
         let db = this.privateMembers.get(this);
@@ -540,7 +540,7 @@ async incrementFailLoginAttempts (usrId) {
                 }
             })
         });
-    }
+    }*/
 
     async getCleanOptions () {
           //get a private member of class
@@ -560,7 +560,7 @@ async incrementFailLoginAttempts (usrId) {
                     cln_period:1,
                     cln_threshold:10,
                     cln_start:'15:40',
-                    service_stat:0,
+                     
                     cln_period_unit:0,
                     cln_threshold_unit:0,
 
@@ -570,13 +570,15 @@ async incrementFailLoginAttempts (usrId) {
                 
 
                 return new Promise((resolve, reject) => {
-                    db.query( `UPDATE clean_mode SET cln_period=${opts.cln_period}, cln_threshold=${opts.cln_threshold}, `+
-                    ` cln_start=${opts.cln_start}, service_stat=${opts.service_stat}, cln_period_unit=${opts.cln_period_unit},`+
-                    `cln_threshold_unit=${opts.cln_threshold_unit} WHERE pk=16`,  (err, rows)=>{
+                    db.query( `INSERT INTO clean_mode (pk, cln_period, cln_threshold, cln_start, cln_period_unit, cln_threshold_unit)`+
+                    `VALUES (16, ${opts.cln_period},${opts.cln_threshold},${opts.cln_start},${opts.cln_period_unit},${opts.cln_threshold_unit})`+
+                    `ON DUPLICATE KEY UPDATE   cln_period=${opts.cln_period}, cln_threshold=${opts.cln_threshold}, `+
+                    ` cln_start=${opts.cln_start}, cln_period_unit=${opts.cln_period_unit},`+
+                    `cln_threshold_unit=${opts.cln_threshold_unit} `,  (err, rows)=>{
                         if(err) {
                             reject(err)
                         } else {
-                            resolve({status:true, results:rows[0]});
+                            resolve({status:true, results:rows});
                         }
                     })
                 });

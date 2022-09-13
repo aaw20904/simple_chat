@@ -1,4 +1,3 @@
-USE chat;
 -- MySQL dump 10.13  Distrib 8.0.29, for Win64 (x86_64)
 --
 -- Host: localhost    Database: chat
@@ -25,13 +24,13 @@ DROP TABLE IF EXISTS `clean_mode`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `clean_mode` (
   `pk` int NOT NULL DEFAULT '16',
-  `cln_period` int NOT NULL,
-  `cln_threshold` int NOT NULL,
-  `cln_start` int NOT NULL,
-  `service_stat` tinyint NOT NULL,
-  `cln_period_unit` tinyint NOT NULL,
-  `cln_threshold_unit` tinyint NOT NULL,
-  `service_opts` tinyint NOT NULL,
+  `cln_period` int NOT NULL DEFAULT '0',
+  `cln_threshold` int NOT NULL DEFAULT '0',
+  `cln_start` int NOT NULL DEFAULT '0',
+  `service_stat` tinyint NOT NULL DEFAULT '0',
+  `cln_period_unit` tinyint NOT NULL DEFAULT '0',
+  `cln_threshold_unit` tinyint NOT NULL DEFAULT '0',
+  `service_opts` tinyint NOT NULL DEFAULT '0',
   PRIMARY KEY (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -42,6 +41,7 @@ CREATE TABLE `clean_mode` (
 
 LOCK TABLES `clean_mode` WRITE;
 /*!40000 ALTER TABLE `clean_mode` DISABLE KEYS */;
+INSERT INTO `clean_mode` VALUES (16,3,19,1064,0,2,1,0);
 /*!40000 ALTER TABLE `clean_mode` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -96,7 +96,7 @@ CREATE TABLE `sym_keys` (
 
 LOCK TABLES `sym_keys` WRITE;
 /*!40000 ALTER TABLE `sym_keys` DISABLE KEYS */;
-INSERT INTO `sym_keys` VALUES (1,_binary '[¤\Ì\ÍSó³3n\î\Û\Ò`#5¢m9ðì',_binary 'Á\É÷d·\åbOf1W');
+INSERT INTO `sym_keys` VALUES (1,_binary '\И\Ь\0Io~?X\йUу$\аь;ш\ЖБZtѕёС€v@Ў®Њ\в\Х',_binary 'yю®[џ$°{T\"#Џі');
 /*!40000 ALTER TABLE `sym_keys` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -162,4 +162,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-09-12 16:16:56
+-- Dump completed on 2022-09-13 13:08:01

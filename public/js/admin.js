@@ -4,7 +4,7 @@ window.onload=async ()=>{
     let msgList = new MessageList(networkInteractor, statusNodeIndicator,notificator);
     let keyControl = new CryptoKeyControl(networkInteractor, statusNodeIndicator,notificator);
     let cleanControl = new ChatCleaner(networkInteractor, statusNodeIndicator, notificator, updateFunc);
-    
+    let cleanOptions;
     async function updateFunc() {
         return await msgList.buildFullMessageList();
     }
@@ -13,9 +13,18 @@ window.onload=async ()=>{
      let y = await cleanControl.createCleaner()
          //append admin clean board
      document.querySelector('.mainWrap').appendChild(y);
-        //append clean options from the db
+     //get clean opts from network
+     cleanOptions = await networkInteractor.getCleanOptions();
+     //when success - apply it
+     if(cleanOptions.status) {
+             //append clean options from the db
+        cleanControl.applyDBCleanOptions(cleanOptions.results);
+     } else {
+        notificator.showToast(false,cleanOptions.msg);
+     }
+   
      //OK cleanControl.applyDBCleanOptions();
-     console.log(cleanControl.convertCleanOptionsToDB());
+     //OKconsole.log(cleanControl.convertCleanOptionsToDB());
      document.querySelector('.mainWrap').appendChild(await msgList.buildFullMessageList());
 
      /***/
@@ -41,8 +50,10 @@ function statusNodeIndicator (status=true, text='*') {
 
 class Toast {
 
-    showToast(status=true,msg='Helloword'){
+    showToast(status=true,msg='Helloword',time=new Date().toLocaleTimeString()){
         let toastMsg = document.getElementById('toast_01');
+        let small =  document.getElementById('toast_time_01')
+        small.innerText = time;
         if (status) {
             toastMsg.classList.remove('text-danger')
             toastMsg.classList.add('text-success')
@@ -547,7 +558,7 @@ class ChatCleaner {
         })
     }
 
-
+   /***public members of ChatCleaner */
    async createCleaner () {
         //get private members
         let priv = this.privateMembers.get(this);
@@ -615,7 +626,7 @@ class ChatCleaner {
                     evt.target.classList.remove('clickAnimation')
                 },1000)
             }
-            //event listener on click
+            //EVENT LISTENER << click >> 'clean once immediately'
             btnRemoveImg.onclick = async (evt) =>{
                  // priv.setAutoCleanPeriod({unit:'days',value:80});
                 //ok priv.getAutoCleanPeriod(); 
@@ -750,11 +761,18 @@ class ChatCleaner {
           btnApplyClean.setAttribute('id','btnApplyClean')
           btnApplyClean.innerText = 'Save options..';
 
-          ///EVENT LISTENER <<< click >>>  SAVE OPTIONS
+          ///EVENT LISTENER <<< click >>>  'SAVE OPTIONS'
           btnApplyClean.onclick = async (evt)=>{
+            //get options from DOM
             let opts = this.convertCleanOptionsToDB();
+            //try to save
+            let netresult = await priv.networkInteractor.saveCleanOptions(opts.results);
+            if (netresult.status) {
+                priv.notificator.showToast(true, netresult.msg);
+            } else {
+                priv.notificator.showToast(false, netresult.msg);
+            }
 
-             
           }
 
           let  inpCleanTimeContainer = document.createElement('article');
@@ -818,7 +836,7 @@ class ChatCleaner {
                 cln_period_unit:1,
                 cln_period:14,
                 cln_start:"03:45",
-                service_stat:1,
+                service_stat:0,
     }) {
         //get private members
         let priv = this.privateMembers.get(this);
@@ -878,7 +896,7 @@ class ChatCleaner {
         //2)a period
         priv.activateAutoCleanPeriodInput(true)
         //3)a start time
-        priv.activateAutoCleanStartTimer(true);
+        priv.activateAutoCleanStartTime(true);
         //4)a start process button
         priv.activateBtnStart(true);
         //5) save options
@@ -934,23 +952,6 @@ class ChatCleaner {
        return {status:true, results:result}
     }
 
-
-    _convertCleanStartTimeToNumber (time='01:16') {
-        let result=0;
-        let substrings = time.split(':');
-        //minuts
-        result = Number(substrings[1])|0;
-        ///hours
-        result |= ((Number(substrings[0])|0) << 6);
-
-        return result
-    }
-
-    _convertCleanStartTimeToString (time=48) {
-        let hours = (time & 0xfc0) >> 6;
-        let minutes = time & 0x3f;
-        return `${hours.toString().padStart(2, '0')}:${minutes}`;
-    }
 }
 
 class NetworkInteractor {
@@ -964,7 +965,7 @@ class NetworkInteractor {
     }
 
     async saveCleanOptions (opts) {
-        return await this._sendCommand(opts,'sv_cln');
+        return await this._sendCommand(opts,'cln_opt');
     }
 
     async removeOld (timeObj={unit:'day',value:1}) {
@@ -984,6 +985,8 @@ class NetworkInteractor {
     async getCleanOptions () {
         return await this._queryData('cln_opt');
     }
+
+   
 
     async _queryData (comm) {
         //define the adress - where you want to send
