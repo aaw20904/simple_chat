@@ -757,7 +757,7 @@ class ChatCleaner {
           //apply button
         let btnApplyClean = document.createElement('button');
           btnApplyClean.setAttribute('type','button');
-          btnApplyClean.setAttribute('class','btn btn-primary roboto-font-family   ');
+          btnApplyClean.setAttribute('class','btn btn-primary roboto-button-font');
           btnApplyClean.setAttribute('id','btnApplyClean')
           btnApplyClean.innerText = 'Save options..';
 
@@ -804,15 +804,41 @@ class ChatCleaner {
      let tenStringControlProc = document.createElement('div');
            tenStringControlProc.setAttribute('class','d-flex flex-row justify-content-between align-items-center w-100');
      let procStartBtn = document.createElement('button');
-         procStartBtn.setAttribute('class',' btn roboto-font-family btn-primary mx-1');
+         procStartBtn.setAttribute('class',' btn roboto-button-font btn-primary mx-1');
          procStartBtn.setAttribute('id','processStart')
          procStartBtn.innerText = 'Start process..';
+         ///EVENT LISTENER <<click>>  
+         procStartBtn.onclick = (evt) =>{
+            //lock inputs
+            priv.activateBtnStart(false)
+            priv.activateBtnStop(true)
+            priv.activateButtonSaveOpt(false)
+            priv.activateCleanThreshold(false)
+            priv.activateAutoCleanStartTime(false);
+            priv.activateAutoCleanPeriodInput(false);
+            priv.setAutoCleanStatus(true);
+            priv.notificator.showToast(true,'Cleaning Process started!');
+         }
+
      let procStopBtn = document.createElement('button');
-         procStopBtn.setAttribute('class','processStop roboto-font-family btn btn-primary mx-1');
+         procStopBtn.setAttribute('class','processStop roboto-button-font btn btn-primary mx-1');
          procStopBtn.setAttribute('id','processStop')
+         procStopBtn.setAttribute('disabled','');
          procStopBtn.innerText = 'Stop process..';
          tenStringControlProc.appendChild(procStartBtn);
          tenStringControlProc.appendChild(procStopBtn);
+         ///EVENT LSTENER <<lick>>
+         procStopBtn.onclick=(evt)=>{
+            //unlock inputs
+            priv.activateBtnStart(true)
+            priv.activateBtnStop(false)
+            priv.activateButtonSaveOpt(true)
+            priv.activateCleanThreshold(true)
+            priv.activateAutoCleanStartTime(true);
+            priv.activateAutoCleanPeriodInput(true);
+            priv.setAutoCleanStatus(false);
+             priv.notificator.showToast(true,'Cleaning Process stopped!')
+         }
 
        ///append child nodes
          
@@ -884,7 +910,9 @@ class ChatCleaner {
         priv.activateAutoCleanStartTime(false);
         //4)a start process button
         priv.activateBtnStart(false);
-        //5) save options
+        //5)button stop
+        priv.activateBtnStop(true);
+        //6) save options
         priv.activateButtonSaveOpt(false);
 
       } else {
@@ -899,6 +927,8 @@ class ChatCleaner {
         priv.activateAutoCleanStartTime(true);
         //4)a start process button
         priv.activateBtnStart(true);
+        //5)button stop
+        priv.activateBtnStop(false);
         //5) save options
         priv.activateButtonSaveOpt(true);
 

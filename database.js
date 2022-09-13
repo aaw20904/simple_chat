@@ -586,6 +586,36 @@ async incrementFailLoginAttempts (usrId) {
 
     }
 
+    async writeAutoCleanStatus() {
+         //get a private member of class
+        let db = this.privateMembers.get(this);
+        return new Promise((resolve, reject) => {
+            db.query(`INSERT INTO clean_mode (pk, service_stat) VALUES (16,0x01) `+
+            `ON DUPLICATE KEY UPDATE service_stat=service_stat | 0x01;`,  (err, rows)=>{
+                if(err) {
+                    reject(err)
+                } else {
+                    resolve({status:true, results:rows[0]});
+                }
+            })
+        });
+
+    }
+
+    async clearAutoCleanStartEvent() {
+          let db = this.privateMembers.get(this);
+        return new Promise((resolve, reject) => {
+            db.query(`INSERT INTO clean_mode (pk, service_stat) VALUES (16, 0) `+
+            `ON DUPLICATE KEY UPDATE service_stat=service_stat & 0x0FFFFFFE;`,  (err, rows)=>{
+                if(err) {
+                    reject(err)
+                } else {
+                    resolve({status:true, results:rows[0]});
+                }
+            })
+        });
+    }
+
     
 
 
