@@ -1,3 +1,4 @@
+
 import  express from "express"
 import cookieParser from "cookie-parser"
 let adminRouter = express.Router();
@@ -5,21 +6,34 @@ let adminRouter = express.Router();
 adminRouter.use(cookieParser({extended:true}));
 adminRouter.use(express.json({extended:true}));
 
-//**checking authentication */
+//**--------checking authentication------- */
 adminRouter.use( async function (req, resp, next) {
   console.log(`COOKIES: ${req.cookies.sessionInfo}`);
  let authResult = await adminRouter._layers77
     .authenticationLayer.authenticateUserByCookie(req.cookies.sessionInfo);
     if (!authResult.status) {
       console.log(authResult);
-      resp.redirect('../login');
+
+      
+      const protocol = req.protocol;
+    const host = req.hostname;
+    const url = req.originalUrl;
+    const port = process.env.PORT;
+    let redirectLoginURI = encodeURI(`${protocol}://${host}/login/?addr=${protocol}://${host}${req.baseUrl}&curTime=${new Date().toLocaleTimeString()}`);
+    const fullUrl = `${protocol}://${host}:${port}${url}`
+      let parsedURL = new URL(redirectLoginURI);
+      let returnAddr = parsedURL.searchParams.get('addr');
+      console.log(parsedURL.searchParams.get('curTime'));
+
+      //set a cookie to come back after authorization
+      resp.redirect(redirectLoginURI);
     } else {
-      //when a cookie must updated
-      if(authResult.results.mustUpdated){
-        //set a new cookie value
-        resp.cookie( adminRouter._layers77.authCookieName, usrValidation.results.cookie, { sameSite: 'None', secure:true });
-      }
-      next();  
+        //when a cookie must updated
+          if(authResult.results.mustUpdated){
+            //set a new cookie value
+            resp.cookie( adminRouter._layers77.authCookieName, usrValidation.results.cookie, { sameSite: 'None', secure:true });
+          }
+        next();  
     }
 
 })

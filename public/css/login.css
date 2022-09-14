@@ -26,3 +26,7 @@
 .freespace-background{
     background-color:beige;
 }
+
+.hide-item{
+    display: none !important;
+}
