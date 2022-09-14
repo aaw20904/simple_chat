@@ -8,6 +8,7 @@
    }
 
  */
+ import sizeof from 'object-sizeof'
  import cookieParser from "cookie-parser"
 import  registerRouter  from './routes/register_route.js'
 import loginRouter from './routes/login_route.js'
@@ -17,13 +18,16 @@ import pswChangeRouter from "./routes/psw_change_route.js";
 import UserRegistration from "./registration.js";
 import AuthorizationUser from './authorization.js';
 import DBinterface  from './database.js';
+import WebSocket, { WebSocketServer } from 'ws';
 import express from 'express';
 import mysql from 'mysql2';
+import fs from 'fs';
 import svgCaptcha from 'svg-captcha';
 
 import CryptoProcedures from './cryptoroutines.js';
 import UserAuthentication from './authentication.js';
 import crypto from 'crypto';
+import { fstat } from 'fs'
 
 const DATABASE_USER='root';
 const DATABASE_HOST='localhost';
@@ -132,6 +136,7 @@ pswChangeRouter._layers77 = layers77;
     /***server intialization**** */
   // set the view engine to ejs
 //app.set('view engine', 'ejs');
+///routes registration
 app.use("/register", registerRouter);
 app.use("/login", loginRouter);
 app.use("/logoff", logoffRouter);
@@ -148,3 +153,31 @@ app.get('/',(req, res)=>{
   res.render('okay.ejs',{time: new Date().toLocaleTimeString()});
 })
 app.listen(80, ()=>console.log('Listen...'))
+
+
+/*******WebSocket ****/
+// (A) CREATE WEBSOCKET SERVER AT PORT 8080
+
+const wss = new WebSocketServer({ port: 8080 });
+// (B) ON CLIENT CONNECT
+wss.on("connection", (socket, req) => {
+    // (B1) SEND MESSAGE TO CLIENT
+     socket.send("Welcome!");
+     
+    // (B2) ON RECEIVING MESSAGE FROM CLIENT
+    socket.on("message", (msg) => {
+      console.log(JSON.stringify(socket));
+      let message = msg.toString(); // MSG IS BUFFER OBJECT
+      socket.send(`OK ->> ${Date.now().toString('2')}`,()=>console.log('sent!'));
+    console.log(message);
+    });
+    // (B3) ON CLIENT DISCONNECT
+    socket.on("close", (code, reason) => {
+    console.log(code);
+    console.log(reason);
+    });
+});
+// (C) NOT-SO-CRITICAL EVENTS
+wss.on("listening", () => { console.log("WS READY and listen on port 8080... "); });
+wss.on("close", () => { console.log("STOPPED"); });
+wss.on("error", (err) => { console.log(err); });

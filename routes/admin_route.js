@@ -5,6 +5,19 @@ let adminRouter = express.Router();
 adminRouter.use(cookieParser({extended:true}));
 adminRouter.use(express.json({extended:true}));
 
+//**checking authentication */
+adminRouter.use( async function (req, resp, next) {
+  console.log(`COOKIES: ${req.cookies.sessionInfo}`);
+ let authResult = await adminRouter._layers77
+    .authenticationLayer.authenticateUserByCookie(req.cookies.sessionInfo);
+    if(!authResult.status) {
+      resp.redirect('../login');
+    } else {
+      next();  
+    }
+ 
+
+})
 
 /*functions for converting */
 adminRouter.convertTimeToInteger = (timeToConv)=>{
@@ -24,6 +37,7 @@ adminRouter.convertIntegerToTime = (intToConv) =>{
 }
 
 adminRouter.get('/', (req, res)=>{
+
   res.render('admin.ejs',{status:'text-success',text:''});
 })
 

@@ -1,3 +1,5 @@
+//import { resolveInclude } from "ejs";
+
 window.onload=async ()=>{
     let notificator = new Toast();
     let networkInteractor = new NetworkInteractor();
@@ -5,9 +7,39 @@ window.onload=async ()=>{
     let keyControl = new CryptoKeyControl(networkInteractor, statusNodeIndicator,notificator);
     let cleanControl = new ChatCleaner(networkInteractor, statusNodeIndicator, notificator, updateFunc);
     let cleanOptions;
+    /******<<DEBUG CODE>>>  */
+    // (A) CONNECT TO WEB SOCKET SERVER
+    let web_socket= await new Promise((resolve, reject) => {
+        let socket = new WebSocket("ws://localhost:8080");
+        // (B) ON CONNECTING TO THE SERVER
+        socket.addEventListener("open", () => {
+        socket.send("Hello Server!"); // SEND MESSAGE TO SERVER
+        resolve(socket);
+        });
+    }); 
+        
+        // (C) ON RECEIVING MESSAGE FROM SERVER
+        web_socket.addEventListener("message", (evt) => {
+        console.log(evt.data);
+        });
+        // (D) ON CONNECTION CLOSE
+        web_socket.addEventListener("close", () => {
+        console.log("Connection Closed");
+        });
+        // (E) ON ERROR
+        web_socket.addEventListener("error", (err) => {
+        console.log(err);
+        });
+    let debugButton = document.querySelector('.debug_button');
+    debugButton.onclick=(evt)=>{
+        web_socket.send(new Date().toLocaleTimeString());
+    }
     async function updateFunc() {
         return await msgList.buildFullMessageList();
     }
+
+    //****<<END DEBUG>>
+
    
      document.querySelector('.mainWrap').appendChild(keyControl.makeKeyNode('a4s4dsa364d64fes354efs'));
      let y = await cleanControl.createCleaner()
