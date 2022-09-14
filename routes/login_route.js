@@ -24,7 +24,7 @@ loginRouter.post('/data', async (req, res)=>{
          return;
     }
     //when success - assign a cookie
-    res.cookie('sessionInfo', usrValidation.results.token, { sameSite: 'None', secure:true });
+    res.cookie(loginRouter._layers77.authCookieName, usrValidation.results.token, { sameSite: 'None', secure:true });
    
     //redirect to root
     res.redirect('../');

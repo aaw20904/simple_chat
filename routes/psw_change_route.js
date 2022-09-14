@@ -43,7 +43,7 @@ import cookieParser from "cookie-parser"
 
     }
         //clear a cookie
-    res.clearCookie('sessionInfo');
+    res.clearCookie(pswChangeRouter._layers77.authCookieName);
         //redirect to root
     res.render('psw_change_ok.ejs',{date: new Date().toString()});
         // res.render('okay.ejs', {time: new Date().toLocaleTimeString()});

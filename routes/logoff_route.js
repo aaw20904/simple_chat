@@ -24,7 +24,7 @@ logoffRouter.get("/",async (req, res)=>{
   //log off
   let logoffResult = await logoffRouter._layers77.authorizeLayer.logoffUser(decoded.results.usrId);
   if (logoffResult.status) {
-      res.clearCookie('sessionInfo');
+      res.clearCookie(logoffRouter._layers77.authCookieName);
       res.render('results.ejs',{colorStatus:"text-success", textStatus:"OK!!", reason:'You are log off successfully!', time:new Date().toTimeString()});
   } else {
      res.render('results.ejs',{colorStatus:"text-danger", textStatus:"Error!", reason:decoded.msg, time:new Date().toTimeString()});

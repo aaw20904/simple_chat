@@ -42,6 +42,7 @@ let layers77= {
   authenticationLayer: null,
   authorizeLayer: null,
   registrationLayer: null,
+  authCookieName: 'sessionInfo'
 }
 //init global interfaces in routes
 registerRouter._layers77 = layers77;
@@ -77,8 +78,8 @@ pswChangeRouter._layers77 = layers77;
     //create an instance init key and vect
     layers77.cryptoLayer = new CryptoProcedures(keys.results );
     layers77.authenticationLayer = new UserAuthentication(layers77.cryptoLayer, layers77.databaseLayer,{
-                                                                AUTH_COOKIE_LIFE_TIME:36000,//all the fields are in  milliseconds
-                                                                AUTH_COOKIE_UPDATE_THRESHOLD:1800,
+                                                                AUTH_COOKIE_LIFE_TIME:600000,//all the fields are in  milliseconds
+                                                                AUTH_COOKIE_UPDATE_THRESHOLD:30000,//all the fields are in  milliseconds
                                                                 AUTH_FAIL_ATTEMPTS:10,
                                                                 });
     layers77.authorizeLayer = new AuthorizationUser(layers77.databaseLayer, layers77.cryptoLayer, layers77.authenticationLayer,{AUTH_FAIL_ATTEMPTS:10});

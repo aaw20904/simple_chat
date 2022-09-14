@@ -10,12 +10,17 @@ adminRouter.use( async function (req, resp, next) {
   console.log(`COOKIES: ${req.cookies.sessionInfo}`);
  let authResult = await adminRouter._layers77
     .authenticationLayer.authenticateUserByCookie(req.cookies.sessionInfo);
-    if(!authResult.status) {
+    if (!authResult.status) {
+      console.log(authResult);
       resp.redirect('../login');
     } else {
+      //when a cookie must updated
+      if(authResult.results.mustUpdated){
+        //set a new cookie value
+        resp.cookie( adminRouter._layers77.authCookieName, usrValidation.results.cookie, { sameSite: 'None', secure:true });
+      }
       next();  
     }
- 
 
 })
 
