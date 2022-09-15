@@ -1,11 +1,16 @@
 //import { resolveInclude } from "ejs";
 
 window.onload=async ()=>{
+    let xhtmlNetworkInterractor = new XhtmlNetworkInterractor();
+    let anotherButtonTest = document.querySelector('.debug_button_one');
+    anotherButtonTest.onclick = async () => {
+      await  xhtmlNetworkInterractor._sendCommand();
+    }
     let notificator = new Toast();
     let networkInteractor = new NetworkInteractor();
-    let msgList = new MessageList(networkInteractor, statusNodeIndicator,notificator);
-    let keyControl = new CryptoKeyControl(networkInteractor, statusNodeIndicator,notificator);
-    let cleanControl = new ChatCleaner(networkInteractor, statusNodeIndicator, notificator, updateFunc);
+    let msgList = new MessageList(xhtmlNetworkInterractor, statusNodeIndicator,notificator);
+    let keyControl = new CryptoKeyControl(xhtmlNetworkInterractor, statusNodeIndicator,notificator);
+    let cleanControl = new ChatCleaner(xhtmlNetworkInterractor, statusNodeIndicator, notificator, updateFunc);
     let cleanOptions;
     /******<<DEBUG CODE>>>  */
     // (A) CONNECT TO WEB SOCKET SERVER
@@ -1083,9 +1088,9 @@ class NetworkInteractor {
 
     async _sendCommand (data, command) {
 
-                //define the adress - where you want to send
+            //define the adress - where you want to send
             const currentUrl = new URL(document.location.href)
-            let resp;
+            let resp_;
             // current base URL
             // url = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
             let  url = `${currentUrl.protocol}//${currentUrl.hostname}/admin/command${currentUrl.port}`;
@@ -1098,7 +1103,7 @@ class NetworkInteractor {
                 method:'post',
             }
             try {
-                resp = await fetch(url, options);
+                resp_ = await fetch(url, options);
             } catch (e) {
                 return {
                         status: false,
@@ -1107,14 +1112,147 @@ class NetworkInteractor {
                     }
             }
             //save stsatus code 
-            let statusCode = resp.status;
+            let statusCode = resp_.status;
+            //-------<< FIX a json parse bug
+
+          
             if (statusCode !== 200) {
-                return {status:false, msg:`${resp.status}, ${resp.statusText}`};
+                return {status:false, msg:`${resp_.status}, ${resp_.statusText}`};
             }
             //read JSON data 
-            let jsonData = await resp.json();
+            let jsonData = await resp_.json();
             return jsonData;
     }
 
+
+}
+//hmlHttpRquest based
+class XhtmlNetworkInterractor {
+
+
+    async removeMessage(msgId) {
+            return await this._sendCommand(msgId,'delmsg');
+    }
+
+    async updateKey () {
+        return await this._sendCommand(true,'key');
+    }
+
+    async saveCleanOptions (opts) {
+        return await this._sendCommand(opts,'cln_opt');
+    }
+
+    async removeOld (timeObj={unit:'day',value:1}) {
+        let seconds;
+        if (timeObj.unit == 'day') {
+            seconds = 86400 * timeObj.value;
+        } else if (timeObj.unit == 'hour') {
+            seconds = 3600 * timeObj.value;
+        } 
+        return await this._sendCommand(seconds,'remold');
+    }
+
+    async getFullChat () {
+         return await this._queryData('chat');
+    }
+    
+    async getCleanOptions () {
+        return await this._queryData('cln_opt');
+    }
+
+   
+
+
+    async _queryData(command) {
+        return   new Promise((resolve, reject) => {
+                //define the adress - where you want to send
+                const currentUrl = new URL(document.location.href)
+                let resp_;
+                // current base URL
+                // url = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
+                let  url = `${currentUrl.protocol}//${currentUrl.hostname}/admin/data${currentUrl.port}`;
+                var xhr = new XMLHttpRequest();
+
+                // listen for `load` event
+                xhr.onload = () => {
+
+                    // print JSON response
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        // parse JSON
+                        const response = JSON.parse(xhr.responseText);
+                        console.log(response);
+                        resolve(response);
+                    }
+                };
+
+                //when error
+                xhr.onerror = (e) => {
+                    resolve({status:false,msg:e})
+                }
+
+                // create a JSON object
+                const json = {
+                    
+                    "command": command
+                };
+
+                // open request
+                xhr.open('POST', url);
+
+                // set `Content-Type` header
+                xhr.setRequestHeader('Content-Type', 'application/json');
+
+                // send rquest with JSON payload
+                xhr.send(JSON.stringify(json));      
+        });
+
+
+    }
+
+    async _sendCommand(data, command) {
+     return   new Promise((resolve, reject) => {
+                //define the adress - where you want to send
+                const currentUrl = new URL(document.location.href)
+                let resp_;
+                // current base URL
+                // url = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
+                let  url = `${currentUrl.protocol}//${currentUrl.hostname}/admin/command${currentUrl.port}`;
+                var xhr = new XMLHttpRequest();
+
+                // listen for `load` event
+                xhr.onload = () => {
+
+                    // print JSON response
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        // parse JSON
+                        const response = JSON.parse(xhr.responseText);
+                        console.log(response);
+                        resolve(response);
+                    }
+                };
+
+                //when error
+                xhr.onerror = (e) => {
+                    resolve({status:false,msg:e})
+                }
+
+                // create a JSON object
+                const json = {
+                    "data": data,
+                    "command": command
+                };
+
+                // open request
+                xhr.open('POST', url);
+
+                // set `Content-Type` header
+                xhr.setRequestHeader('Content-Type', 'application/json');
+
+                // send rquest with JSON payload
+                xhr.send(JSON.stringify(json));      
+        });
+
+
+    }
 
 }

@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser"
 let loginRouter = express.Router();
 
  loginRouter.use(express.urlencoded({extended:true}));
+ loginRouter.use(express.json());
  loginRouter.use(cookieParser());
 
  loginRouter.get('/',async (req, res)=>{
@@ -30,19 +31,17 @@ loginRouter.post('/data', async (req, res)=>{
     //checking a user
     let usrValidation = await loginRouter._layers77
         .authorizeLayer.authorizeUser(req.body.usrName, req.body.usrPassword);
-   
+  
     //when credantails are incorrect
     if (!usrValidation.status) {
-        
-         res.render('login.ejs',{statusColor: "text-danger", statusString: usrValidation.msg, usrName:req.body.usrName});
+        res.json({status:false,msg:'Incorrect name or password!'})
+         //res.render('login.ejs',{statusColor: "text-danger", statusString: usrValidation.msg, usrName:req.body.usrName});
          return;
     }
     //when success - assign a cookie
     res.cookie(loginRouter._layers77.authCookieName, usrValidation.results.token, { sameSite: 'None', secure:true });
-    //has a login route been redirected from any chat HTML page?
-
-    //redirect to root
-    res.redirect('../');
+    //return success
+    res.json({status:true,msg:'You are log in successfully'});
    // res.render('okay.ejs', {time: new Date().toLocaleTimeString()});
 })
 

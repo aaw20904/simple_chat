@@ -1,9 +1,9 @@
 
 
 export default class UserAuthentication {
-    constructor (CryptoProcedures, DBinterface, userConstraints={
-                                                                AUTH_COOKIE_LIFE_TIME:36000,
-                                                                AUTH_COOKIE_UPDATE_THRESHOLD:1800,
+    constructor (CryptoProcedures, DBinterface, userConstraints={ //in milliseconds
+                                                                AUTH_COOKIE_LIFE_TIME:600000,
+                                                                AUTH_COOKIE_UPDATE_THRESHOLD:30000,
                                                                 AUTH_FAIL_ATTEMPTS:10,
                                                                 }) {
              //making a hide property

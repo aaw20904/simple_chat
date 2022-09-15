@@ -11,28 +11,19 @@ adminRouter.use( async function (req, resp, next) {
   console.log(`COOKIES: ${req.cookies.sessionInfo}`);
  let authResult = await adminRouter._layers77
     .authenticationLayer.authenticateUserByCookie(req.cookies.sessionInfo);
+    //has a user authenticated successfull?
     if (!authResult.status) {
-      console.log(authResult);
-
-      
-      const protocol = req.protocol;
-    const host = req.hostname;
-    const url = req.originalUrl;
-    const port = process.env.PORT;
-    let redirectLoginURI = encodeURI(`${protocol}://${host}/login/?addr=${protocol}://${host}${req.baseUrl}&curTime=${new Date().toLocaleTimeString()}`);
-    const fullUrl = `${protocol}://${host}:${port}${url}`
-      let parsedURL = new URL(redirectLoginURI);
-      let returnAddr = parsedURL.searchParams.get('addr');
-      console.log(parsedURL.searchParams.get('curTime'));
-
+      let redirectLoginURI = encodeURI(`${req.protocol}://${ req.hostname}/login/`);//?addr=${req.protocol}://${req.hostname}${req.baseUrl}/&curTime=${new Date().toLocaleTimeString()}`);
       //set a cookie to come back after authorization
       resp.redirect(redirectLoginURI);
     } else {
-        //when a cookie must updated
+       
           if(authResult.results.mustUpdated){
+             //when a cookie must updated
             //set a new cookie value
-            resp.cookie( adminRouter._layers77.authCookieName, usrValidation.results.cookie, { sameSite: 'None', secure:true });
+            resp.cookie( adminRouter._layers77.authCookieName, authResult.results.cookie, { sameSite: 'None', secure:true });
           }
+          //when success
         next();  
     }
 
@@ -162,7 +153,7 @@ adminRouter.post('/command', async (req,res)=>{
                 let decorationString = await adminRouter._layers77
                   .cryptoLayer.generateRandomString(8);
                 if (recordStatus.status) {
-                    res.json({status:true, msg:'Key updated successfully!', value:decorationString});
+                    res.json({status:true, msg:'Key updated successfully!', value:'XXXX-XXXX'});
                     return;
                 }
                     res.json({status:false, msg:recordStatus.msg});
@@ -212,6 +203,10 @@ adminRouter.post('/command', async (req,res)=>{
               res.json({status:false, msg:e})
 
             }
+            break;
+            case 'debug':
+             console.log(req.body);
+             res.json({time:new Date().toLocaleTimeString()});
             break;
         default:
         res.status(400);
