@@ -113,7 +113,7 @@ export default class UserAuthentication {
         return {status:true, msg:"Successfully authenticated", results:{ mustUpdated:true, info:userInfo.results, cookie:newCookie}}
        } else {
             //RETURN->@ B) authorized, update cokie(token) not needed 
-        return {status:true, msg:"Successfully authenticated", results:{ mustUpdated:false, info:userInfo.results} }
+        return {status:true, msg:"Successfully authenticated", results:{mustUpdated:false, mustUpdated:false, info:userInfo.results} }
        }
         
     }

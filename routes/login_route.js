@@ -8,7 +8,7 @@ let loginRouter = express.Router();
 
  loginRouter.get('/',async (req, res)=>{
     //assembling an uri
-    const protocol = req.protocol;
+   /* const protocol = req.protocol;
     const host = req.hostname;
     const url = req.originalUrl;
     let thisURL = `${req.protocol}://${req.hostname}${req.originalUrl}`;
@@ -17,11 +17,11 @@ let loginRouter = express.Router();
     //has any request been redirected here as a result authenticate Cookie expiration?
     if(!urlForReturn) {
       urlForReturn = '*';
-    }
+    }*/
      console.log(req.body);
     //read reference info
     //assign to a cookie
-    res.render('login.ejs',{statusColor:"text-success",statusString:"Enter credantails:", usrName:"*",returnAddr:urlForReturn});
+    res.render('login.ejs',{statusColor:"text-success",statusString:"Enter credantails:", usrName:"*"});
  })
 
 
@@ -34,15 +34,16 @@ loginRouter.post('/data', async (req, res)=>{
   
     //when credantails are incorrect
     if (!usrValidation.status) {
-        res.json({status:false,msg:'Incorrect name or password!'})
-         //res.render('login.ejs',{statusColor: "text-danger", statusString: usrValidation.msg, usrName:req.body.usrName});
+         
+          res.render('login.ejs',{statusColor: "text-danger", statusString: usrValidation.msg, usrName:req.body.usrName});
          return;
     }
     //when success - assign a cookie
     res.cookie(loginRouter._layers77.authCookieName, usrValidation.results.token, { sameSite: 'None', secure:true });
     //return success
-    res.json({status:true,msg:'You are log in successfully'});
-   // res.render('okay.ejs', {time: new Date().toLocaleTimeString()});
+    //or redirect
+    res.redirect(`${req.protocol}://${req.hostname}`);
+    // res.render('okay.ejs', {time: new Date().toLocaleTimeString()});
 })
 
 export {loginRouter as default}

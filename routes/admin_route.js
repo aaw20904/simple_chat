@@ -9,23 +9,9 @@ adminRouter.use(express.json({extended:true}));
 //**--------checking authentication------- */
 adminRouter.use( async function (req, resp, next) {
   console.log(`COOKIES: ${req.cookies.sessionInfo}`);
- let authResult = await adminRouter._layers77
-    .authenticationLayer.authenticateUserByCookie(req.cookies.sessionInfo);
-    //has a user authenticated successfull?
-    if (!authResult.status) {
-      let redirectLoginURI = encodeURI(`${req.protocol}://${ req.hostname}/login/`);//?addr=${req.protocol}://${req.hostname}${req.baseUrl}/&curTime=${new Date().toLocaleTimeString()}`);
-      //set a cookie to come back after authorization
-      resp.redirect(redirectLoginURI);
-    } else {
-       
-          if(authResult.results.mustUpdated){
-             //when a cookie must updated
-            //set a new cookie value
-            resp.cookie( adminRouter._layers77.authCookieName, authResult.results.cookie, { sameSite: 'None', secure:true });
-          }
-          //when success
+ 
         next();  
-    }
+    
 
 })
 
@@ -46,17 +32,52 @@ adminRouter.convertIntegerToTime = (intToConv) =>{
         return `${hours.toString().padStart(2, '0')}:${minutes}`;
 }
 
-adminRouter.get('/', (req, res)=>{
-
-  res.render('admin.ejs',{status:'text-success',text:''});
+adminRouter.get('/', async (req, res)=>{
+  /**checking credantails */
+  let authResult = await adminRouter._layers77
+  .authenticationLayer.authenticateUserByCookie(req.cookies.sessionInfo);
+  //has a user authenticated successfull?
+  if (!authResult.status) {
+    let redirectLoginURI = encodeURI(`${req.protocol}://${ req.hostname}/login/`);//?addr=${req.protocol}://${req.hostname}${req.baseUrl}/&curTime=${new Date().toLocaleTimeString()}`);
+    //set a cookie to come back after authorization
+    res.redirect(redirectLoginURI);
+  } else {
+     
+        if(authResult.results.mustUpdated){
+           //when a cookie must updated
+          //set a new cookie value
+          res.cookie( adminRouter._layers77.authCookieName, authResult.results.cookie, { sameSite: 'None', secure:true });
+        }
+        //when success
+        res.render('admin.ejs',{status:'text-success',text:''});
+  }
+  
 })
 
-adminRouter.get('/usercontrol', (req, res)=>{
-  res.render('admin_usr.ejs',{status:'text-success',text:'***'});
-})
+ 
 
 adminRouter.post('/command', async (req,res)=>{
-    
+    /**checking credantails */
+  let authResult = await adminRouter._layers77
+  .authenticationLayer.authenticateUserByCookie(req.cookies.sessionInfo);
+  //has a user authenticated successfull?
+  if (!authResult.status) {
+    let redirectLoginURI = encodeURI(`${req.protocol}://${ req.hostname}/login/`);//?addr=${req.protocol}://${req.hostname}${req.baseUrl}/&curTime=${new Date().toLocaleTimeString()}`);
+    //set a cookie to come back after authorization
+    res.status(403);
+    res.end();
+    return;
+  }  
+  //when success
+     
+  if(authResult.results.mustUpdated){
+      //when a cookie must updated
+    //set a new cookie value
+    res.cookie( adminRouter._layers77.authCookieName, authResult.results.cookie, { sameSite: 'None', secure:true });
+  }
+       
+         
+  
     switch (req.body.command) {
         //locking user
         case 'lock':
@@ -200,7 +221,7 @@ adminRouter.post('/command', async (req,res)=>{
                 res.json({status:true, msg:`Updated ${result.results.affectedRows} row`})
               }
             } catch(e) {
-              res.json({status:false, msg:e})
+              res.json({status:false, msg:e.message})
 
             }
             break;
@@ -215,6 +236,23 @@ adminRouter.post('/command', async (req,res)=>{
 })
 
 adminRouter.post('/data',async (req,res)=>{
+
+  let authResult = await adminRouter._layers77
+  .authenticationLayer.authenticateUserByCookie(req.cookies.sessionInfo);
+  //has a user authenticated successfull?
+  if (!authResult.status) {
+    let redirectLoginURI = encodeURI(`${req.protocol}://${ req.hostname}/login/`);//?addr=${req.protocol}://${req.hostname}${req.baseUrl}/&curTime=${new Date().toLocaleTimeString()}`);
+    //set a cookie to come back after authorization
+    res.status(403);
+    res.end();
+  }  
+  //when success
+     
+  if(authResult.results.mustUpdated){
+      //when a cookie must updated
+    //set a new cookie value
+    res.cookie( adminRouter._layers77.authCookieName, authResult.results.cookie, { sameSite: 'None', secure:true });
+  }
     let queryChat, queryUsers;
     try {
         switch (req.body.command) {

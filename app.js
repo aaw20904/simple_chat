@@ -42,7 +42,8 @@ let layers77= {
   authenticationLayer: null,
   authorizeLayer: null,
   registrationLayer: null,
-  authCookieName: 'sessionInfo'
+  authCookieName: 'sessionInfo',
+  lastPageCookie: 'lastURL'
 }
 //init global interfaces in routes
 registerRouter._layers77 = layers77;

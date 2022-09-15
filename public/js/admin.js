@@ -1,16 +1,16 @@
 //import { resolveInclude } from "ejs";
 
 window.onload=async ()=>{
-    let xhtmlNetworkInterractor = new XhtmlNetworkInterractor();
+     
     let anotherButtonTest = document.querySelector('.debug_button_one');
     anotherButtonTest.onclick = async () => {
       await  xhtmlNetworkInterractor._sendCommand();
     }
     let notificator = new Toast();
     let networkInteractor = new NetworkInteractor();
-    let msgList = new MessageList(xhtmlNetworkInterractor, statusNodeIndicator,notificator);
-    let keyControl = new CryptoKeyControl(xhtmlNetworkInterractor, statusNodeIndicator,notificator);
-    let cleanControl = new ChatCleaner(xhtmlNetworkInterractor, statusNodeIndicator, notificator, updateFunc);
+    let msgList = new MessageList( networkInteractor, statusNodeIndicator,notificator);
+    let keyControl = new CryptoKeyControl( networkInteractor, statusNodeIndicator,notificator);
+    let cleanControl = new ChatCleaner( networkInteractor, statusNodeIndicator, notificator, updateFunc);
     let cleanOptions;
     /******<<DEBUG CODE>>>  */
     // (A) CONNECT TO WEB SOCKET SERVER
@@ -1078,6 +1078,15 @@ class NetworkInteractor {
     }
     //save stsatus code 
     let statusCode = response.status;
+    if (statusCode == 403) {
+        window.setTimeout(()=>{
+          window.location.replace(`${currentUrl.protocol}//${currentUrl.hostname}/login${currentUrl.port}`);
+        },1000)
+       
+
+        return {status:false, msg:'Forbidden!',value:`${currentUrl.protocol}//${currentUrl.hostname}/login${currentUrl.port}`}
+    }
+  
     if (statusCode !== 200) {
         return {status:false, msg:`${response.status},${response.statusText}`};
     }
@@ -1114,10 +1123,15 @@ class NetworkInteractor {
             //save stsatus code 
             let statusCode = resp_.status;
             //-------<< FIX a json parse bug
-
+            if (statusCode == 403) {
+                window.setTimeout(()=>{
+                    window.location.replace(`${currentUrl.protocol}//${currentUrl.hostname}/login${currentUrl.port}`);
+                  },1000)
+                return {status:false, msg:'Forbidden!',value:`${currentUrl.protocol}//${currentUrl.hostname}/login${currentUrl.port}`}
+            }
           
             if (statusCode !== 200) {
-                return {status:false, msg:`${resp_.status}, ${resp_.statusText}`};
+                return {status:false, msg:`${resp_.status}, ${resp_.statusText}`,value:null};
             }
             //read JSON data 
             let jsonData = await resp_.json();
@@ -1126,7 +1140,7 @@ class NetworkInteractor {
 
 
 }
-//hmlHttpRquest based
+//hmlHttpRquest based  - NOT USED !!!
 class XhtmlNetworkInterractor {
 
 

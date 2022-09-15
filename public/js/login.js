@@ -1,3 +1,5 @@
+/***! THIS file NOT used in the project! You can`t include it when you are deploying a system */
+
 window.onload = async function(){
     let buttonSend = document.getElementById('sendLoginData');
     buttonSend.onclick = async (evt)=>{
