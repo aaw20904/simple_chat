@@ -32,18 +32,47 @@ adminRouter.convertIntegerToTime = (intToConv) =>{
         return `${hours.toString().padStart(2, '0')}:${minutes}`;
 }
 
-adminRouter.get('/', async (req, res)=>{
+adminRouter.get('/users', async(req,res)=>{
+  //set a cookie to coming back 
+    res.cookie(adminRouter._layers77.lastPageCookie,`${req.protocol}://${ req.hostname}/admin/users`);
   /**checking credantails */
   let authResult = await adminRouter._layers77
   .authenticationLayer.authenticateUserByCookie(req.cookies.sessionInfo);
-  //has a user authenticated successfull?
+  //has a user been authenticated successfully?
   if (!authResult.status) {
+    
     let redirectLoginURI = encodeURI(`${req.protocol}://${ req.hostname}/login/`);//?addr=${req.protocol}://${req.hostname}${req.baseUrl}/&curTime=${new Date().toLocaleTimeString()}`);
-    //set a cookie to come back after authorization
+    //whe authentication has fail - redirect to LogIn page
     res.redirect(redirectLoginURI);
   } else {
-     
-        if(authResult.results.mustUpdated){
+        //when authentication has been passed successfully
+       //must a cookie been updated?
+        if (authResult.results.mustUpdated) {
+           //when a cookie must updated
+          //set a new cookie value
+          res.cookie( adminRouter._layers77.authCookieName, authResult.results.cookie, { sameSite: 'None', secure:true });
+        }
+        //when success
+        res.render('admin_usr.ejs',{status:'text-success',text:'User`s Admin panel'});
+  }
+})
+
+adminRouter.get('/', async (req, res)=>{
+  //set a cookie to coming back 
+    res.cookie(adminRouter._layers77.lastPageCookie,`${req.protocol}://${ req.hostname}/admin/`);
+  /**checking credantails */
+  let authResult = await adminRouter._layers77
+  .authenticationLayer.authenticateUserByCookie(req.cookies.sessionInfo);
+  //has a user been authenticated successfully?
+  if (!authResult.status) {
+    
+    let redirectLoginURI = encodeURI(`${req.protocol}://${ req.hostname}/login/`);//?addr=${req.protocol}://${req.hostname}${req.baseUrl}/&curTime=${new Date().toLocaleTimeString()}`);
+    //whe authentication has fail - redirect to LogIn page
+    res.redirect(redirectLoginURI);
+  } else {
+        //when authentication has been passed successfully
+       //must a cookie been updated?
+        if (authResult.results.mustUpdated) {
            //when a cookie must updated
           //set a new cookie value
           res.cookie( adminRouter._layers77.authCookieName, authResult.results.cookie, { sameSite: 'None', secure:true });
@@ -59,20 +88,20 @@ adminRouter.get('/', async (req, res)=>{
 adminRouter.post('/command', async (req,res)=>{
     /**checking credantails */
   let authResult = await adminRouter._layers77
-  .authenticationLayer.authenticateUserByCookie(req.cookies.sessionInfo);
-  //has a user authenticated successfull?
+      .authenticationLayer.authenticateUserByCookie(req.cookies.sessionInfo);
+      //authenticateUserByCookie() => @ {status:true , results:{ mustUpdated:true, info:userInfo.results, cookie:newCookie}
+    //has a user authenticated successfull?
   if (!authResult.status) {
+    //when forbidden
     let redirectLoginURI = encodeURI(`${req.protocol}://${ req.hostname}/login/`);//?addr=${req.protocol}://${req.hostname}${req.baseUrl}/&curTime=${new Date().toLocaleTimeString()}`);
-    //set a cookie to come back after authorization
     res.status(403);
     res.end();
     return;
   }  
-  //when success
-     
+  //when a user has been authenticatied successfully
+     //must a cookie been updated?
   if(authResult.results.mustUpdated){
-      //when a cookie must updated
-    //set a new cookie value
+      //update  cookie
     res.cookie( adminRouter._layers77.authCookieName, authResult.results.cookie, { sameSite: 'None', secure:true });
   }
        

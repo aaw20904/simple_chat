@@ -40,9 +40,15 @@ loginRouter.post('/data', async (req, res)=>{
     }
     //when success - assign a cookie
     res.cookie(loginRouter._layers77.authCookieName, usrValidation.results.token, { sameSite: 'None', secure:true });
-    //return success
-    //or redirect
-    res.redirect(`${req.protocol}://${req.hostname}`);
+    //has any URL been saved in cookie?
+    let backURL = req.cookies[loginRouter._layers77.lastPageCookie];
+
+   if(!backURL) { 
+    //when there isn`t any saved adress - redirect to the root
+     backURL = `${req.protocol}://${req.hostname}`
+   }
+   
+    res.redirect(backURL);
     // res.render('okay.ejs', {time: new Date().toLocaleTimeString()});
 })
 

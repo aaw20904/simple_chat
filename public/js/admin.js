@@ -2,10 +2,7 @@
 
 window.onload=async ()=>{
      
-    let anotherButtonTest = document.querySelector('.debug_button_one');
-    anotherButtonTest.onclick = async () => {
-      await  xhtmlNetworkInterractor._sendCommand();
-    }
+   
     let notificator = new Toast();
     let networkInteractor = new NetworkInteractor();
     let msgList = new MessageList( networkInteractor, statusNodeIndicator,notificator);

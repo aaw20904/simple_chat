@@ -117,5 +117,11 @@ export default class UserAuthentication {
        }
         
     }
+    ///main procedure high level authentication
+    ///when authentication cookie is old - update the one.
+    ///when authentication cookie lifetime has gone - redirect to http://domainName/login
+    async mainHttpAuthentication (req, res, authCookieName) {
+        
+    }
 
 }

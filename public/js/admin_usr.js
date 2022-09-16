@@ -1,6 +1,6 @@
 window.onload=async()=>{
-  
-    let usrCtrl = new UserControl(new NetworkInteractor(), setStatusString);
+    let toastInfo = new Toast();
+    let usrCtrl = new UserControl(new NetworkInteractor(), toastInfo.showToast);
     document.querySelector('.tableWrapper').appendChild(await usrCtrl.createTable());  
 
 }
@@ -14,13 +14,24 @@ class UserControl {
       this.privateMembers.set(this, {
         networkInteractor: networkInteractor,
         statusNodeIndicator: statusNodeIndicator,
-        getUsrId: (evt)=>{
-           return evt.target.parentNode.parentNode.parentNode.getAttribute('data-usr-id');
+        getUsrIdAndName: (evt)=>{
+             let usrIdNode = evt.target.parentNode.parentNode.parentNode; 
+           return   {
+                        id: usrIdNode.getAttribute('data-usr-id'),
+                        name: usrIdNode.querySelector('.data-user-name').innerText
+                    };
         },
         /***event listeners  */
         onRemove: async (evt)=>{
             let members = this.privateMembers.get(this);
-            let usrId = members.getUsrId(evt);
+            let usrId = members.getUsrIdAndName(evt).id;
+            console.log(members.getUsrIdAndName(evt).name);
+            
+            //is it an Admin?
+            if(members.getUsrIdAndName(evt).name === 'Administrator'){
+               members.statusNodeIndicator(false,'You Can`t remove Administrator!');
+                 return {status:false,msg:'***'};
+            }
             //try to remove
             //try to change 
              let netResult;
@@ -117,7 +128,7 @@ class UserControl {
             items.push(avatarItem);
         //b) user name
         let usrNameItem = document.createElement('h6');
-            usrNameItem.setAttribute('class','d-flex users-text ms-2 justify-content-center align-items-center');
+            usrNameItem.setAttribute('class','d-flex users-text ms-2 justify-content-center align-items-center data-user-name');
             usrNameItem.innerText = arg.usrName;
             items.push(usrNameItem);
         //c) fail attempts
@@ -403,5 +414,31 @@ class NetworkInteractor {
             return jsonData;
     }
 
+
+}
+
+class Toast {
+
+    showToast(status=true,msg='Helloword',time=new Date().toLocaleTimeString()){
+        let toastMsg = document.getElementById('toast_01');
+        let small =  document.getElementById('toast_time_01')
+        small.innerText = time;
+        if (status) {
+            toastMsg.classList.remove('text-danger')
+            toastMsg.classList.add('text-success')
+        } else {
+            toastMsg.classList.remove('text-success')
+            toastMsg.classList.add('text-danger')
+        }
+        toastMsg.innerText = msg;
+        let toastElem = document.querySelector('.toast');
+        toastElem = new bootstrap.Toast(toastElem);
+        toastElem.show();
+        /*var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+     var toastList = toastElList.map(function(toastEl) {
+       return new bootstrap.Toast(toastEl)
+     });
+     toastList.forEach(toast => toast.show()) ;*/
+    }
 
 }
