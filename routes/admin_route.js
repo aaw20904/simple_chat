@@ -33,8 +33,11 @@ adminRouter.convertIntegerToTime = (intToConv) =>{
 }
 
 adminRouter.get('/users', async(req,res)=>{
+ 
+  
+  
   //set a cookie to coming back 
-    res.cookie(adminRouter._layers77.lastPageCookie,`${req.protocol}://${ req.hostname}/admin/users`);
+    res.cookie(adminRouter._layers77.lastPageCookie,`${req.protocol}://${ req.hostname}/admin/users`, {  sameSite: 'None', secure: true });
   /**checking credantails */
   let authResult = await adminRouter._layers77
   .authenticationLayer.authenticateUserByCookie(req.cookies.sessionInfo);
@@ -46,6 +49,13 @@ adminRouter.get('/users', async(req,res)=>{
     res.redirect(redirectLoginURI);
   } else {
         //when authentication has been passed successfully
+         //is a user admin?
+       if ( authResult.results.info.usrId !== adminRouter._layers77.adminitratorId) {
+          //when he/she isn`t - goes away!
+          res.status(403);
+          res.render('okay.ejs',{status:'text-danger',description:'please log in as administrator!',time: new Date().toLocaleTimeString(),msg:"Forbidden!"});
+          return;
+       }
        //must a cookie been updated?
         if (authResult.results.mustUpdated) {
            //when a cookie must updated
@@ -59,18 +69,25 @@ adminRouter.get('/users', async(req,res)=>{
 
 adminRouter.get('/', async (req, res)=>{
   //set a cookie to coming back 
-    res.cookie(adminRouter._layers77.lastPageCookie,`${req.protocol}://${ req.hostname}/admin/`);
+    res.cookie(adminRouter._layers77.lastPageCookie,`${req.protocol}://${ req.hostname}/admin/`, {  sameSite: 'None', secure: true });
   /**checking credantails */
   let authResult = await adminRouter._layers77
   .authenticationLayer.authenticateUserByCookie(req.cookies.sessionInfo);
   //has a user been authenticated successfully?
   if (!authResult.status) {
-    
+    //when fail
     let redirectLoginURI = encodeURI(`${req.protocol}://${ req.hostname}/login/`);//?addr=${req.protocol}://${req.hostname}${req.baseUrl}/&curTime=${new Date().toLocaleTimeString()}`);
     //whe authentication has fail - redirect to LogIn page
     res.redirect(redirectLoginURI);
   } else {
         //when authentication has been passed successfully
+         //is a user admin?
+       if ( authResult.results.info.usrId !== adminRouter._layers77.adminitratorId) {
+          //when he/she isn`t - goes away!
+          res.status(403);
+          res.render('okay.ejs',{status:'text-danger',description:'please log in as administrator!',time: new Date().toLocaleTimeString(),msg:"Forbidden!"});
+          return;
+       }
        //must a cookie been updated?
         if (authResult.results.mustUpdated) {
            //when a cookie must updated
@@ -99,6 +116,12 @@ adminRouter.post('/command', async (req,res)=>{
     return;
   }  
   //when a user has been authenticatied successfully
+   //is a user admin?
+       if ( authResult.results.info.usrId !== adminRouter._layers77.adminitratorId) {
+          //when he/she isn`t - goes away!
+          res.status(403);
+          return;
+       }
      //must a cookie been updated?
   if(authResult.results.mustUpdated){
       //update  cookie
@@ -276,6 +299,12 @@ adminRouter.post('/data',async (req,res)=>{
     res.end();
   }  
   //when success
+   //is a user admin?
+       if ( authResult.results.info.usrId !== adminRouter._layers77.adminitratorId) {
+          //when he/she isn`t - goes away!
+          res.status(403);
+          return;
+       }
      
   if(authResult.results.mustUpdated){
       //when a cookie must updated
