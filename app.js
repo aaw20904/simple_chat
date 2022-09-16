@@ -43,7 +43,8 @@ let layers77= {
   authorizeLayer: null,
   registrationLayer: null,
   authCookieName: 'sessionInfo',
-  lastPageCookie: 'lastURL'
+  lastPageCookie: 'lastURL',
+  administratorId: null
 }
 //init global interfaces in routes
 registerRouter._layers77 = layers77;
@@ -76,6 +77,16 @@ pswChangeRouter._layers77 = layers77;
     }
     layers77.databaseLayer = new DBinterface(connectionDB);
     let keys = await layers77.databaseLayer.readKey(); 
+    //get admin id 
+    layers77.administratorId = await layers77.databaseLayer.readAdminId();
+    if(!layers77.administratorId.status){
+      console.log('Adminisrator not found!');
+      layers77.administratorId = null;
+    } else {
+      layers77.administratorId = layers77.administratorId.value;
+
+    }
+
     //create an instance init key and vect
     layers77.cryptoLayer = new CryptoProcedures(keys.results );
     layers77.authenticationLayer = new UserAuthentication(layers77.cryptoLayer, layers77.databaseLayer,{
@@ -152,8 +163,16 @@ app.use(cookieParser());
  
 
 app.get('/',(req, res)=>{
-  res.render('okay.ejs',{time: new Date().toLocaleTimeString()});
+  if(!layers77.administratorId) {
+    //when Admin hasn`t been found
+    res.render('okay.ejs',{status:'text-danger',description:'please call to administrator or create creadantails if you are',time: new Date().toLocaleTimeString(),msg:"Admin not found!"});
+   return;
+  }
+  //when success
+  res.render('okay.ejs',{status:'text-success',description:'please jump to any part of the site!',time: new Date().toLocaleTimeString(),msg:"Wellcome!"});
 })
+/*********S T A R T **********/
+///start to listen
 app.listen(80, ()=>console.log('Listen...'))
 
 

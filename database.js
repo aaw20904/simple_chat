@@ -10,6 +10,8 @@
     _getPrivMember() {
         console.log(this.privateMembers.get(this));
     }
+
+
 /*****C R E A T E a new user */
     async writeNewUser(arg = {name: '', hashedPassword: '', avatar: Buffer.from([0x01,0x02])}) {
         let db = this.privateMembers.get(this);
@@ -170,6 +172,24 @@
                 }
                 
             })
+        });
+    }
+    /*********R E A D   A D M I N    ID ********** */
+    async readAdminId() {
+          //get a private member of class
+        let db = this.privateMembers.get(this);
+      return  new Promise((resolve, reject) => {
+            db.query(`SELECT usrId FROM users_names WHERE usrName="Administrator"`,(err,row)=>{
+                if (err){
+                    reject(err);
+                }
+                if (row.length == 1|0) {
+                    console.log(row[0]);
+                    resolve({status:true,value:row[0].usrId});
+                } else {
+                    resolve({status:false, value:null});
+                }
+            });
         });
     }
     /******R E M O V E a user by the name - it will be probably executes  long time  */

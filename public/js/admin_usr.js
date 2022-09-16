@@ -14,21 +14,17 @@ class UserControl {
       this.privateMembers.set(this, {
         networkInteractor: networkInteractor,
         statusNodeIndicator: statusNodeIndicator,
-        getUsrIdAndName: (evt)=>{
-             let usrIdNode = evt.target.parentNode.parentNode.parentNode; 
-           return   {
-                        id: usrIdNode.getAttribute('data-usr-id'),
-                        name: usrIdNode.querySelector('.data-user-name').innerText
-                    };
+        getUsrName: (usrId)=>{
+             let rowNode = document.querySelector(`[data-usr-id="${usrId}"]`); 
+           return    rowNode.querySelector('.data-user-name').innerText;
         },
         /***event listeners  */
-        onRemove: async (evt)=>{
+        onRemove: async (evt,usrId)=>{
             let members = this.privateMembers.get(this);
-            let usrId = members.getUsrIdAndName(evt).id;
-            console.log(members.getUsrIdAndName(evt).name);
+            
             
             //is it an Admin?
-            if(members.getUsrIdAndName(evt).name === 'Administrator'){
+            if(members.getUsrName(usrId) === 'Administrator'){
                members.statusNodeIndicator(false,'You Can`t remove Administrator!');
                  return {status:false,msg:'***'};
             }
@@ -44,8 +40,15 @@ class UserControl {
              return netResult;
              
         },
-        onLock: async (evt, usrId)=>{
+        onLock: async (evt,usrId)=>{
             let members = this.privateMembers.get(this);
+             
+             
+            //is it  Admin?
+            if ( members.getUsrName(usrId) === 'Administrator') {
+                  members.statusNodeIndicator(false,'You Can`t lock Administrator!');
+                 return {status:false,msg:'***'};
+            }
             let btnState = evt.target.getAttribute('data-btn-state');
              //try to change 
              let netResult;
@@ -84,6 +87,7 @@ class UserControl {
              if (netResult.status) {
                 //when success
                 members.statusNodeIndicator(true, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
+                 this.clearAttemptsValue(usrId);
              } else {
                 members.statusNodeIndicator(false, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
              }
@@ -106,8 +110,8 @@ class UserControl {
     }
 
     clearAttemptsValue (usrId) {
-        let tableNode = document.querySelector('tbody');
-        let targetNode = tableNode.querySelector(`.fail-att`);
+        let usrRow = document.querySelector(`[data-usr-id="${usrId}"]`);
+        let targetNode = usrRow.querySelector(`.fail-att`);
         targetNode.innerText = '0';
     }
 
@@ -211,7 +215,7 @@ class UserControl {
          })
          //II)
          btnRemoveUser.addEventListener('click',async (evt)=>{
-            let res =  await priv.onRemove(evt);
+            let res =  await priv.onRemove(evt,messageContainer.getAttribute('data-usr-id'));
             if(res.status) {
                 this.removeUserControlItemRow(res.value);
             }

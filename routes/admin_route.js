@@ -203,7 +203,7 @@ adminRouter.post('/command', async (req,res)=>{
                 let decorationString = await adminRouter._layers77
                   .cryptoLayer.generateRandomString(8);
                 if (recordStatus.status) {
-                    res.json({status:true, msg:'Key updated successfully!', value:'XXXX-XXXX'});
+                    res.json({status:true, msg:'Key updated successfully!', value:decorationString});
                     return;
                 }
                     res.json({status:false, msg:recordStatus.msg});
