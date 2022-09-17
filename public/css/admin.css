@@ -202,3 +202,7 @@ input[disabled]{
 .cursor-pointer{
   cursor: pointer !important;
 }
+
+.hide-element{
+  display:none !important;
+}

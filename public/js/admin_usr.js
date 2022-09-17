@@ -2,6 +2,8 @@ window.onload=async()=>{
     let toastInfo = new Toast();
     let usrCtrl = new UserControl(new NetworkInteractor(), toastInfo.showToast);
     document.querySelector('.tableWrapper').appendChild(await usrCtrl.createTable());  
+    let interactiveNotify = new InterractiveNotify(document.querySelector('tbody'));
+   interactiveNotify.bindListenersToAvatarImages ();
 
 }
 
@@ -21,20 +23,15 @@ class UserControl {
         /***event listeners  */
         onRemove: async (evt,usrId)=>{
             let members = this.privateMembers.get(this);
-            
-            
-            //is it an Admin?
-            if(members.getUsrName(usrId) === 'Administrator'){
-               members.statusNodeIndicator(false,'You Can`t remove Administrator!');
-                 return {status:false,msg:'***'};
-            }
-            //try to remove
+        
             //try to change 
              let netResult;
              netResult = await  members.networkInteractor.removeUser(usrId);
              if (netResult.status) {
                 //when success
                 members.statusNodeIndicator(true, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
+             } else {
+                members.statusNodeIndicator(false, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
              }
              netResult.value = usrId;
              return netResult;
@@ -125,10 +122,10 @@ class UserControl {
         messageContainer.setAttribute('data-usr-id', arg.usrId);
         //message-box-radius  border-primary message-box-normal-bg d-flex flex-wrap flex-row justify-content-around align-items-center w-100 my-1
         messageContainer.setAttribute('class','py-1');
-        //a) first element - an image
+        //a) first element - an image avatar
         let avatarItem = document.createElement('img');
             avatarItem.src = arg.usrAvatar;
-            avatarItem.classList.add('my-2','rounded','m-1');
+            avatarItem.classList.add('my-2','rounded','m-1','userAvatar');
             items.push(avatarItem);
         //b) user name
         let usrNameItem = document.createElement('h6');
@@ -416,6 +413,78 @@ class NetworkInteractor {
             //read JSON data 
             let jsonData = await resp.json();
             return jsonData;
+    }
+
+
+}
+
+
+class InterractiveNotify {
+    constructor(usersTableBody,networkInteractor, informer) {
+         //making a private property
+      this.privateMembers = new WeakMap();
+      //assign a 'private' - it may be an object
+     this.privateMembers.set(this, {
+      informer: informer,
+      usersTableBody : usersTableBody,
+      networkInteractor : networkInteractor,
+        getInteractiveMessangerNode: ()=> {
+            let members = this.privateMembers.get(this);
+            return document.getElementById('interactiveMessanger');
+        },
+        bindUsersCallButtonsGroup: () => {
+
+            let members = this.privateMembers.get(this);
+             
+            let usersRows = members.usersTableBody.getElementsByTagName('tr');
+            //to array
+            usersRows = Array.prototype.slice.call(usersRows);
+            //bind all the buttons (user avatars) to listener
+            usersRows.forEach(w=>{
+                let button = w.querySelector('.userAvatar')
+                button.addEventListener('click',members.onUserAvatarClick);
+            })
+        },
+        bindInteractiveToolButtons: ()=>{
+            let members = this.privateMembers.get(this);
+            let interactiveElement = members.getInteractiveMessangerNode();
+            let close = interactiveElement.querySelector('#btnCloseInteractive');
+            let send = interactiveElement.querySelector('#btnSendInteractive');
+            close.addEventListener('click',members.onClose);
+            close.addEventListener('click',members.onSend);
+
+        },
+        //when admin click on user avatar to send a notification text
+        onUserAvatarClick: (evt)=>{
+            let members = this.privateMembers.get(this);
+            let usrId =evt.target.parentNode.parentNode.getAttribute('data-usr-id');
+            let usrName = evt.target.parentNode.parentNode.querySelector('.data-user-name').innerText;
+            members.onShow(usrId,usrName);
+        },
+        onShow: (id,name)=>{
+            let members = this.privateMembers.get(this);
+           let senderNode = members.getInteractiveMessangerNode()
+            senderNode.classList.remove('hide-element');
+            senderNode.setAttribute('data-usr-id',id);
+            senderNode.querySelector('.message-name-text').innerText = name;
+        },
+        onSend: (evt)=>{
+            let members = this.privateMembers.get(this);
+        },
+        onClose: (evt)=>{
+            let members = this.privateMembers.get(this);
+            window.setTimeout(()=>{
+                 members.getInteractiveMessangerNode().classList.add('hide-element');
+            }, 500);
+           
+        }, 
+      })
+    }
+
+    bindListenersToAvatarImages () { 
+        let priv = this.privateMembers.get(this);
+        priv.bindUsersCallButtonsGroup();
+        priv.bindInteractiveToolButtons();
     }
 
 

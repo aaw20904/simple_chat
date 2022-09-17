@@ -31,10 +31,8 @@ adminRouter.convertIntegerToTime = (intToConv) =>{
         let minutes = intToConv & 0x3f;
         return `${hours.toString().padStart(2, '0')}:${minutes}`;
 }
-
+/********  USERS r o u t e*****/
 adminRouter.get('/users', async(req,res)=>{
- 
-  
   
   //set a cookie to coming back 
     res.cookie(adminRouter._layers77.lastPageCookie,`${req.protocol}://${ req.hostname}/admin/users`, {  sameSite: 'None', secure: true });
@@ -50,7 +48,7 @@ adminRouter.get('/users', async(req,res)=>{
   } else {
         //when authentication has been passed successfully
          //is a user admin?
-       if ( authResult.results.info.usrId !== adminRouter._layers77.adminitratorId) {
+       if ( authResult.results.info.usrId !== adminRouter._layers77.administratorId) {
           //when he/she isn`t - goes away!
           res.status(403);
           res.render('okay.ejs',{status:'text-danger',description:'please log in as administrator!',time: new Date().toLocaleTimeString(),msg:"Forbidden!"});
@@ -66,7 +64,7 @@ adminRouter.get('/users', async(req,res)=>{
         res.render('admin_usr.ejs',{status:'text-success',text:'User`s Admin panel'});
   }
 })
-
+/*******ROOT r o u t e */
 adminRouter.get('/', async (req, res)=>{
   //set a cookie to coming back 
     res.cookie(adminRouter._layers77.lastPageCookie,`${req.protocol}://${ req.hostname}/admin/`, {  sameSite: 'None', secure: true });
@@ -82,7 +80,7 @@ adminRouter.get('/', async (req, res)=>{
   } else {
         //when authentication has been passed successfully
          //is a user admin?
-       if ( authResult.results.info.usrId !== adminRouter._layers77.adminitratorId) {
+       if ( authResult.results.info.usrId !== adminRouter._layers77.administratorId) {
           //when he/she isn`t - goes away!
           res.status(403);
           res.render('okay.ejs',{status:'text-danger',description:'please log in as administrator!',time: new Date().toLocaleTimeString(),msg:"Forbidden!"});
@@ -100,7 +98,7 @@ adminRouter.get('/', async (req, res)=>{
   
 })
 
- 
+ /*********COMMAND r o u t e */
 
 adminRouter.post('/command', async (req,res)=>{
     /**checking credantails */
@@ -117,7 +115,7 @@ adminRouter.post('/command', async (req,res)=>{
   }  
   //when a user has been authenticatied successfully
    //is a user admin?
-       if ( authResult.results.info.usrId !== adminRouter._layers77.adminitratorId) {
+       if ( authResult.results.info.usrId !== adminRouter._layers77.administratorId) {
           //when he/she isn`t - goes away!
           res.status(403);
           return;
@@ -133,6 +131,12 @@ adminRouter.post('/command', async (req,res)=>{
     switch (req.body.command) {
         //locking user
         case 'lock':
+          //is a user admin?
+       if ( (Number(req.body.data)|0)  === adminRouter._layers77.administratorId) {
+          //Admin can`t lock himself! 
+          res.json({status:false,msg:'Admin can`t lock himself'});
+          return;
+       }
           try {
                let result = await adminRouter._layers77
                         .databaseLayer.setUserLocked(req.body.data);
@@ -150,6 +154,12 @@ adminRouter.post('/command', async (req,res)=>{
         break;
         //unlocking user
         case 'unlock':
+              //is a user admin?
+        if ( (Number(req.body.data)|0)  === adminRouter._layers77.administratorId) {
+        //Admin can`t lock himself! 
+        res.json({status:false,msg:'Admin can`t lock himself'});
+        return
+        }
              try {
               let  result = await adminRouter._layers77
                         .databaseLayer.clearUserLocked(req.body.data);
@@ -167,6 +177,12 @@ adminRouter.post('/command', async (req,res)=>{
         break;
         //remove user
         case 'delete':
+        //is a user admin?
+     if ( (Number(req.body.data)|0)  === adminRouter._layers77.administratorId) {
+        //Admin can`t lock himself! 
+        res.json({status:false,msg:'Admin can`t delete himself'});
+        return
+     }
              try {
               let  result = await adminRouter._layers77
                         .databaseLayer.removeUserByID(req.body.data);
@@ -286,7 +302,7 @@ adminRouter.post('/command', async (req,res)=>{
         res.end();
     }
 })
-
+ /*********DATA r o u t e  */
 adminRouter.post('/data',async (req,res)=>{
 
   let authResult = await adminRouter._layers77
@@ -300,7 +316,7 @@ adminRouter.post('/data',async (req,res)=>{
   }  
   //when success
    //is a user admin?
-       if ( authResult.results.info.usrId !== adminRouter._layers77.adminitratorId) {
+       if ( authResult.results.info.usrId !== adminRouter._layers77.administratorId) {
           //when he/she isn`t - goes away!
           res.status(403);
           return;

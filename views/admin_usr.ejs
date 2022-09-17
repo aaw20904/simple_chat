@@ -15,7 +15,24 @@
         <h6 id="statusString" class="text-center  <%-status %>"><%-text %></h6>
             <div class="tableWrapper"></div>
     </div>
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+<!--interactive messages tool to user-->
+ <div id="interactiveMessanger" class="hide-element container users-body-bg p-2 d-flex flex-column justify-content-start align-items-start">
+  <h3 class="h3 message-name-text interactiveTitle w-100 text-center">Title</h3>
+  <div class="input-group">
+    <span class="input-group-text users-text">Please type here</span>
+    <textarea class="form-control users-text" aria-label="With textarea" id="sendMessageToUser"></textarea>
+  </div>
+  
+  <div class="d-flex flex-row justify-content-between align-items-center w-100 my-1">
+    <img src="/images/send.svg" class="rounded mx-3 my-2" id="btnSendInteractive">
+    <img src="/images/close.png" class="rounded mx-3 my-2" id="btnCloseInteractive">
+  </div>
+ 
+  
+ </div>
+<!---end interactive messages tool-->
+
+    <div class="position-fixed bottom-0 end-0 p-3 " style="z-index: 11">
   <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="toast-header">
       <img src="..." class="rounded me-2" alt="...">
@@ -29,5 +46,24 @@
   </div>
 </div>
     <script src="/js/admin_usr.js"></script>
+    <script>
+      let imgClose = document.getElementById('btnCloseInteractive');
+      let imgSend = document.getElementById('btnSendInteractive');
+
+
+      imgSend.onclick=(evt)=>{
+        evt.target.classList.add('clickAnimation');
+          window.setTimeout(()=>{
+            evt.target.classList.remove('clickAnimation');
+          },1000);
+        }
+
+        imgClose.onclick=(evt)=>{
+        evt.target.classList.add('clickAnimation');
+          window.setTimeout(()=>{
+            evt.target.classList.remove('clickAnimation');
+          },1000);
+        }
+    </script>
 </body>
 </html>
