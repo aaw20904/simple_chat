@@ -8,6 +8,7 @@
    }
 
  */
+
  import sizeof from 'object-sizeof'
  import cookieParser from "cookie-parser"
 import  registerRouter  from './routes/register_route.js'
@@ -160,6 +161,7 @@ app.use(express.json({extended:true}));
 app.use(express.static('public'));
 app.use(cookieParser());
 
+
  
 
 app.get('/',(req, res)=>{
@@ -171,12 +173,25 @@ app.get('/',(req, res)=>{
   //when success
   res.render('okay.ejs',{status:'text-success',description:'please jump to any part of the site!',time: new Date().toLocaleTimeString(),msg:"Wellcome!"});
 })
+
+/***T E S T I N G ROUTE  */
+
+app.get('/test',async(req,res)=>{
+  //get random number
+  let rnd = await layers77.cryptoLayer.generateRandomString(4);
+  res.render('testwebsocket.ejs',{text:rnd});
+})
 /*********S T A R T **********/
 ///start to listen
 app.listen(80, ()=>console.log('Listen...'))
 
 
-/*******WebSocket ****/
+
+
+
+
+
+/*******   W E B S O C K E T  ****/
 // (A) CREATE WEBSOCKET SERVER AT PORT 8080
 
 const wss = new WebSocketServer({ port: 8080 });
@@ -184,13 +199,23 @@ const wss = new WebSocketServer({ port: 8080 });
 wss.on("connection", (socket, req) => {
     // (B1) SEND MESSAGE TO CLIENT
      socket.send("Welcome!");
-     
+     //
+     console.log(sizeof(socket));
+
     // (B2) ON RECEIVING MESSAGE FROM CLIENT
     socket.on("message", (msg) => {
-      console.log(JSON.stringify(socket));
+      //console.log(JSON.stringify(socket));
       let message = msg.toString(); // MSG IS BUFFER OBJECT
-      socket.send(`OK ->> ${Date.now().toString('2')}`,()=>console.log('sent!'));
-    console.log(message);
+      socket.send(`OK ->> ${Date.now().toString('10')}`,()=>console.log('sent!'));
+      let sockcets = [];
+      for (let y of wss.clients){
+        sockcets.push(y);
+        console.log(y.readyState);
+        //при разрыве сетевого соединения (не закрывая браузер)
+        //подключение остается.Мало того добавляется новые сокеты 
+      }
+      console.log(wss.clients);
+     console.log(message);
     });
     // (B3) ON CLIENT DISCONNECT
     socket.on("close", (code, reason) => {

@@ -53,8 +53,8 @@ async function sendDataToServerAndReturnResult (arg={usrName:'*',usrPassword:'12
       //when port has been defined
        baseUrl = `${baseUrl}:${currentUrl.port}`
     }
-    baseUrl = `${baseUrl}/data`;
 
+    baseUrl = `${baseUrl}/data`;
     const options={
       headers:{"Content-type":"application/json;charset=utf-8"},
       body:JSON.stringify(arg),

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link  rel="stylesheet"  href="/css/bootstrap.min.css">
+    <script src="/js/bootstrap.bundle.min.js" type="text/javascript"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div class="copntainer">
+        <div class="h3" id="uniqueNumber">
+            <%-text %>
+        </div>
+        <button class="btn btn-primary debug_button" type="button">Click me</button>
+    </div>
+
+    <script>
+    window.onload = async function() {
+       // (A) CONNECT TO WEB SOCKET SERVER
+       const currentUrl = new URL(document.location.href)
+    // current base URL
+    const baseUrl = `ws://${currentUrl.hostname}:8080`
+   let web_socket= await new Promise((resolve, reject) => {
+        let cookieId = document.getElementById('uniqueNumber').innerText;
+        let socket = new WebSocket(baseUrl);
+        // (B) ON CONNECTING TO THE SERVER
+        socket.addEventListener("open", () => {
+        socket.send(`Hello Server! My cookie=${cookieId}`); // SEND MESSAGE TO SERVER
+        resolve(socket);
+        });
+    }); 
+        
+        // (C) ON RECEIVING MESSAGE FROM SERVER
+        web_socket.addEventListener("message", (evt) => {
+        console.log(evt.data);
+        });
+        // (D) ON CONNECTION CLOSE
+        web_socket.addEventListener("close", () => {
+        console.log("Connection Closed");
+        });
+        // (E) ON ERROR
+        web_socket.addEventListener("error", (err) => {
+        console.log(err);
+        });
+    let debugButton = document.querySelector('.debug_button');
+    debugButton.onclick=(evt)=>{
+        web_socket.send(new Date().toLocaleTimeString());
+    }
+    async function updateFunc() {
+        return await msgList.buildFullMessageList();
+    }
+
+    //****<<END DEBUG>>
+    }
+   
+    </script>
+</body>
+</html>

@@ -2,7 +2,7 @@ window.onload=async()=>{
     let toastInfo = new Toast();
     let usrCtrl = new UserControl(new NetworkInteractor(), toastInfo.showToast);
     document.querySelector('.tableWrapper').appendChild(await usrCtrl.createTable());  
-    let interactiveNotify = new InterractiveNotify(document.querySelector('tbody'));
+    let interactiveNotify = new InterractiveNotify(document.querySelector('tbody'),null, toastInfo.showToast);
    interactiveNotify.bindListenersToAvatarImages ();
 
 }
@@ -451,7 +451,7 @@ class InterractiveNotify {
             let close = interactiveElement.querySelector('#btnCloseInteractive');
             let send = interactiveElement.querySelector('#btnSendInteractive');
             close.addEventListener('click',members.onClose);
-            close.addEventListener('click',members.onSend);
+            send.addEventListener('click',members.onSend);
 
         },
         //when admin click on user avatar to send a notification text
@@ -470,6 +470,7 @@ class InterractiveNotify {
         },
         onSend: (evt)=>{
             let members = this.privateMembers.get(this);
+            members.informer(true,'Message sent successfully!');
         },
         onClose: (evt)=>{
             let members = this.privateMembers.get(this);

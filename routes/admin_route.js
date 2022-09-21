@@ -137,13 +137,15 @@ adminRouter.post('/command', async (req,res)=>{
           res.json({status:false,msg:'Admin can`t lock himself'});
           return;
        }
-          try {
+          try {//try to lock a user
                let result = await adminRouter._layers77
                         .databaseLayer.setUserLocked(req.body.data);
                 if (result.status) {
+                  //when success
                     res.json({status:true, msg:result.msg})
                     return;
                 } else {
+                  //when fail
                     res.json({status:false, msg:result.msg})
                     return
                 }

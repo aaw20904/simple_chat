@@ -1,5 +1,22 @@
 //import { resolveInclude } from "ejs";
 
+function getCookieFromDOM(cname) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for(let i = 0; i <ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+  }
+
+
 window.onload=async ()=>{
      
    
@@ -12,10 +29,11 @@ window.onload=async ()=>{
     /******<<DEBUG CODE>>>  */
     // (A) CONNECT TO WEB SOCKET SERVER
     let web_socket= await new Promise((resolve, reject) => {
+        let cookieId = getCookieFromDOM('sessionInfo');
         let socket = new WebSocket("ws://localhost:8080");
         // (B) ON CONNECTING TO THE SERVER
         socket.addEventListener("open", () => {
-        socket.send("Hello Server!"); // SEND MESSAGE TO SERVER
+        socket.send(`Hello Server! My cookie=${cookieId}`); // SEND MESSAGE TO SERVER
         resolve(socket);
         });
     }); 
