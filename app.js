@@ -155,31 +155,29 @@ class WebSocketConnectionManager {
     this._sockcets = [];
     this._webSocketServer = new WebSocketServer({ port: port });
     //connect listeners
-    this._webSocketServer.on('connection',(socket,req,env)=>this._onServerConnection(socket,req,this));
+    this._webSocketServer.on('connection',(socket,req)=>_onServerConnection(socket,req,this));
 
-  }
-
-_onServerConnection (socket, req, env) {
+    let _onServerConnection = (socket, req)=> {
      // (B1) SEND MESSAGE TO CLIENT
         socket.send("Welcome!");
         socket.isAlive = true;
-        socket.on('pong', env._socketOnHeartbeat(socket));
-        socket.on('message',(msg)=>env._socketOnMessage(msg,socket));
-        socket.on('close',(code,reason)=>env._socketOnClose(code,reason));
-}
+        socket.on('pong', _socketOnHeartbeat);
+        socket.on('message',(msg)=>_socketOnMessage(msg,socket));
+        socket.on('close',(code,reason)=>_socketOnClose(code,reason));
+    }
 
-_onServerClose() {
-  clearInterval(this._betheartInterval);
-  console.log('server closed..')
-}
+    let _onServerClose = ()=> {
+      clearInterval(this._betheartInterval);
+     console.log('server closed..')
+    }
 
-_socketOnHeartbeat (socket) {
-   console.log(`beat: ${new Date().toLocaleTimeString()}`)
-  this.isAlive = true;
-}
+   let  _socketOnHeartbeat= (socket) =>{
+      console.log(`beat: ${new Date().toLocaleTimeString()}`)
+      socket.isAlive = true;
+    }
 
-_socketOnMessage (msg, socket) {
-  let message = msg.toString(); // MSG IS BUFFER OBJECT
+   let  _socketOnMessage= (msg, socket)=> {
+            let message = msg.toString(); // MSG IS BUFFER OBJECT
             socket.send(`OK ->> ${Date.now().toString('10')}`, ()=>console.log('sent!'));
             
             for (let y of  this._webSocketServer.clients) {
@@ -190,14 +188,27 @@ _socketOnMessage (msg, socket) {
             }
             console.log( this._webSocketServer.clients);
             console.log(message);
-}
+    }
 
-_socketOnClose (code, reason) {
-  console.log(code);
-   console.log(reason);
-}
+    let   _socketOnClose= (code, reason)=> {
+      console.log(code);
+      console.log(reason);
+    }
 
-_onPingInterval () {
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+_onPingInterval= ()=> {
 this._webSocketServer.clients.forEach(function each(ws) {
           if (ws.isAlive === false) return ws.terminate();
             ws.isAlive = false;
