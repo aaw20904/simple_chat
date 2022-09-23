@@ -147,6 +147,67 @@ pswChangeRouter._layers77 = layers77;
 
 
 
+/***************************C L A S S  */
+class WebSocketConnectionManager {
+
+ constructor (port) {
+    this._betheartInterval = null;
+    this._sockcets = [];
+    this._webSocketServer = new WebSocketServer({ port: port });
+    //connect listeners
+    this._webSocketServer.on('connection',(socket,req,env)=>this._onServerConnection(socket,req,this));
+
+  }
+
+_onServerConnection (socket, req, env) {
+     // (B1) SEND MESSAGE TO CLIENT
+        socket.send("Welcome!");
+        socket.isAlive = true;
+        socket.on('pong', env._socketOnHeartbeat(socket));
+        socket.on('message',(msg)=>env._socketOnMessage(msg,socket));
+        socket.on('close',(code,reason)=>env._socketOnClose(code,reason));
+}
+
+_onServerClose() {
+  clearInterval(this._betheartInterval);
+  console.log('server closed..')
+}
+
+_socketOnHeartbeat (socket) {
+   console.log(`beat: ${new Date().toLocaleTimeString()}`)
+  this.isAlive = true;
+}
+
+_socketOnMessage (msg, socket) {
+  let message = msg.toString(); // MSG IS BUFFER OBJECT
+            socket.send(`OK ->> ${Date.now().toString('10')}`, ()=>console.log('sent!'));
+            
+            for (let y of  this._webSocketServer.clients) {
+                this._sockcets.push(y);
+                console.log(y.readyState);
+                //при разрыве сетевого соединения (не закрывая браузер)
+                //подключение остается.Мало того добавляется новые сокеты 
+            }
+            console.log( this._webSocketServer.clients);
+            console.log(message);
+}
+
+_socketOnClose (code, reason) {
+  console.log(code);
+   console.log(reason);
+}
+
+_onPingInterval () {
+this._webSocketServer.clients.forEach(function each(ws) {
+          if (ws.isAlive === false) return ws.terminate();
+            ws.isAlive = false;
+            ws.ping();
+          }); 
+}
+
+ 
+}
+
     /***server intialization**** */
   // set the view engine to ejs
 //app.set('view engine', 'ejs');
@@ -184,7 +245,7 @@ app.get('/test',async(req,res)=>{
 /*********S T A R T **********/
 ///start to listen
 app.listen(80, ()=>console.log('Listen...'))
-
+let wsMgr = new WebSocketConnectionManager(8080);
 
 
 
@@ -193,7 +254,7 @@ app.listen(80, ()=>console.log('Listen...'))
 
 /*******   W E B S O C K E T  ****/
 // (A) CREATE WEBSOCKET SERVER AT PORT 8080
-
+/*
 const wss = new WebSocketServer({ port: 8080 });
 
 function heartbeat() {
@@ -249,3 +310,5 @@ wss.on("listening", () => { console.log("WS READY and listen on port 8080... ");
   });
 
 wss.on("error", (err) => { console.log(err); });
+*/
+
