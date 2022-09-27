@@ -8,7 +8,7 @@
    }
 
  */
-
+import WebSocketConnectionManager from './websockets.js'
  import sizeof from 'object-sizeof'
  import cookieParser from "cookie-parser"
 import  registerRouter  from './routes/register_route.js'
@@ -147,77 +147,6 @@ pswChangeRouter._layers77 = layers77;
 
 
 
-/***************************C L A S S  */
-class WebSocketConnectionManager {
-
- constructor (port) {
-    this._betheartInterval = null;
-    this._sockcets = [];
-    this._webSocketServer = new WebSocketServer({ port: port });
-    //connect listeners
-    this._webSocketServer.on('connection',(socket,req)=>_onServerConnection(socket,req,this));
-
-    let _onServerConnection = (socket, req)=> {
-     // (B1) SEND MESSAGE TO CLIENT
-        socket.send("Welcome!");
-        socket.isAlive = true;
-        socket.on('pong', _socketOnHeartbeat);
-        socket.on('message',(msg)=>_socketOnMessage(msg,socket));
-        socket.on('close',(code,reason)=>_socketOnClose(code,reason));
-    }
-
-    let _onServerClose = ()=> {
-      clearInterval(this._betheartInterval);
-     console.log('server closed..')
-    }
-
-   let  _socketOnHeartbeat= (socket) =>{
-      console.log(`beat: ${new Date().toLocaleTimeString()}`)
-      socket.isAlive = true;
-    }
-
-   let  _socketOnMessage= (msg, socket)=> {
-            let message = msg.toString(); // MSG IS BUFFER OBJECT
-            socket.send(`OK ->> ${Date.now().toString('10')}`, ()=>console.log('sent!'));
-            
-            for (let y of  this._webSocketServer.clients) {
-                this._sockcets.push(y);
-                console.log(y.readyState);
-                //при разрыве сетевого соединения (не закрывая браузер)
-                //подключение остается.Мало того добавляется новые сокеты 
-            }
-            console.log( this._webSocketServer.clients);
-            console.log(message);
-    }
-
-    let   _socketOnClose= (code, reason)=> {
-      console.log(code);
-      console.log(reason);
-    }
-
-
-  }
-
-
-
-
-
-
-
-
-
-
-
-_onPingInterval= ()=> {
-this._webSocketServer.clients.forEach(function each(ws) {
-          if (ws.isAlive === false) return ws.terminate();
-            ws.isAlive = false;
-            ws.ping();
-          }); 
-}
-
- 
-}
 
     /***server intialization**** */
   // set the view engine to ejs
