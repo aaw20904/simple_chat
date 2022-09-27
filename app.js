@@ -8,7 +8,7 @@
    }
 
  */
-import WebSocketConnectionManager from './websockets.js'
+import WebSocketConnectionManager from './websock_mgr.js'
  import sizeof from 'object-sizeof'
  import cookieParser from "cookie-parser"
 import  registerRouter  from './routes/register_route.js'
