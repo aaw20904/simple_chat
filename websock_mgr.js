@@ -1,6 +1,29 @@
 import WebSocket, { WebSocketServer } from 'ws';
 /***************************C L A S S  */
+////PROTOCOL - common format of data exchange between remote client and WS server////
+
+/**
+ * A) CLIENT - > SERVER
+ * {
+ *    command: 'string',
+ *    data: any,
+ *    cookie: number_as_hex_string,
+ *    status: NULL|string|Number, 
+ * }
+ * 
+ * B) SERVER -> CLIENT
+ * {
+ *    command:'string',
+ *    data: any,
+ *    cookie: number_as_hex_string | NULL,
+ *    status: 'string',
+ *    msg: 'string' 
+ * } 
+ */
+
   class WebSocketConnectionManager {
+    #authenticationLayer;
+    #databaseLayer;
     #betheartInterval;
     #betheartIntervalHandle;
     #remoteSockets;
@@ -125,7 +148,9 @@ import WebSocket, { WebSocketServer } from 'ws';
       console.log(reason);
     };
 
- constructor (port) {
+ constructor (databaseLayer,authenticationLayer,port) {
+     this.#databaseLayer = databaseLayer;
+     this.#authenticationLayer = authenticationLayer;
   //PING intreval
     this.#pingScanInterval = 5000;
     this.#betheartIntervalHandle = null;

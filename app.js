@@ -43,6 +43,7 @@ let layers77= {
   authenticationLayer: null,
   authorizeLayer: null,
   registrationLayer: null,
+  websocketLayer:null,
   authCookieName: 'sessionInfo',
   lastPageCookie: 'lastURL',
   administratorId: null
