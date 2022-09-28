@@ -5,8 +5,7 @@ export default class CryptoProcedures {
     constructor  (arg={pubKey:Buffer.from([0x01]), initVect:Buffer.from([0x01])}) {
         //making a hide property
       this.privateMembers = new WeakMap();
-      
-
+    
       //assign a 'private' - it may be an object
       this.privateMembers.set(this, { 
         keyAndVect:{pubKey:arg.pubKey, initVect:arg.initVect},

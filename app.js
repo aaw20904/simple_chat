@@ -53,25 +53,13 @@ loginRouter._layers77 = layers77;
 adminRouter._layers77 = layers77;
 logoffRouter._layers77 = layers77;
 pswChangeRouter._layers77 = layers77;
+/*********** */
+////when  DB connection had established
+let onChatDatabaseConnectedRoutine = async (err) => {
 
-    const connectionDB = mysql.createConnection({
-        user: DATABASE_USER,
-        password: DATABASE_PASSWORD,
-        host: DATABASE_HOST,
-        database: DATABASE_NAME,
-        
-        /* ssl:{
-                ca: fs.readFileSync(...),
-                /*You can also connect to a MySQL server
-                without properly providing the appropriate CA to trust.
-                You should not do this.*/
-                //rejectUnauthorized: FALSE,
-        // } */
-    
-     });
- 
- connectionDB.connect( async function(err) {
-    if (err) {
+  ///
+  console.log(`size of object {id:1204} ${sizeof(Number(1024)|0)}`);
+      if (err) {
         console.error('error SQL connecting: ' + err.stack);
         process.exit(-1);
         return;
@@ -143,7 +131,26 @@ pswChangeRouter._layers77 = layers77;
      //2 console.log(await layers77.registrationLayer.registerUserInSystem({usrName:'Bob', password:'password',avatar:Buffer.from([0x01,0x03,0x05])}))
      //await layers77.authorizeLayer.logoffUser(19);
      //process.exit(0);
- });
+}
+/********** */
+
+    const connectionDB = mysql.createConnection({
+        user: DATABASE_USER,
+        password: DATABASE_PASSWORD,
+        host: DATABASE_HOST,
+        database: DATABASE_NAME,
+        
+        /* ssl:{
+                ca: fs.readFileSync(...),
+                /*You can also connect to a MySQL server
+                without properly providing the appropriate CA to trust.
+                You should not do this.*/
+                //rejectUnauthorized: FALSE,
+        // } */
+    
+     });
+ 
+ connectionDB.connect(onChatDatabaseConnectedRoutine);
 
 
 
@@ -251,4 +258,3 @@ wss.on("listening", () => { console.log("WS READY and listen on port 8080... ");
 
 wss.on("error", (err) => { console.log(err); });
 */
-
