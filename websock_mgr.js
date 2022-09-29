@@ -37,7 +37,7 @@ import WebSocket, { WebSocketServer } from 'ws';
       this.#databaseLayer = databaseLayer;
       this.#authenticationLayer = authenticationLayer;
         //PING intreval
-      this.#pingScanInterval = 5000;
+      this.#pingScanInterval = 10000;
       this.#betheartIntervalHandle = null;
       this.#remoteSockets = new Map();
       this.#webSocketServer = new WebSocketServer({ port: port });

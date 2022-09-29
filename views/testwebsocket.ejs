@@ -43,8 +43,13 @@
             return cookiesMap;
         }
     //returns a Map()
-        readCookies () {
+        readCookiesMap () {
             return this.#readAllTheCookies();
+        }
+
+        readCookie (key) {
+            let m = this.#readAllTheCookies();
+            return m.get(key);
         }
 
         writeCookie (key, value) {
@@ -62,14 +67,13 @@
  let cookieMgr = new CookieManager(); 
 
     window.onload = async function() {
-        cookieMgr.writeCookie('myCookie1',123);
-        cookieMgr.readCookies('sessionInfo');
+       
        // (A) CONNECT TO WEB SOCKET SERVER
        const currentUrl = new URL(document.location.href)
     // current base URL
     const baseUrl = `ws://${currentUrl.hostname}:8080`
    let web_socket= await new Promise((resolve, reject) => {
-          cookieId =getCookieEX('sessionInfo');
+          cookieId = cookieMgr.readCookie('sessionInfo');
         if(!cookieId) {cookieId = 0}
         let socket = new WebSocket(baseUrl);
         // (B) ON CONNECTING TO THE SERVER
