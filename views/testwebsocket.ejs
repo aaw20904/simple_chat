@@ -18,18 +18,64 @@
     </div>
 
     <script>
+ /*
+ 
+    1)separate each key-value pair using String.prototype.split(';')
+    2)Use Array.prototype.map() and String.prototype.split('=') to separate keys from values in each pair.
+    3)Use Array.prototype.reduce() and decodeURIComponent() to create an object with all key-value pairs.
+
+ */
+    class CookieManager {
+        #readAllTheCookies(){
+                //get all the string 
+            let cookiesString = String(document.cookie);
+            //split
+            let splited = cookiesString.split(';');
+            console.log(splited);
+            //create a map
+            let cookiesMap = new Map();
+            //iterate an array and split into key/value
+            splited.forEach((val)=>{
+                let pair = val.split('=');
+                //key [0], value[1]
+                cookiesMap.set(pair[0], pair[1]);
+            });
+            return cookiesMap;
+        }
+    //returns a Map()
+        readCookies () {
+            return this.#readAllTheCookies();
+        }
+
+        writeCookie (key, value) {
+           let cookieMap = this.#readAllTheCookies();
+            cookieMap.set(key, value);
+            let rawString = '';
+            cookieMap.forEach((v, k)=>{
+                 document.cookie = `${k}=${v};SameSite=None;Secure;`;
+            });
+           
+        }
+    }
+
+   let cookieId;
+ let cookieMgr = new CookieManager(); 
+
     window.onload = async function() {
+        cookieMgr.writeCookie('myCookie1',123);
+        cookieMgr.readCookies('sessionInfo');
        // (A) CONNECT TO WEB SOCKET SERVER
        const currentUrl = new URL(document.location.href)
     // current base URL
     const baseUrl = `ws://${currentUrl.hostname}:8080`
    let web_socket= await new Promise((resolve, reject) => {
-        let cookieId = document.getElementById('uniqueNumber').innerText;
+          cookieId =getCookieEX('sessionInfo');
+        if(!cookieId) {cookieId = 0}
         let socket = new WebSocket(baseUrl);
         // (B) ON CONNECTING TO THE SERVER
         socket.addEventListener("open", () => {
-        socket.send(JSON.stringify({command:'',data:0, cookie:cookieId}) ); // SEND MESSAGE TO SERVER
-        resolve(socket);
+        //socket.send(JSON.stringify({command:'',data:0, cookie:cookieId}) ); // SEND MESSAGE TO SERVER
+            resolve(socket);
         });
     }); 
         
@@ -49,12 +95,12 @@
     let debugButton = document.querySelector('.debug_button');
 
     debugButton.onclick=(evt)=>{
-        web_socket.send(JSON.stringify({command:'registr',data:10}));
+        web_socket.send(JSON.stringify({command:'registr', cookie:cookieId}));
     }
     //echo
     let debugButton1 = document.querySelector('.debug_button1');
     debugButton1.onclick=(evt)=>{
-        web_socket.send(JSON.stringify({command:'echo',data:10}));
+        web_socket.send(JSON.stringify({command:'echo', data:10}));
     }
 
 
@@ -65,6 +111,21 @@
     //****<<END DEBUG>>
     }
    
+   function getCookieEX(cname) {
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for(let i = 0; i <ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
     </script>
 </body>
 </html>

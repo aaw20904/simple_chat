@@ -8,7 +8,9 @@ import WebSocket, { WebSocketServer } from 'ws';
  *    command: 'string',
  *    data: any,
  *    cookie: number_as_hex_string,
- *    status: NULL|string|Number, 
+ *    status: boolean, 
+      msg: "srting",
+      resultCode: Number
  * }
  * 
  * B) SERVER -> CLIENT
@@ -16,8 +18,9 @@ import WebSocket, { WebSocketServer } from 'ws';
  *    command:'string',
  *    data: any,
  *    cookie: number_as_hex_string | NULL,
- *    status: 'string',
- *    msg: 'string' 
+ *    status: boolean,
+ *    msg: 'string' ,
+      resultCode: Number
  * } 
  */
 
@@ -29,17 +32,37 @@ import WebSocket, { WebSocketServer } from 'ws';
     #remoteSockets;
     #webSocketServer;
     #pingScanInterval;
+
+    constructor (databaseLayer, authenticationLayer, port) {
+      this.#databaseLayer = databaseLayer;
+      this.#authenticationLayer = authenticationLayer;
+        //PING intreval
+      this.#pingScanInterval = 5000;
+      this.#betheartIntervalHandle = null;
+      this.#remoteSockets = new Map();
+      this.#webSocketServer = new WebSocketServer({ port: port });
+      //connect listeners
+    this.#webSocketServer.on('connection',(socket,req)=>this.#onServerConnection(socket, req, this));
+    this.#webSocketServer.on('close', function close() {
+            clearInterval(this.#betheartInterval);
+    });
+    
+    
+
+  }
+
+
     //add a new client to #remoteSockets list by Id
     #addRemoteClient = (arg={id:null, socket:{}}) => {
      let key = Number(arg.id)|0;
       if (!key) {
         throw new Error('BAD identifier!')
       } else if ( this.#remoteSockets.has(key)) {
-        return {status:false,msg: 'User has been already registered!'};
+        return {status:false, msg: 'User has been already registered!'};
       }
         arg.socket.idOfClient456 = arg.id;
         this.#remoteSockets.set(key,arg.socket);
-        return {status:true}
+        return {status:true, msg:"Added"}
     };
     //assign a new key:value pair to the weakMap;
     #hasRemoteClientBeenRegistered = (id)=>{
@@ -67,22 +90,51 @@ import WebSocket, { WebSocketServer } from 'ws';
       return {status:true}; 
     };
    ///
-    #clientInterfaceQueries = (arg={command:null,  data:"", socket:null}) =>{
+    #clientInterfaceQueries = async (arg={
+            command: 'string',
+            data: 'any',
+            cookie: 'number_as_hex_string',
+            status: true, 
+            msg: "srting",
+            resultCode: 1
+       },socket=null) =>{
+         ///checking a user
+         //A) Is a user in system?
+             let authResult = await this.#authenticationLayer.authenticateUserByCookie(arg.cookie);
+        //has a user been authorized fail?
+             if (!authResult.status) {
+        //respond with fail status
+                  socket.send(JSON.stringify({status:false, msg:authResult.msg, command:'login'})); 
+                  return;
+             }
+        //when authorized successfully
+        //response message
+              let respMessage = {status:true, cookie:null};
+        //Must a cookie be updated?
+              if (authResult.mustUpdated) {
+                respMessage.cookie = authResult.cookie;
+              }
       switch(arg.command) {
-        case 'registr':
-                
-        console.log(this.#addRemoteClient({id:arg.data, socket:arg.socket}));
-        break;
+        case 'registr':         
+          let resultOp = this.#addRemoteClient({id:arg.data, socket:arg.socket});
+          
+            //  respond to network
+            respMessage.msg = resultOp.msg;
+            respMessage.status = resultOp.status;
+            socket.send(JSON.stringify(respMessage));
+            return;
+         
+            break;
         case 'chatmsg':
-        break;
-        case 'echo':
-        console.log( this.#sendMessageToRemoteClient({
-                        id:arg.data, 
-                           msg:{time:new Date().toLocaleTimeString()}
-                         }) );
-        break;
-        default:
-        return {status:false, msg:'bad API command!'};
+            break;
+            case 'echo':
+            console.log( this.#sendMessageToRemoteClient({
+                            id:arg.data, 
+                              msg:{time:new Date().toLocaleTimeString()}
+                            }) );
+            break;
+            default:
+            return {status:false, msg:'bad API command!'};
       }
       return {status:true,msg:'OK'};
     };
@@ -111,9 +163,12 @@ import WebSocket, { WebSocketServer } from 'ws';
       socket.isAlive = true;
     };
 
-    #socketOnMessage= (msg, socket)=> {
+    #socketOnMessage= async (msg, socket)=> {
             let message = msg.toString(); // MSG IS BUFFER OBJECT
-            socket.send(`OK ->> ${Date.now().toString('10')}`, ()=>console.log('sent!'));
+            message = JSON.parse(message);
+           
+
+            //socket.send(`OK ->> ${Date.now().toString('10')}`, ()=>console.log('sent!'));
             let disconnectReason
           /*  for (let y of  this.#webSocketServer.clients) {
                 //websocket.readyState code meaning:
@@ -124,13 +179,8 @@ import WebSocket, { WebSocketServer } from 'ws';
                 //при разрыве сетевого соединения (не закрывая браузер)
                 //подключение остается.Мало того добавляется новые сокеты 
             }*/
-            let messageFromRemote = JSON.parse(msg);
-            messageFromRemote.socket = socket;
-            this.#clientInterfaceQueries({
-                        command: messageFromRemote.command,
-                        data: messageFromRemote.data,
-                        socket: socket
-            });
+            
+            this.#clientInterfaceQueries(message,socket);
            // console.log( this.#webSocketServer.clients);
             console.log(message);
     };
@@ -148,21 +198,28 @@ import WebSocket, { WebSocketServer } from 'ws';
       console.log(reason);
     };
 
- constructor (databaseLayer,authenticationLayer,port) {
-     this.#databaseLayer = databaseLayer;
-     this.#authenticationLayer = authenticationLayer;
-  //PING intreval
-    this.#pingScanInterval = 5000;
-    this.#betheartIntervalHandle = null;
-    this.#remoteSockets = new Map();
-    this.#webSocketServer = new WebSocketServer({ port: port });
-    //connect listeners
-    this.#webSocketServer.on('connection',(socket,req)=>this.#onServerConnection(socket, req, this));
-    this.#webSocketServer.on('close', function close() {
-            clearInterval(this.#betheartInterval);
-    });
+
+
     
-    /*let _onServerConnection = (socket, req)=> {
+    #onPingInterval= ()=> {
+      
+          this.#webSocketServer.clients.forEach(function each(ws) {
+                if (ws.isAlive === false) {
+                  console.log('Connection closed!');
+                  return ws.terminate();
+                }
+                // ws.isAlive = false;
+                  ws.ping();
+                });
+    }
+
+ 
+}
+
+export {WebSocketConnectionManager as default}
+
+
+/*let _onServerConnection = (socket, req)=> {
      // (B1) SEND MESSAGE TO CLIENT
         socket.send("Welcome!");
         socket.isAlive = true;
@@ -200,26 +257,3 @@ import WebSocket, { WebSocketServer } from 'ws';
       console.log(reason);
     }
      */
-
-  }
-
-
-
-
-    
-    #onPingInterval= ()=> {
-      
-          this.#webSocketServer.clients.forEach(function each(ws) {
-                if (ws.isAlive === false) {
-                  console.log('Connection closed!');
-                  return ws.terminate();
-                }
-                // ws.isAlive = false;
-                  ws.ping();
-                });
-    }
-
- 
-}
-
-export {WebSocketConnectionManager as default}

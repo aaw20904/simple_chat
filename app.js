@@ -86,7 +86,7 @@ let onChatDatabaseConnectedRoutine = async (err) => {
                                                                 });
     layers77.authorizeLayer = new AuthorizationUser(layers77.databaseLayer, layers77.cryptoLayer, layers77.authenticationLayer,{AUTH_FAIL_ATTEMPTS:10});
     layers77.registrationLayer = new UserRegistration(layers77.cryptoLayer, layers77.databaseLayer);
-   
+    layers77.websocketLayer  = new WebSocketConnectionManager( layers77.databaseLayer,layers77.authenticationLayer,  8080);
     //2 let result = layers77.registrationLayer.createRegistrationCookieAndCaptcha();
     //2 layers77.registrationLayer.isRegistrationCookieValid(result.results.cookie, result.results.text);
     // let newKeys = await layers77.cryptoLayer.generateSymmetricCryptoKey();   
@@ -193,7 +193,7 @@ app.get('/test',async(req,res)=>{
 /*********S T A R T **********/
 ///start to listen
 app.listen(80, ()=>console.log('Listen...'))
-let wsMgr = new WebSocketConnectionManager(8080);
+
 
 
 
