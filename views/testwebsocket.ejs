@@ -87,6 +87,7 @@
         web_socket.addEventListener("message", (evt) => {
             console.log(evt.data);
         });
+
         // (D) ON CONNECTION CLOSE
         web_socket.addEventListener("close", () => {
             console.log("Connection Closed");
@@ -116,20 +117,99 @@
     }
    
    function getCookieEX(cname) {
-  let name = cname + "=";
-  let decodedCookie = decodeURIComponent(document.cookie);
-  let ca = decodedCookie.split(';');
-  for(let i = 0; i <ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1);
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for(let i = 0; i <ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+        }
     }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
   return "";
 }
+
+//interaction with WebSocket interface
+/*
+Location.href --
+
+    A stringifier that returns a string containing the entire URL. If changed, the associated document navigates to the new page. It can be set from a different origin than the associated document.
+Location.protocol
+
+    A string containing the protocol scheme of the URL, including the final ':'.
+Location.host --
+
+    A string containing the host, that is the hostname, a ':', and the port of the URL.
+Location.hostname --
+
+    A string containing the domain of the URL.
+Location.port
+
+    A string containing the port number of the URL.
+Location.pathname --
+
+    A string containing an initial '/' followed by the path of the URL, not including the query string or fragment.
+
+*/
+
+class NetworkInteractor {
+    #cookieMgr;
+    #webSocket = null;
+    #baseWsUrl;
+    #baseHttpUrl;
+    #onWsMessage = (evt) => {
+
+    };
+
+    #onWsClose = (evt) => {
+
+    };
+
+    #onWsError = (evt) => {
+
+    };
+
+    constructor (cookieMgrInst) {
+        this.#cookieMgr = cookieMgrInst;
+        ///get url`s;
+         let currentUrl = new URL(document.location);
+        
+         this.#baseHttpUrl = `${currentUrl.protocol}//${currentUrl.host}${currentUrl.pathname}`;
+    }
+
+    async connetWs (url=null) {
+        if (!url) {
+            this.#baseWsUrl = `ws://${currentUrl.hostname}/:8080`;
+        }
+        //try to connect
+        this.#webSocket =  await new Promise((resolve, reject) => {
+                    let socket = new WebSocket(baseUrl);
+                    // (B) ON CONNECTING TO THE SERVER
+                    socket.addEventListener("open", () => {
+                         //socket.send(JSON.stringify({command:'',data:0, cookie:cookieId}) ); // SEND MESSAGE TO SERVER
+                         resolve(socket);
+                    });
+         }); 
+         //add isteners
+         this.#webSocket.addEventListener('message', this.#onWsMessage);
+         this.#webSocket.addEventListener('close', this.#onWsClose);
+         this.#webSocket.addEventListener('error', this.#onWsError);
+
+    }
+
+    async registerNewSocket(){
+        return new Promise((resolve, reject) => {
+            //get auth cookie 'ticket'
+            let ticket = this.#cookieMgr.readCookie('sessionInfo');
+
+        });
+    }
+
+}
+
     </script>
 </body>
 </html>
