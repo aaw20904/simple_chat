@@ -1142,7 +1142,7 @@ class NetworkInteractor {
                 window.setTimeout(()=>{
                     window.location.replace(`${currentUrl.protocol}//${currentUrl.hostname}/login${currentUrl.port}`);
                   },1000)
-                return {status:false, msg:'Forbidden!',value:`${currentUrl.protocol}//${currentUrl.hostname}/login${currentUrl.port}`}
+                return {status:false, msg:'Forbidden!', value:`${currentUrl.protocol}//${currentUrl.hostname}/login${currentUrl.port}`}
             }
           
             if (statusCode !== 200) {

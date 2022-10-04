@@ -32,6 +32,7 @@ import WebSocket, { WebSocketServer } from 'ws';
     #remoteSockets;
     #webSocketServer;
     #pingScanInterval;
+   
 
     constructor (databaseLayer, authenticationLayer, port) {
       this.#databaseLayer = databaseLayer;

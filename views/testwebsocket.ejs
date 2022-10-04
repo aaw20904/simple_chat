@@ -18,6 +18,8 @@
     </div>
 
     <script>
+    const SESSION_IDENTIFIER_COOKIE = 'sessionInfo'
+    const LAST_URL_COOKIE = 'lastURL';
  /*
  
     1)separate each key-value pair using String.prototype.split(';')
@@ -25,6 +27,18 @@
     3)Use Array.prototype.reduce() and decodeURIComponent() to create an object with all key-value pairs.
 
  */
+
+    window.onload = async function() {
+       
+        let cookieId;
+        let cookieMgr = new CookieManager(); 
+        let networkMgr = new NetworkInteractor(cookieMgr, ()=>1, null);
+        let btn = document.querySelector('.debug_button');
+        btn.onclick = async () =>{
+            await networkMgr.registerNewSocketCommand()
+        }
+   }
+
     class CookieManager {
         #readAllTheCookies(){
                 //get all the string 
@@ -63,74 +77,8 @@
         }
     }
 
-   let cookieId;
- let cookieMgr = new CookieManager(); 
+ 
 
-    window.onload = async function() {
-       
-       // (A) CONNECT TO WEB SOCKET SERVER
-       const currentUrl = new URL(document.location.href)
-    // current base URL
-    const baseUrl = `ws://${currentUrl.hostname}:8080`
-   let web_socket= await new Promise((resolve, reject) => {
-          cookieId = cookieMgr.readCookie('sessionInfo');
-        if(!cookieId) {cookieId = 0}
-        let socket = new WebSocket(baseUrl);
-        // (B) ON CONNECTING TO THE SERVER
-        socket.addEventListener("open", () => {
-        //socket.send(JSON.stringify({command:'',data:0, cookie:cookieId}) ); // SEND MESSAGE TO SERVER
-            resolve(socket);
-        });
-    }); 
-        
-        // (C) ON RECEIVING MESSAGE FROM SERVER
-        web_socket.addEventListener("message", (evt) => {
-            console.log(evt.data);
-        });
-
-        // (D) ON CONNECTION CLOSE
-        web_socket.addEventListener("close", () => {
-            console.log("Connection Closed");
-        });
-        // (E) ON ERROR
-        web_socket.addEventListener("error", (err) => {
-        console.log(err);
-        });
-
-    let debugButton = document.querySelector('.debug_button');
-
-    debugButton.onclick=(evt)=>{
-        web_socket.send(JSON.stringify({command:'registr', cookie:cookieId}));
-    }
-    //echo
-    let debugButton1 = document.querySelector('.debug_button1');
-    debugButton1.onclick=(evt)=>{
-        web_socket.send(JSON.stringify({command:'echo', data:10}));
-    }
-
-
-    async function updateFunc() {
-        return await msgList.buildFullMessageList();
-    }
-
-    //****<<END DEBUG>>
-    }
-   
-   function getCookieEX(cname) {
-    let name = cname + "=";
-    let decodedCookie = decodeURIComponent(document.cookie);
-    let ca = decodedCookie.split(';');
-    for(let i = 0; i <ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) == ' ') {
-        c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-        return c.substring(name.length, c.length);
-        }
-    }
-  return "";
-}
 
 //interaction with WebSocket interface
 /*
@@ -160,39 +108,110 @@ class NetworkInteractor {
     #webSocket = null;
     #baseWsUrl;
     #baseHttpUrl;
-    #onWsMessage = (evt) => {
+    #msgFunction;
+    #currHostName;
+    #chatInstance;
 
+        constructor (cookieMgrInst, msgFunction, chatInstance) {
+        this.#msgFunction = msgFunction;
+        this.#cookieMgr = cookieMgrInst;
+        this.#chatInstance = chatInstance;
+        
+        ///get url`s;
+        let currentUrl = new URL(document.location);
+        this.#currHostName = currentUrl.host;
+        this.#baseHttpUrl = `${currentUrl.protocol}//${currentUrl.host}${currentUrl.pathname}`;
+        this.#baseWsUrl = this.#baseWsUrl = `ws://${currentUrl.hostname}/:8080`;
+    }
+
+    //a respons from server when register;
+    
+    #registrWsServerComm = (rsp) =>{
+       if (rsp.status) {
+        //when success
+          if (rsp.cookie) {
+            //when a cokie needs to be updated
+            this.#cookieMgr.writeCookie(SESSION_IDENTIFIER_COOKIE, rsp.cookie);
+            console.log(` Cookie updated ${rsp.cookie}`);
+          }
+          //report on success
+          console.log('User registered successfully!')
+       } else {
+        //report on error
+        console.log(rsp.msg);
+        return;
+        
+      
+        }
+    };
+
+    #loginWsServerComm = (rsp) => {
+       //report that a user redirect to log in
+       alert('You must to login.You will redirect after several seconds');
+       //save current position in cookie
+       this.#cookieMgr.writeCookie(LAST_URL_COOKIE,this.#baseHttpUrl);
+       ///redirect to the Log In page
+          window.setTimeout(()=>{
+                    window.location.replace(`http://${this.#currHostName}/login`);
+                  }, 3000);
+    };
+
+    #br_castWsServerComm = (rsp) =>{
+
+    };
+    #updateWsServerComm = (rsp) =>{
+
+    };
+    #get_chatWsServerComm = (rsp) =>{
+
+    };
+    
+    #ask_crdWsServerComm = (rsp) =>{
+
+    };
+    #send_msgWsServerComm = (rsp) =>{
+
+    };
+    
+
+  /***base WS event handler***/
+    #onWsMessage =  (evt) => {
+
+        switch(evt.command){
+            case 'registr':
+               this.#registrWsServerComm(evt);
+            break;
+            case 'login':
+              this.#loginWsServerComm(evt);
+            break;
+            default:
+
+        }
     };
 
     #onWsClose = (evt) => {
-
+        console.log(`WS Coonection closed`);
     };
 
     #onWsError = (evt) => {
-
+        console.error(`ws connection error! ${evt}`);
     };
 
-    constructor (cookieMgrInst) {
-        this.#cookieMgr = cookieMgrInst;
-        ///get url`s;
-         let currentUrl = new URL(document.location);
-        
-         this.#baseHttpUrl = `${currentUrl.protocol}//${currentUrl.host}${currentUrl.pathname}`;
-    }
 
-    async connetWs (url=null) {
-        if (!url) {
+
+    async connectWs (wsUrl=null) {
+
+        if (!wsUrl) {
             this.#baseWsUrl = `ws://${currentUrl.hostname}/:8080`;
         }
         //try to connect
         this.#webSocket =  await new Promise((resolve, reject) => {
-                    let socket = new WebSocket(baseUrl);
-                    // (B) ON CONNECTING TO THE SERVER
-                    socket.addEventListener("open", () => {
-                         //socket.send(JSON.stringify({command:'',data:0, cookie:cookieId}) ); // SEND MESSAGE TO SERVER
-                         resolve(socket);
-                    });
-         }); 
+                                let socket = new WebSocket(baseUrl);
+                                // 
+                                socket.addEventListener("open", () => {
+                                    resolve(socket);
+                                });
+                            }); 
          //add isteners
          this.#webSocket.addEventListener('message', this.#onWsMessage);
          this.#webSocket.addEventListener('close', this.#onWsClose);
@@ -200,10 +219,25 @@ class NetworkInteractor {
 
     }
 
-    async registerNewSocket(){
+    async registerNewSocketCommand(){
         return new Promise((resolve, reject) => {
             //get auth cookie 'ticket'
             let ticket = this.#cookieMgr.readCookie('sessionInfo');
+            //try to register on remote WS server
+            let registerCommand = {command:'register',cookie:ticket};
+            //start sending a message to the server
+            this.#webSocket.send(JSON.stringify(registerCommand));
+            //send a request and waiting until it has been transmitted
+            let timeout = window.setTimeout(()=>{
+                //when a timeout has been reached
+                resolve();
+            },15000);
+             while (this.#webSocket.bufferedAmount) {
+                //waiting until all the data has been sent
+             }
+             window.clearTimeout(timeout);
+             resolve();
+            //NOTE: a command processing WHEN a response has been arrived -  in 'onWsMessage' listener
 
         });
     }
