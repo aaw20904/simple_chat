@@ -32,7 +32,8 @@
        
         let cookieId;
         let cookieMgr = new CookieManager(); 
-        let networkMgr = new NetworkInteractor(cookieMgr, ()=>1, null);
+        let networkMgr = new NetworkInteractor(cookieMgr, (x,y)=>console.log(x,y), null);
+        await networkMgr.connectWs();
         let btn = document.querySelector('.debug_button');
         btn.onclick = async () =>{
             await networkMgr.registerNewSocketCommand()
@@ -43,6 +44,8 @@
         #readAllTheCookies(){
                 //get all the string 
             let cookiesString = String(document.cookie);
+            //clean all the spaces
+            cookiesString = cookiesString.replace(/\s/g, '');
             //split
             let splited = cookiesString.split(';');
             console.log(splited);
@@ -113,15 +116,15 @@ class NetworkInteractor {
     #chatInstance;
 
         constructor (cookieMgrInst, msgFunction, chatInstance) {
-        this.#msgFunction = msgFunction;
-        this.#cookieMgr = cookieMgrInst;
-        this.#chatInstance = chatInstance;
-        
-        ///get url`s;
-        let currentUrl = new URL(document.location);
-        this.#currHostName = currentUrl.host;
-        this.#baseHttpUrl = `${currentUrl.protocol}//${currentUrl.host}${currentUrl.pathname}`;
-        this.#baseWsUrl = this.#baseWsUrl = `ws://${currentUrl.hostname}/:8080`;
+            this.#msgFunction = msgFunction;
+            this.#cookieMgr = cookieMgrInst;
+            this.#chatInstance = chatInstance;
+            
+            ///get url`s;
+            let currentUrl = new URL(document.location);
+            this.#currHostName = currentUrl.host;
+            this.#baseHttpUrl = `${currentUrl.protocol}//${currentUrl.host}${currentUrl.pathname}`;
+            this.#baseWsUrl = this.#baseWsUrl = `ws://${currentUrl.hostname}/:8080`;
     }
 
     //a respons from server when register;
@@ -132,13 +135,13 @@ class NetworkInteractor {
           if (rsp.cookie) {
             //when a cokie needs to be updated
             this.#cookieMgr.writeCookie(SESSION_IDENTIFIER_COOKIE, rsp.cookie);
-            console.log(` Cookie updated ${rsp.cookie}`);
+            this.#msgFunction(true,`Cookie updated ${rsp.cookie}`);
           }
           //report on success
-          console.log('User registered successfully!')
+          this.#msgFunction(true,'User registered successfully!')
        } else {
         //report on error
-        console.log(rsp.msg);
+        this.#msgFunction(false,rsp.msg);
         return;
         
       
@@ -147,7 +150,7 @@ class NetworkInteractor {
 
     #loginWsServerComm = (rsp) => {
        //report that a user redirect to log in
-       alert('You must to login.You will redirect after several seconds');
+      this.#msgFunction(false,'You must to login.You will redirect after several seconds');
        //save current position in cookie
        this.#cookieMgr.writeCookie(LAST_URL_COOKIE,this.#baseHttpUrl);
        ///redirect to the Log In page
@@ -176,13 +179,13 @@ class NetworkInteractor {
 
   /***base WS event handler***/
     #onWsMessage =  (evt) => {
-
-        switch(evt.command){
+       let msg = JSON.parse(evt.data);
+        switch(msg.command){
             case 'registr':
-               this.#registrWsServerComm(evt);
+               this.#registrWsServerComm(msg);
             break;
             case 'login':
-              this.#loginWsServerComm(evt);
+              this.#loginWsServerComm(msg);
             break;
             default:
 
@@ -190,11 +193,11 @@ class NetworkInteractor {
     };
 
     #onWsClose = (evt) => {
-        console.log(`WS Coonection closed`);
+        this.#msgFunction(false,`WS Coonection closed`);
     };
 
     #onWsError = (evt) => {
-        console.error(`ws connection error! ${evt}`);
+        this.#msgFunction(false,`ws connection error! ${evt}`);
     };
 
 
@@ -202,11 +205,11 @@ class NetworkInteractor {
     async connectWs (wsUrl=null) {
 
         if (!wsUrl) {
-            this.#baseWsUrl = `ws://${currentUrl.hostname}/:8080`;
+            this.#baseWsUrl = `ws://${this.#currHostName}:8080`;
         }
         //try to connect
         this.#webSocket =  await new Promise((resolve, reject) => {
-                                let socket = new WebSocket(baseUrl);
+                                let socket = new WebSocket(this.#baseWsUrl );
                                 // 
                                 socket.addEventListener("open", () => {
                                     resolve(socket);
@@ -223,19 +226,16 @@ class NetworkInteractor {
         return new Promise((resolve, reject) => {
             //get auth cookie 'ticket'
             let ticket = this.#cookieMgr.readCookie('sessionInfo');
+            if (!ticket) {
+                ticket = 0;
+            }
             //try to register on remote WS server
-            let registerCommand = {command:'register',cookie:ticket};
+            let registerCommand = {command:'registr',cookie:ticket};
             //start sending a message to the server
             this.#webSocket.send(JSON.stringify(registerCommand));
             //send a request and waiting until it has been transmitted
-            let timeout = window.setTimeout(()=>{
-                //when a timeout has been reached
-                resolve();
-            },15000);
-             while (this.#webSocket.bufferedAmount) {
-                //waiting until all the data has been sent
-             }
-             window.clearTimeout(timeout);
+           
+           
              resolve();
             //NOTE: a command processing WHEN a response has been arrived -  in 'onWsMessage' listener
 

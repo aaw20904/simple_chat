@@ -117,11 +117,12 @@ import WebSocket, { WebSocketServer } from 'ws';
               }
       switch(arg.command) {
         case 'registr':         
-          let resultOp = this.#addRemoteClient({id:arg.data, socket:arg.socket});
+          let resultOp = this.#addRemoteClient({id:authResult.results.info.usrId, socket:socket});
           
             //  respond to network
             respMessage.msg = resultOp.msg;
             respMessage.status = resultOp.status;
+            respMessage.command = 'registr';
             socket.send(JSON.stringify(respMessage));
             return;
          
@@ -144,7 +145,8 @@ import WebSocket, { WebSocketServer } from 'ws';
   //#interval;
   #onServerConnection = (socket, req)=> {
      // (B1) SEND MESSAGE TO CLIENT
-          socket.send("Welcome!");
+          socket.send(JSON.stringify({command:"conn", 
+          msg:`Welcome! ${new Date().toLocaleTimeString()}`}));
           socket.isAlive = true;
           socket.on('pong', this.#socketOnHeartbeat);
           socket.on('message',(msg)=>this.#socketOnMessage(msg,socket));
