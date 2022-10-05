@@ -125,6 +125,22 @@
         });
     }
 
+    /****read user Avatar */
+
+    async readUserAvatar (usrId) {
+          //get a private member of class
+         let db = this.privateMembers.get(this);
+         return new Promise((resolve, reject) => {
+             db.query(`SELECT usrAvatar FROM users WHERE usrId=${usrId};`,(err,rows)=>{
+                if (err) {
+                    reject(err);
+                } else if (rows.length > 0) {
+                    resolve({status:true, usrAvatar:rows[0].usrAvatar});
+                }
+             })
+         });
+    }
+
     /*****read user info by the Name */
     async readUserByName (name="Petya") {
          //get a private member of class
@@ -231,18 +247,71 @@
     }
    /***add a message **/
     async addUserMessage (arg={usrId:0,msg:'testmessage'}) {
+      
          //get a private member of class
         let db = this.privateMembers.get(this);
-        return new Promise((resolve, reject) => {
-            db.query('INSERT INTO messages (usrId, message, sent) VALUES (?,?,NOW())', [arg.usrId,arg.msg], (err,rows)=>{
-                if(err) {
-                    reject(err)
-                 }
-                 else {
-                    resolve({staus:true, msg:`Created ${rows.affectedRows} row`});
-                 }
-            })
-        });
+        try {
+            //1)start transaction
+            await new Promise((resolve, reject) => {
+                db.query('START TRANSACTION;',(err,rows)=>{
+                    if(err){
+                        reject(err)
+                    } else {
+                         resolve (rows);
+                    }
+                   
+                })
+            });
+            //2)insert a new message
+                //inserting
+            let result = await new Promise((resolve, reject) => {
+                db.query('INSERT INTO messages (usrId, message, sent) VALUES (?,?,NOW())', [arg.usrId,arg.msg], (err,rows)=>{
+                    if(err) {
+                        reject(err)
+                    }
+                    else {
+                        resolve({staus:true, msg:`Created ${rows.affectedRows} row`});
+                    }
+                })
+            });
+            //3)get Id
+            await new Promise((resolve, reject) => {
+                        db.query('SELECT LAST_INSERT_ID()  AS msgId;',(err,rows)=>{
+                            if (err) {
+                                reject(err);
+                            } else {
+                                result.msgId = rows[0].msgId;
+                                resolve();
+                            }                           
+                        })
+                    });
+            //4)commit result
+           return new Promise((resolve, reject) => {
+                db.query('COMMIT',(err,rows)=>{
+                    if(err){
+                        reject(err)
+                    } else {
+                         resolve (result);
+                    }
+                   
+                })
+            });
+
+
+        } catch (e) {
+             return new Promise((resolve, reject) => {
+                db.query('ROLLBACK',(err,rows)=>{
+                    if(err){
+                        reject(err)
+                    } else {
+                         reject (err);
+                    }
+                   
+                })
+            });
+        }
+       
+                
     }
 
 /*******R E M O V E  user message */
@@ -576,18 +645,15 @@ async incrementFailLoginAttempts (usrId) {
         });
     }
 
-    async saveCleanOptions (opts={
-                    cln_period:1,
-                    cln_threshold:10,
+    async saveCleanOptions (opts = {
+                    cln_period: 1,
+                    cln_threshold: 10,
                     cln_start:'15:40',
-                     
-                    cln_period_unit:0,
-                    cln_threshold_unit:0,
-
-            }){
+                    cln_period_unit: 0,
+                    cln_threshold_unit: 0,
+            }) {
                         //get a private member of class
                 let db = this.privateMembers.get(this);
-                
 
                 return new Promise((resolve, reject) => {
                     db.query( `INSERT INTO clean_mode (pk, cln_period, cln_threshold, cln_start, cln_period_unit, cln_threshold_unit)`+
@@ -602,7 +668,6 @@ async incrementFailLoginAttempts (usrId) {
                         }
                     })
                 });
-
 
     }
 

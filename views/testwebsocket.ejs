@@ -13,8 +13,9 @@
         <div class="h3" id="uniqueNumber">
             <%-text %>
         </div>
-        <button class="btn btn-primary debug_button" type="button">Click me</button>
-         <button class="btn btn-primary debug_button1" type="button">Echo</button>
+        <button class="btn btn-primary debug_button" type="button">Register</button>
+         <button class="btn btn-primary debug_button1" type="button">send message</button>
+         <input type="text" id="messages">
     </div>
 
     <script>
@@ -37,6 +38,12 @@
         let btn = document.querySelector('.debug_button');
         btn.onclick = async () =>{
             await networkMgr.registerNewSocketCommand()
+        }
+        let btn1 = document.querySelector('.debug_button1');
+        btn1.onclick = async () => {
+            //get a message
+            let message = document.getElementById('messages').value;
+            await networkMgr.typeToChatCommand(message);
         }
    }
 
@@ -119,13 +126,12 @@ class NetworkInteractor {
             this.#msgFunction = msgFunction;
             this.#cookieMgr = cookieMgrInst;
             this.#chatInstance = chatInstance;
-            
             ///get url`s;
             let currentUrl = new URL(document.location);
             this.#currHostName = currentUrl.host;
             this.#baseHttpUrl = `${currentUrl.protocol}//${currentUrl.host}${currentUrl.pathname}`;
-            this.#baseWsUrl = this.#baseWsUrl = `ws://${currentUrl.hostname}/:8080`;
-    }
+            this.#baseWsUrl = `ws://${currentUrl.hostname}/:8080`;
+        }
 
     //a respons from server when register;
     
@@ -160,7 +166,7 @@ class NetworkInteractor {
     };
 
     #br_castWsServerComm = (rsp) =>{
-
+        console.log(rsp);
     };
     #updateWsServerComm = (rsp) =>{
 
@@ -175,6 +181,11 @@ class NetworkInteractor {
     #send_msgWsServerComm = (rsp) =>{
 
     };
+    #ticketMsgWsServerComm = (rsp) =>{
+        this.#cookieMgr.writeCookie(SESSION_IDENTIFIER_COOKIE,rsp.cookie);
+        this.#msgFunction(true,'Cookie updated successfully!')
+    };
+
     
 
   /***base WS event handler***/
@@ -186,6 +197,12 @@ class NetworkInteractor {
             break;
             case 'login':
               this.#loginWsServerComm(msg);
+            break;
+            case 'br_cast':
+               this.#br_castWsServerComm(msg)
+            break;
+            case 'ticket':
+                this.#ticketMsgWsServerComm(msg);
             break;
             default:
 
@@ -236,6 +253,25 @@ class NetworkInteractor {
             //send a request and waiting until it has been transmitted
            
            
+             resolve();
+            //NOTE: a command processing WHEN a response has been arrived -  in 'onWsMessage' listener
+
+        });
+    }
+
+    async typeToChatCommand(msg) {
+        return new Promise((resolve, reject) => {
+            //get auth cookie 'ticket'
+            let ticket = this.#cookieMgr.readCookie('sessionInfo');
+            if (!ticket) {
+                ticket = 0;
+            }
+            //try to register on remote WS server
+            let registerCommand = {command:'send_msg',cookie:ticket, data:msg};
+            //start sending a message to the server
+            this.#webSocket.send(JSON.stringify(registerCommand));
+            //send a request and waiting until it has been transmitted
+        
              resolve();
             //NOTE: a command processing WHEN a response has been arrived -  in 'onWsMessage' listener
 

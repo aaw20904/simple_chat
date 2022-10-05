@@ -59,7 +59,7 @@ pswChangeRouter._layers77 = layers77;
 let onChatDatabaseConnectedRoutine = async (err) => {
 
   ///
-  console.log(`size of object {id:1204} ${sizeof(Number(1024)|0)}`);
+   
       if (err) {
         console.error('error SQL connecting: ' + err.stack);
         process.exit(-1);
@@ -69,7 +69,7 @@ let onChatDatabaseConnectedRoutine = async (err) => {
     let keys = await layers77.databaseLayer.readKey(); 
     //get admin id 
     layers77.administratorId = await layers77.databaseLayer.readAdminId();
-    if(!layers77.administratorId.status){
+    if(!layers77.administratorId.status) {
       console.log('Adminisrator not found!');
       layers77.administratorId = null;
     } else {
@@ -132,6 +132,7 @@ let onChatDatabaseConnectedRoutine = async (err) => {
      //2 console.log(await layers77.registrationLayer.registerUserInSystem({usrName:'Bob', password:'password',avatar:Buffer.from([0x01,0x03,0x05])}))
      //await layers77.authorizeLayer.logoffUser(19);
      //process.exit(0);
+    //console.log(await layers77.databaseLayer.readUserAvatar(25));
 }
 /********** */
 

@@ -90,7 +90,8 @@ import WebSocket, { WebSocketServer } from 'ws';
       clientWebSock.send(JSON.stringify(arg.msg));
       return {status:true}; 
     };
-   ///
+   ///QERIES BROKER PROCEDURE
+
     #clientInterfaceQueries = async (arg={
             command: 'string',
             data: 'any',
@@ -98,7 +99,7 @@ import WebSocket, { WebSocketServer } from 'ws';
             status: true, 
             msg: "srting",
             resultCode: 1
-       },socket=null) =>{
+         }, socket=null) =>{
          ///checking a user
          //A) Is a user in system?
              let authResult = await this.#authenticationLayer.authenticateUserByCookie(arg.cookie);
@@ -112,14 +113,16 @@ import WebSocket, { WebSocketServer } from 'ws';
         //response message
               let respMessage = {status:true, cookie:null};
         //Must a cookie be updated?
-              if (authResult.mustUpdated) {
-                respMessage.cookie = authResult.cookie;
-              }
-      switch(arg.command) {
+               ///when a cookie must updatet - notify the sender of te message
+            if (authResult.mustUpdated) {
+              let parcel = {command:'ticket',cookie:authResult.cookie}
+              socket.send(JSON.stringify(parcel));
+            }
+            /***main handler - choose an action in according to a client comand */
+      switch (arg.command) {
         case 'registr':         
-          let resultOp = this.#addRemoteClient({id:authResult.results.info.usrId, socket:socket});
-          
-            //  respond to network
+            let resultOp = this.#addRemoteClient({id:authResult.results.info.usrId, socket:socket});
+            // respond to network
             respMessage.msg = resultOp.msg;
             respMessage.status = resultOp.status;
             respMessage.command = 'registr';
@@ -127,18 +130,34 @@ import WebSocket, { WebSocketServer } from 'ws';
             return;
          
             break;
-        case 'chatmsg':
+        case 'send_msg':
+          //write an incomming message into the DB
+          let resultWrite = await this.#databaseLayer.addUserMessage({usrId:authResult.results.info.usrId, msg:arg.data}); 
+          //read user data - for a broadcast message 
+          let usrAvatar = await this.#databaseLayer.readUserAvatar(authResult.results.info.usrId);
+          //a message for broadcasting
+          let brdcMsg = {
+              usdId: authResult.results.info.usrId, 
+              msg: arg.data, 
+              msgId: resultWrite.msgId,
+              command: 'br_cast',
+              usrAvatar: usrAvatar.usrAvatar.toString('utf8'),
+            }
+          
+          //when success - start broadcasting
+          this.#broadcastAllTheSockets( brdcMsg);
             break;
-            case 'echo':
-            console.log( this.#sendMessageToRemoteClient({
-                            id:arg.data, 
-                              msg:{time:new Date().toLocaleTimeString()}
+        case 'get_chat':
+            break;
+        case 'echo':
+            console.log( this.#sendMessageToRemoteClient({ id: arg.data, 
+                              msg: {time: new Date().toLocaleTimeString()}
                             }) );
             break;
             default:
             return {status:false, msg:'bad API command!'};
       }
-      return {status:true,msg:'OK'};
+      return {status: true, msg:'OK'};
     };
 
 
@@ -200,6 +219,15 @@ import WebSocket, { WebSocketServer } from 'ws';
       console.log(code);
       console.log(reason);
     };
+//@msgData - it is an object with avatar, userMessage e.t.c
+    #broadcastAllTheSockets = async (msgData) =>{
+       this.#remoteSockets.forEach((value,key)=>{
+        console.log(`broadcast to User ${key} `);
+        value.send(JSON.stringify(msgData));
+    })
+     
+      
+    }
 
 
 
