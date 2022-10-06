@@ -127,15 +127,15 @@
 
     /****read user Avatar */
 
-    async readUserAvatar (usrId) {
+    async readUserNameAndAvatar (usrId) {
           //get a private member of class
          let db = this.privateMembers.get(this);
          return new Promise((resolve, reject) => {
-             db.query(`SELECT usrAvatar FROM users WHERE usrId=${usrId};`,(err,rows)=>{
+             db.query(`SELECT usrAvatar, usrName FROM users NATURAL JOIN users_names WHERE usrId=${usrId};`,(err,rows)=>{
                 if (err) {
                     reject(err);
                 } else if (rows.length > 0) {
-                    resolve({status:true, usrAvatar:rows[0].usrAvatar});
+                    resolve({status:true, usrName:rows[0].usrName, usrAvatar:rows[0].usrAvatar});
                 }
              })
          });
@@ -250,6 +250,9 @@
       
          //get a private member of class
         let db = this.privateMembers.get(this);
+        //get date
+        let isoDate = new Date().toISOString();
+        let currentDate = isoDate.slice(0, 19).replace('T', ' ');
         try {
             //1)start transaction
             await new Promise((resolve, reject) => {
@@ -265,7 +268,7 @@
             //2)insert a new message
                 //inserting
             let result = await new Promise((resolve, reject) => {
-                db.query('INSERT INTO messages (usrId, message, sent) VALUES (?,?,NOW())', [arg.usrId,arg.msg], (err,rows)=>{
+                db.query('INSERT INTO messages (usrId, message, sent) VALUES (?,?,?)', [arg.usrId, arg.msg, currentDate], (err,rows)=>{
                     if(err) {
                         reject(err)
                     }
@@ -281,6 +284,7 @@
                                 reject(err);
                             } else {
                                 result.msgId = rows[0].msgId;
+                                result.sent = isoDate;
                                 resolve();
                             }                           
                         })
@@ -496,6 +500,7 @@ async incrementFailLoginAttempts (usrId) {
          //get a private member of class
          let db = this.privateMembers.get(this);
          return new Promise((resolve, reject) => {
+            
              db.query( `SELECT usrName, usrId, msgId, message, sent, usrAvatar FROM messages NATURAL JOIN users_names NATURAL JOIN users ORDER BY messages.sent`, (err, rows)=>{
                  if (err) {
                      reject(err)

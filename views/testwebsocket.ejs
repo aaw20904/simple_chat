@@ -13,9 +13,10 @@
         <div class="h3" id="uniqueNumber">
             <%-text %>
         </div>
-        <button class="btn btn-primary debug_button" type="button">Register</button>
-         <button class="btn btn-primary debug_button1" type="button">send message</button>
-         <input type="text" id="messages">
+        <button class="btn m-2 btn-primary debug_button" type="button">Register</button>
+         <button class="btn m-2 btn-primary debug_button1" type="button">send message</button>
+         <button class="btn m-2 btn-primary debug_button2" type="button">Get all the chat</button>
+         <input type="text" class="form-control m-2" id="messages">
     </div>
 
     <script>
@@ -45,6 +46,11 @@
             let message = document.getElementById('messages').value;
             await networkMgr.typeToChatCommand(message);
         }
+
+        let btn2 = document.querySelector('.debug_button2');
+           btn2.onclick = async () =>{
+            await networkMgr.getAllMessagesCommand();
+           }
    }
 
     class CookieManager {
@@ -133,9 +139,9 @@ class NetworkInteractor {
             this.#baseWsUrl = `ws://${currentUrl.hostname}/:8080`;
         }
 
-    //a respons from server when register;
+    //----------- L I S T E N E R S -- on WS server messages --------
     
-    #registrWsServerComm = (rsp) =>{
+    #onRegistrWsServerComm = (rsp) =>{
        if (rsp.status) {
         //when success
           if (rsp.cookie) {
@@ -154,7 +160,7 @@ class NetworkInteractor {
         }
     };
 
-    #loginWsServerComm = (rsp) => {
+    #onLoginWsServerComm = (rsp) => {
        //report that a user redirect to log in
       this.#msgFunction(false,'You must to login.You will redirect after several seconds');
        //save current position in cookie
@@ -165,26 +171,31 @@ class NetworkInteractor {
                   }, 3000);
     };
 
-    #br_castWsServerComm = (rsp) =>{
+    #onBr_castWsServerComm = (rsp) =>{
         console.log(rsp);
     };
-    #updateWsServerComm = (rsp) =>{
+    #onUpdateWsServerComm = (rsp) =>{
+        this.#msgFunction(true,'Try to update...');
+         this.getAllMessagesCommand();
 
     };
-    #get_chatWsServerComm = (rsp) =>{
 
+    #onGet_chatWsServerComm = (rsp) =>{
+        this.#msgFunction(true,'The LiveChat has been updated successfully!');
+        rsp.data.forEach(d=>console.log(d.msgId));
     };
     
-    #ask_crdWsServerComm = (rsp) =>{
-
-    };
-    #send_msgWsServerComm = (rsp) =>{
-
-    };
-    #ticketMsgWsServerComm = (rsp) =>{
-        this.#cookieMgr.writeCookie(SESSION_IDENTIFIER_COOKIE,rsp.cookie);
+    
+    #onTicketMsgWsServerComm = (rsp) =>{
+        this.#cookieMgr.writeCookie(SESSION_IDENTIFIER_COOKIE, rsp.cookie);
         this.#msgFunction(true,'Cookie updated successfully!')
     };
+
+    #onErrorMsgWsServerComm = (rsp) =>{
+        this.#msgFunction(false, rsp.msg);
+    };
+   
+    
 
     
 
@@ -193,17 +204,27 @@ class NetworkInteractor {
        let msg = JSON.parse(evt.data);
         switch(msg.command){
             case 'registr':
-               this.#registrWsServerComm(msg);
+               this.#onRegistrWsServerComm(msg);
             break;
             case 'login':
-              this.#loginWsServerComm(msg);
+              this.#onLoginWsServerComm(msg);
             break;
             case 'br_cast':
-               this.#br_castWsServerComm(msg)
+               this.#onBr_castWsServerComm(msg)
             break;
             case 'ticket':
-                this.#ticketMsgWsServerComm(msg);
+                this.#onTicketMsgWsServerComm(msg);
             break;
+            case 'error':
+                this.#onErrorMsgWsServerComm(msg);
+            break;
+            case 'get_chat':
+                this.#onGet_chatWsServerComm(msg);
+            break;
+            case 'update':
+                this.#onUpdateWsServerComm(msg);
+            break;
+
             default:
 
         }
@@ -267,7 +288,7 @@ class NetworkInteractor {
                 ticket = 0;
             }
             //try to register on remote WS server
-            let registerCommand = {command:'send_msg',cookie:ticket, data:msg};
+            let registerCommand = {command:'send_msg',cookie:ticket, message:msg};
             //start sending a message to the server
             this.#webSocket.send(JSON.stringify(registerCommand));
             //send a request and waiting until it has been transmitted
@@ -276,6 +297,21 @@ class NetworkInteractor {
             //NOTE: a command processing WHEN a response has been arrived -  in 'onWsMessage' listener
 
         });
+    }
+
+    async getAllMessagesCommand() {
+        //get auth cookie 'ticket'
+        let ticket = this.#cookieMgr.readCookie('sessionInfo');
+            if (!ticket) {
+                ticket = 0;
+            }
+        let commToSend = {
+                          command:'get_chat',
+                          cookie:ticket,
+                        };
+            this.#webSocket.send(JSON.stringify(commToSend));
+        return;
+
     }
 
 }

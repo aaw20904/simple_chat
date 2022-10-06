@@ -26,38 +26,15 @@ window.onload=async ()=>{
     let keyControl = new CryptoKeyControl( networkInteractor, statusNodeIndicator,notificator);
     let cleanControl = new ChatCleaner( networkInteractor, statusNodeIndicator, notificator, updateFunc);
     let cleanOptions;
-    /******<<DEBUG CODE>>>  */
-    // (A) CONNECT TO WEB SOCKET SERVER
-    let web_socket= await new Promise((resolve, reject) => {
-        let cookieId = getCookieFromDOM('sessionInfo');
-        let socket = new WebSocket("ws://localhost:8080");
-        // (B) ON CONNECTING TO THE SERVER
-        socket.addEventListener("open", () => {
-        socket.send(`Hello Server! My cookie=${cookieId}`); // SEND MESSAGE TO SERVER
-        resolve(socket);
-        });
-    }); 
-        
-        // (C) ON RECEIVING MESSAGE FROM SERVER
-        web_socket.addEventListener("message", (evt) => {
-        console.log(evt.data);
-        });
-        // (D) ON CONNECTION CLOSE
-        web_socket.addEventListener("close", () => {
-        console.log("Connection Closed");
-        });
-        // (E) ON ERROR
-        web_socket.addEventListener("error", (err) => {
-        console.log(err);
-        });
-    let debugButton = document.querySelector('.debug_button');
-    debugButton.onclick=(evt)=>{
-        web_socket.send(new Date().toLocaleTimeString());
-    }
+    
     async function updateFunc() {
-        return await msgList.buildFullMessageList();
-    }
+            return await msgList.buildFullMessageList();
+        }
 
+
+    /******<<DEBUG CODE>>>  */
+  
+   
     //****<<END DEBUG>>
 
    
@@ -197,7 +174,8 @@ class MessageList{
         mainContainer.classList.add( 'message-box-radius','w-100', 'mb-1','message-box-normal-bg','d-flex','flex-column','justify-content-start','align-items-center');
         //attributes
         mainContainer.setAttribute('data-msgid', arg.msgId);
-        mainContainer.setAttribute('data-usrid', arg.usrId);
+        /**!!! PLEASE REMOVE this attribute  "data-usrid" is`n using AT ALL !!! */
+        //mainContainer.setAttribute('data-usrid', arg.usrId);
         //items
         //A) usrName
         let usrNameD = document.createElement('h6');

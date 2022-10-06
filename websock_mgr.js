@@ -1,28 +1,6 @@
 import WebSocket, { WebSocketServer } from 'ws';
 /***************************C L A S S  */
-////PROTOCOL - common format of data exchange between remote client and WS server////
 
-/**
- * A) CLIENT - > SERVER
- * {
- *    command: 'string',
- *    data: any,
- *    cookie: number_as_hex_string,
- *    status: boolean, 
-      msg: "srting",
-      resultCode: Number
- * }
- * 
- * B) SERVER -> CLIENT
- * {
- *    command:'string',
- *    data: any,
- *    cookie: number_as_hex_string | NULL,
- *    status: boolean,
- *    msg: 'string' ,
-      resultCode: Number
- * } 
- */
 
   class WebSocketConnectionManager {
     #authenticationLayer;
@@ -32,7 +10,101 @@ import WebSocket, { WebSocketServer } from 'ws';
     #remoteSockets;
     #webSocketServer;
     #pingScanInterval;
-   
+
+    #sendErrorToClient(socket,msg){
+      let errorMsg = {
+              command: "error",
+              status:"false",
+              msg:msg,
+
+             } 
+             socket.send(JSON.stringify(errorMsg));
+             return;
+    }
+   // events handlers of client 
+    
+    #onClientGetChat = async (authResult, socket) =>{
+       let respMsg = {};
+           ///has a user been registered in a broadcast procedure?
+           if (! this.#remoteSockets.has(authResult.results.info.usrId)) {
+             //sending error message
+              this.#sendErrorToClient(socket,"You hasn`t subscribed yet!");
+              return;
+           }
+           //get all the chat 
+           let chatMessages; 
+           try {
+                chatMessages = await this.#databaseLayer.getAllTheChat();
+                //get network_status of a client
+                chatMessages.results.forEach(elem=>{
+                  //is a user in network?
+                  if (this.#remoteSockets.has(elem.usrId)){
+                    elem.online = true;
+                  } else {
+                    elem.online = false;
+                  }
+                }) 
+                let respBody = {
+                  command: "get_chat",
+                  data: chatMessages.results,
+                }
+                socket.send(JSON.stringify(respBody));
+
+           } catch (e) {
+            this.#sendErrorToClient(socket,"Inernal server error!");
+           }
+
+    }
+
+    #onClientSendMsg = async (authResult, socket, arg) =>{
+        try{
+        ///has a user been registered in a broadcast procedure?
+           if (! this.#remoteSockets.has(authResult.results.info.usrId)) {
+             //sending error message
+              //sending error message
+              this.#sendErrorToClient(socket,"You hasn`t subscribed yet!");
+             return;
+           }
+          //write an incomming message into the DB
+          let resultWrite = await this.#databaseLayer.addUserMessage({usrId:authResult.results.info.usrId, msg:arg.message}); 
+          //read user data - for a broadcast message 
+          let usrAvatarAndName = await this.#databaseLayer.readUserNameAndAvatar(authResult.results.info.usrId);
+          // <<PROTOCOL FEATURES>> a message for broadcasting
+          let brdcMsg = {
+              usrName: usrAvatarAndName.usrName, 
+              message: arg.message, 
+              msgId: resultWrite.msgId,
+              command: 'br_cast',
+              usrAvatar: usrAvatarAndName.usrAvatar.toString('utf8'),
+              sent: resultWrite.sent,
+            }
+          
+          //when success - start broadcasting
+          this.#broadcastAllTheSockets( brdcMsg);
+        }catch (e) {
+          this.#sendErrorToClient(socket,`Internal server error ${e}`);
+        }
+    }
+
+    #onClientRegistr = async (authResult, socket) => {
+      let respMessage = {};
+       ///has a user been registered in a broadcast procedure?
+           if ( this.#remoteSockets.has(authResult.results.info.usrId)) {
+             //sending error message
+              //sending error message
+              this.#sendErrorToClient(socket,"You have  already subscribed!");
+             return;
+           }
+        let resultOp = this.#addRemoteClient({id:authResult.results.info.usrId, socket:socket});
+            // respond to network
+            respMessage.msg = resultOp.msg;
+            respMessage.status = resultOp.status;
+            respMessage.command = 'registr';
+            socket.send(JSON.stringify(respMessage));
+            //notify all the members to update data from the server
+            this.#sendQueriesOnUpdate();
+            return;
+    }
 
     constructor (databaseLayer, authenticationLayer, port) {
       this.#databaseLayer = databaseLayer;
@@ -90,6 +162,14 @@ import WebSocket, { WebSocketServer } from 'ws';
       clientWebSock.send(JSON.stringify(arg.msg));
       return {status:true}; 
     };
+
+    #sendQueriesOnUpdate = () =>{
+      let msgQuery = {
+        command:'update',
+      }
+      //starting broadcast
+      this.#broadcastAllTheSockets(msgQuery);
+    }
    ///QERIES BROKER PROCEDURE
 
     #clientInterfaceQueries = async (arg={
@@ -114,41 +194,22 @@ import WebSocket, { WebSocketServer } from 'ws';
               let respMessage = {status:true, cookie:null};
         //Must a cookie be updated?
                ///when a cookie must updatet - notify the sender of te message
-            if (authResult.mustUpdated) {
-              let parcel = {command:'ticket',cookie:authResult.cookie}
+            if (authResult.results.mustUpdated) {
+              let parcel = {command:'ticket',cookie:authResult.results.cookie}
               socket.send(JSON.stringify(parcel));
             }
             /***main handler - choose an action in according to a client comand */
       switch (arg.command) {
         case 'registr':         
-            let resultOp = this.#addRemoteClient({id:authResult.results.info.usrId, socket:socket});
-            // respond to network
-            respMessage.msg = resultOp.msg;
-            respMessage.status = resultOp.status;
-            respMessage.command = 'registr';
-            socket.send(JSON.stringify(respMessage));
-            return;
-         
+            this.#onClientRegistr(authResult, socket);
             break;
         case 'send_msg':
-          //write an incomming message into the DB
-          let resultWrite = await this.#databaseLayer.addUserMessage({usrId:authResult.results.info.usrId, msg:arg.data}); 
-          //read user data - for a broadcast message 
-          let usrAvatar = await this.#databaseLayer.readUserAvatar(authResult.results.info.usrId);
-          //a message for broadcasting
-          let brdcMsg = {
-              usdId: authResult.results.info.usrId, 
-              msg: arg.data, 
-              msgId: resultWrite.msgId,
-              command: 'br_cast',
-              usrAvatar: usrAvatar.usrAvatar.toString('utf8'),
-            }
-          
-          //when success - start broadcasting
-          this.#broadcastAllTheSockets( brdcMsg);
+            this.#onClientSendMsg(authResult, socket, arg);
             break;
         case 'get_chat':
+            this.#onClientGetChat(authResult, socket);
             break;
+            ///It`s only TEST route, not using
         case 'echo':
             console.log( this.#sendMessageToRemoteClient({ id: arg.data, 
                               msg: {time: new Date().toLocaleTimeString()}
