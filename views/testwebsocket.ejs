@@ -8,15 +8,21 @@
     <script src="/js/bootstrap.bundle.min.js" type="text/javascript"></script>
     <title>Document</title>
 </head>
-<body>
+<body class="vw-100">
     <div class="copntainer">
         <div class="h3" id="uniqueNumber">
             <%-text %>
         </div>
+       
+        <div class="container m-1 d-flex justify-content-center flex-column"> 
         <button class="btn m-2 btn-primary debug_button" type="button">Register</button>
          <button class="btn m-2 btn-primary debug_button1" type="button">send message</button>
          <button class="btn m-2 btn-primary debug_button2" type="button">Get all the chat</button>
          <input type="text" class="form-control m-2" id="messages">
+         <div class="alert alert-success app_information" role="alert">
+            A simple primary alert—check it out!
+            </div>
+        </div>
     </div>
 
     <script>
@@ -51,6 +57,19 @@
            btn2.onclick = async () =>{
             await networkMgr.getAllMessagesCommand();
            }
+   }
+/*****END OF MAIN*********/
+
+   function myNotifyMsgFunction(status, msg) {
+        let domElem = document.querySelector('.app_information');
+        if (status) {
+             domElem.classList.remove('alert-danger');
+             domElem.classList.add('atert-success');
+        } else { 
+            domElem.classList.remove('atert-success');
+            domElem.classList.add('alert-danger');
+        }
+        domElem.innerText = msg;
    }
 
     class CookieManager {
@@ -160,6 +179,11 @@ class NetworkInteractor {
         }
     };
 
+    #onNet_stWsServerComm = (rsp) =>{
+        let st = rsp.online ? 'ONline' : 'OFFline'; 
+        this.#msgFunction (false,`User vith ID ${rsp.usrId}  ${st}`);
+    };
+
     #onLoginWsServerComm = (rsp) => {
        //report that a user redirect to log in
       this.#msgFunction(false,'You must to login.You will redirect after several seconds');
@@ -223,6 +247,9 @@ class NetworkInteractor {
             break;
             case 'update':
                 this.#onUpdateWsServerComm(msg);
+            break;
+            case 'net_st':
+                this.#onNet_stWsServerComm(msg);
             break;
 
             default:

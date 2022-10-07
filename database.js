@@ -691,12 +691,26 @@ async incrementFailLoginAttempts (usrId) {
         });
 
     }
+ ///@ returns !!! only first bit status - {running:TRUE/FALSE}
+    async readAutoCleanStatus() {
+              let db = this.privateMembers.get(this);
+        return new Promise((resolve, reject) => {
+            db.query(`SELECT  CASE WHEN clean_mode.service_stat & 0x01 THEN "true" ELSE "false" END AS running FROM clean_mode;`,  (err, rows)=>{
+                if(err) {
+                    reject(err)
+                } else {
+                    resolve({status:true, results:rows[0]});
+                }
+            })
+        });
 
-    async clearAutoCleanStartEvent() {
+    }
+
+    async clearAutoCleanStatus() {
           let db = this.privateMembers.get(this);
         return new Promise((resolve, reject) => {
             db.query(`INSERT INTO clean_mode (pk, service_stat) VALUES (16, 0) `+
-            `ON DUPLICATE KEY UPDATE service_stat=service_stat & 0x0FFFFFFE;`,  (err, rows)=>{
+            `ON DUPLICATE KEY UPDATE service_stat=service_stat & 0xFE;`,  (err, rows)=>{
                 if(err) {
                     reject(err)
                 } else {

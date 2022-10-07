@@ -838,16 +838,24 @@ class ChatCleaner {
          procStartBtn.setAttribute('id','processStart')
          procStartBtn.innerText = 'Start process..';
          ///EVENT LISTENER <<click>>  
-         procStartBtn.onclick = (evt) =>{
-            //lock inputs
-            priv.activateBtnStart(false)
-            priv.activateBtnStop(true)
-            priv.activateButtonSaveOpt(false)
-            priv.activateCleanThreshold(false)
-            priv.activateAutoCleanStartTime(false);
-            priv.activateAutoCleanPeriodInput(false);
-            priv.setAutoCleanStatus(true);
-            priv.notificator.showToast(true,'Cleaning Process started!');
+         procStartBtn.onclick = async (evt) =>{
+            
+             //try to send on the server
+            let netresult = await priv.networkInteractor.startAutoCleanScheduler();
+            if (netresult.status) {
+                  priv.notificator.showToast(true, netresult.msg);
+                  //lock inputs
+                    priv.activateBtnStart(false)
+                    priv.activateBtnStop(true)
+                    priv.activateButtonSaveOpt(false)
+                    priv.activateCleanThreshold(false)
+                    priv.activateAutoCleanStartTime(false);
+                    priv.activateAutoCleanPeriodInput(false);
+                    priv.setAutoCleanStatus(true);
+            } else {
+                 priv.notificator.showToast(false, netresult.msg);
+            }
+          
          }
 
      let procStopBtn = document.createElement('button');
@@ -858,16 +866,23 @@ class ChatCleaner {
          tenStringControlProc.appendChild(procStartBtn);
          tenStringControlProc.appendChild(procStopBtn);
          ///EVENT LSTENER <<lick>>
-         procStopBtn.onclick=(evt)=>{
-            //unlock inputs
-            priv.activateBtnStart(true)
-            priv.activateBtnStop(false)
-            priv.activateButtonSaveOpt(true)
-            priv.activateCleanThreshold(true)
-            priv.activateAutoCleanStartTime(true);
-            priv.activateAutoCleanPeriodInput(true);
-            priv.setAutoCleanStatus(false);
-             priv.notificator.showToast(true,'Cleaning Process stopped!')
+         procStopBtn.onclick= async (evt)=>{
+            
+              //try to send on the server
+            let netresult = await priv.networkInteractor.stopAutoCleanScheduler();
+            if (netresult.status) {
+                  priv.notificator.showToast(true, netresult.msg);
+                  //unlock inputs
+                priv.activateBtnStart(true)
+                priv.activateBtnStop(false)
+                priv.activateButtonSaveOpt(true)
+                priv.activateCleanThreshold(true)
+                priv.activateAutoCleanStartTime(true);
+                priv.activateAutoCleanPeriodInput(true);
+                priv.setAutoCleanStatus(false);
+            } else {
+                 priv.notificator.showToast(false, netresult.msg);
+            }
          }
 
        ///append child nodes
@@ -1018,6 +1033,15 @@ class NetworkInteractor {
     
     async removeMessage(msgId) {
             return await this._sendCommand(msgId,'delmsg');
+    }
+
+    async startAutoCleanScheduler () {
+        return await this._sendCommand(0,'cln_go');
+    }
+
+    
+    async stopAutoCleanScheduler () {
+        return await this._sendCommand(0,'cln_stop');
     }
 
     async updateKey () {

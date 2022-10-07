@@ -101,6 +101,209 @@ adminRouter.get('/', async (req, res)=>{
  /*********COMMAND r o u t e */
 
 adminRouter.post('/command', async (req,res)=>{
+  //on command server handlers
+  let onCln_goCommand = async (req,res) =>{
+    let result;
+    try {
+        //has a service been started?
+        result = await adminRouter._layers77.databaseLayer.readAutoCleanStatus();
+        if (result.results.running === true) {
+          //when a sheduler already running
+          res.json({status:false,msg:"The scheduler has been already running!"});
+          return;
+        }
+        result = await adminRouter._layers77.databaseLayer.writeAutoCleanStatus();
+    } catch (e) {
+      res.json({status:false, msg: e})
+    }
+     res.json({status:true, msg:"Service started successfully!"});
+      
+    
+  }
+
+  let onCln_stopCommand = async (req,res) =>{
+     let result;
+    try {
+        //has a service been started?
+        result = await adminRouter._layers77.databaseLayer.readAutoCleanStatus();
+        if (result.results.running === false) {
+          //when a sheduler already running
+          res.json({status:false,msg:"The scheduler has been already stopped!"});
+          return;
+        }
+        result = await adminRouter._layers77.databaseLayer.clearAutoCleanStatus();
+    } catch (e) {
+      res.json({status:false, msg: e})
+    }
+     res.json({status:true, msg:'SERVER:Auto Clean Process stopped!'})
+  }
+
+  let onLockCommand = async (req,res) =>{
+    //is a user admin?
+       if ( (Number(req.body.data)|0)  === adminRouter._layers77.administratorId) {
+          //Admin can`t lock himself! 
+          res.json({status:false,msg:'Admin can`t lock himself'});
+          return;
+       }
+          try {//try to lock a user
+               let result = await adminRouter._layers77
+                        .databaseLayer.setUserLocked(req.body.data);
+                if (result.status) {
+                  //when success
+                    res.json({status:true, msg:result.msg})
+                    return;
+                } else {
+                  //when fail
+                    res.json({status:false, msg:result.msg})
+                    return
+                }
+          } catch (e) {
+            res.status(500);
+            res.end();
+          }
+
+  }
+
+  let onUnlockCommand = async (req,res) =>{
+     //is a user admin?
+        if ( (Number(req.body.data)|0)  === adminRouter._layers77.administratorId) {
+        //Admin can`t lock himself! 
+        res.json({status:false,msg:'Admin can`t lock himself'});
+        return
+        }
+             try {
+              let  result = await adminRouter._layers77
+                        .databaseLayer.clearUserLocked(req.body.data);
+                if (result.status) {
+                    res.json({status:true, msg:result.msg})
+                    return
+                } else {
+                    res.json({status:false, msg:result.msg})
+                    return
+                }
+          } catch (e) {
+            res.status(500);
+            res.end();
+          }
+  }
+
+  let onDeleteCommand = async (req,res) =>{
+    //is a user admin?
+     if ( (Number(req.body.data)|0)  === adminRouter._layers77.administratorId) {
+        //Admin can`t lock himself! 
+        res.json({status:false,msg:'Admin can`t delete himself'});
+        return
+     }
+             try {
+              let  result = await adminRouter._layers77
+                        .databaseLayer.removeUserByID(req.body.data);
+                if (result.status) {
+                    res.json({status:true, msg:result.msg})
+                    return
+                } else {
+                    res.json({status:false, msg:result.msg})
+                    return
+                }
+          } catch (e) {
+            res.status(500);
+            res.end();
+          }
+  }
+
+  let onDelmsgCommand = async (req,res) =>{
+     try{
+             let  result = await adminRouter._layers77
+                        .databaseLayer.removeUserMessage(req.body.data);
+              if (result.status) {
+                  res.json({status:true, msg:result.msg})
+                  return
+              } else {
+                  res.json({status:false, msg:result.msg})
+                  return
+              }
+          } catch(e) {
+            res.status(500);
+            res.end();
+          }
+  }
+
+  let onClearCommand = async (req,res) =>{
+     try {
+              let  result = await adminRouter._layers77
+                        .databaseLayer.clearUserFailLoginAttempts(req.body.data);
+                if (result.status) {
+                    res.json({status:true, msg:result.msg})
+                    return
+                } else {
+                    res.json({status:false, msg:result.msg})
+                    return
+                }
+          } catch (e) {
+            res.status(500);
+            res.end();
+          }
+  }
+
+  let onRemoldCommand = async (req,res) =>{
+      try {
+                //there can be seconds!
+                let cleanPeriodInSeconds = Number(req.body.data);
+                //try o clean
+              let result = await adminRouter._layers77
+                            .databaseLayer.removeOlderThat(cleanPeriodInSeconds);
+                if (result.status) {
+                  res.json({status:true, msg: result.msg})
+                }
+              } catch (e) {
+                 res.json({status:false, msg:e});
+                 return;
+              }
+  }
+
+  let onClnoptCommand = async (req,res) =>{
+       req.body.data.cln_start = adminRouter.convertTimeToInteger(req.body.data.cln_start);
+
+            try {
+              let result = await adminRouter._layers77
+                        .databaseLayer.saveCleanOptions({
+                          cln_period: req.body.data.cln_period,
+                          cln_threshold: req.body.data.cln_threshold,
+                          cln_start: req.body.data.cln_start,
+                          service_stat: req.body.data.service_stat,
+                          cln_period_unit: req.body.data.cln_period_unit,
+                          cln_threshold_unit: req.body.data.cln_threshold_unit
+                        });
+              if (result.status) {
+                res.json({status:true, msg:`Updated ${result.results.affectedRows} row`})
+              }
+            } catch(e) {
+              res.json({status:false, msg:e.message})
+
+            }
+  }
+
+  let onKeyCommand = async (req, res) => {
+      try{
+                let key = await adminRouter._layers77
+                           .cryptoLayer.generateSymmetricCryptoKey();
+                let recordStatus = await adminRouter._layers77
+                            .databaseLayer.updateKey(key.results);
+                let decorationString = await adminRouter._layers77
+                  .cryptoLayer.generateRandomString(8);
+                if (recordStatus.status) {
+                    res.json({status:true, msg:'Key updated successfully!', value:decorationString});
+                    return;
+                }
+                    res.json({status:false, msg:recordStatus.msg});
+                    return;
+                           
+             } catch(e){
+                 res.json({status:false, msg:e});
+                 return;
+            }
+  }
+
+
     /**checking credantails */
   let authResult = await adminRouter._layers77
       .authenticationLayer.authenticateUserByCookie(req.cookies.sessionInfo);
@@ -131,174 +334,53 @@ adminRouter.post('/command', async (req,res)=>{
     switch (req.body.command) {
         //locking user
         case 'lock':
-          //is a user admin?
-       if ( (Number(req.body.data)|0)  === adminRouter._layers77.administratorId) {
-          //Admin can`t lock himself! 
-          res.json({status:false,msg:'Admin can`t lock himself'});
-          return;
-       }
-          try {//try to lock a user
-               let result = await adminRouter._layers77
-                        .databaseLayer.setUserLocked(req.body.data);
-                if (result.status) {
-                  //when success
-                    res.json({status:true, msg:result.msg})
-                    return;
-                } else {
-                  //when fail
-                    res.json({status:false, msg:result.msg})
-                    return
-                }
-          } catch (e) {
-            res.status(500);
-            res.end();
-          }
-        break;
+           onLockCommand (req, res);
+            break;
         //unlocking user
         case 'unlock':
-              //is a user admin?
-        if ( (Number(req.body.data)|0)  === adminRouter._layers77.administratorId) {
-        //Admin can`t lock himself! 
-        res.json({status:false,msg:'Admin can`t lock himself'});
-        return
-        }
-             try {
-              let  result = await adminRouter._layers77
-                        .databaseLayer.clearUserLocked(req.body.data);
-                if (result.status) {
-                    res.json({status:true, msg:result.msg})
-                    return
-                } else {
-                    res.json({status:false, msg:result.msg})
-                    return
-                }
-          } catch (e) {
-            res.status(500);
-            res.end();
-          }
+            onUnlockCommand (req, res);
         break;
         //remove user
         case 'delete':
-        //is a user admin?
-     if ( (Number(req.body.data)|0)  === adminRouter._layers77.administratorId) {
-        //Admin can`t lock himself! 
-        res.json({status:false,msg:'Admin can`t delete himself'});
-        return
-     }
-             try {
-              let  result = await adminRouter._layers77
-                        .databaseLayer.removeUserByID(req.body.data);
-                if (result.status) {
-                    res.json({status:true, msg:result.msg})
-                    return
-                } else {
-                    res.json({status:false, msg:result.msg})
-                    return
-                }
-          } catch (e) {
-            res.status(500);
-            res.end();
-          }
+            onDeleteCommand (req, res);
         break;
         //clear fail attempts 
         case 'clear':
-             try {
-              let  result = await adminRouter._layers77
-                        .databaseLayer.clearUserFailLoginAttempts(req.body.data);
-                if (result.status) {
-                    res.json({status:true, msg:result.msg})
-                    return
-                } else {
-                    res.json({status:false, msg:result.msg})
-                    return
-                }
-          } catch (e) {
-            res.status(500);
-            res.end();
-          }
+            onClearCommand (req, res);
         break;
         //remove a message
         case 'delmsg':
-          try{
-             let  result = await adminRouter._layers77
-                        .databaseLayer.removeUserMessage(req.body.data);
-              if (result.status) {
-                  res.json({status:true, msg:result.msg})
-                  return
-              } else {
-                  res.json({status:false, msg:result.msg})
-                  return
-              }
-          } catch(e) {
-            res.status(500);
-            res.end();
-          }
+           onDelmsgCommand (req, res);
         break;
         //update a symmetric key
-          case 'key':
-            try{
-                let key = await adminRouter._layers77
-                           .cryptoLayer.generateSymmetricCryptoKey();
-                let recordStatus = await adminRouter._layers77
-                            .databaseLayer.updateKey(key.results);
-                let decorationString = await adminRouter._layers77
-                  .cryptoLayer.generateRandomString(8);
-                if (recordStatus.status) {
-                    res.json({status:true, msg:'Key updated successfully!', value:decorationString});
-                    return;
-                }
-                    res.json({status:false, msg:recordStatus.msg});
-                    return;
-                           
-             } catch(e){
-                 res.json({status:false, msg:e});
-                 return;
-            }
-            break;
+        case 'key':
+            onKeyCommand (req, res);  
+        break;
           //remove messages older that
-            case 'remold':
-              try {
-                //there can be seconds!
-                let cleanPeriodInSeconds = Number(req.body.data);
-                //try o clean
-              let result = await adminRouter._layers77
-                            .databaseLayer.removeOlderThat(cleanPeriodInSeconds);
-                if (result.status) {
-                  res.json({status:true, msg: result.msg})
-                }
-              } catch (e) {
-                 res.json({status:false, msg:e});
-                 return;
-              }
-            break;
-          
-            case 'cln_opt':
+        case 'remold':
+            onRemoldCommand (req, res);     
+        break;
+           
+        case 'cln_opt':
             //save all the clean options to DB
             //convert time to integer
-            req.body.data.cln_start = adminRouter.convertTimeToInteger(req.body.data.cln_start);
+            onClnoptCommand (req, res);
+        break;
 
-            try {
-              let result = await adminRouter._layers77
-                        .databaseLayer.saveCleanOptions({
-                          cln_period: req.body.data.cln_period,
-                          cln_threshold: req.body.data.cln_threshold,
-                          cln_start: req.body.data.cln_start,
-                          service_stat: req.body.data.service_stat,
-                          cln_period_unit: req.body.data.cln_period_unit,
-                          cln_threshold_unit: req.body.data.cln_threshold_unit
-                        });
-              if (result.status) {
-                res.json({status:true, msg:`Updated ${result.results.affectedRows} row`})
-              }
-            } catch(e) {
-              res.json({status:false, msg:e.message})
-
-            }
-            break;
-            case 'debug':
+        case 'cln_go':
+             ///on start auto-clean scheduler
+                onCln_goCommand(req, res);
+                
+        break;
+        case 'cln_stop':
+              //on stop auto-clean scheduler
+              onCln_stopCommand(req, res);
+        break;
+        case 'debug':
+        ////ONLY FOR DEBUG
              console.log(req.body);
              res.json({time:new Date().toLocaleTimeString()});
-            break;
+        break;
         default:
         res.status(400);
         res.end();

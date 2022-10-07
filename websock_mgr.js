@@ -1,7 +1,6 @@
 import WebSocket, { WebSocketServer } from 'ws';
 /***************************C L A S S  */
 
-
   class WebSocketConnectionManager {
     #authenticationLayer;
     #databaseLayer;
@@ -10,6 +9,37 @@ import WebSocket, { WebSocketServer } from 'ws';
     #remoteSockets;
     #webSocketServer;
     #pingScanInterval;
+
+
+  constructor (databaseLayer, authenticationLayer, port) {
+      this.#databaseLayer = databaseLayer;
+      this.#authenticationLayer = authenticationLayer;
+        //PING intreval
+      this.#pingScanInterval = 10000;
+      this.#betheartIntervalHandle = null;
+      this.#remoteSockets = new Map();
+      this.#webSocketServer = new WebSocketServer({ port: port });
+      //connect listeners
+    this.#webSocketServer.on('connection',(socket,req)=>this.#onServerConnection(socket, req, this));
+    this.#webSocketServer.on('close', function close() {
+            clearInterval(this.#betheartInterval);
+    });
+  }
+/**@ when a database has been changed after cleaning 
+ it needs to update DOM structure on client side  */
+  notifyAllTheClientsToUpdate () {
+  
+    this.#sendUpdateToClients();
+  }
+
+    #sendNet_stToClients = (usrId, online) =>{
+     let parcel = {
+      command:'net_st',
+      usrId:usrId,
+      online:online,
+     }
+      this.#broadcastAllTheSockets(parcel);
+    };
 
     #sendErrorToClient(socket,msg){
       let errorMsg = {
@@ -101,28 +131,12 @@ import WebSocket, { WebSocketServer } from 'ws';
             respMessage.status = resultOp.status;
             respMessage.command = 'registr';
             socket.send(JSON.stringify(respMessage));
-            //notify all the members to update data from the server
-            this.#sendQueriesOnUpdate();
+             //notify all the clients that the client (usrId) has been connected
+            this.#sendNet_stToClients(authResult.results.info.usrId, true);
             return;
     }
 
-    constructor (databaseLayer, authenticationLayer, port) {
-      this.#databaseLayer = databaseLayer;
-      this.#authenticationLayer = authenticationLayer;
-        //PING intreval
-      this.#pingScanInterval = 10000;
-      this.#betheartIntervalHandle = null;
-      this.#remoteSockets = new Map();
-      this.#webSocketServer = new WebSocketServer({ port: port });
-      //connect listeners
-    this.#webSocketServer.on('connection',(socket,req)=>this.#onServerConnection(socket, req, this));
-    this.#webSocketServer.on('close', function close() {
-            clearInterval(this.#betheartInterval);
-    });
-    
-    
 
-  }
 
 
     //add a new client to #remoteSockets list by Id
@@ -162,8 +176,8 @@ import WebSocket, { WebSocketServer } from 'ws';
       clientWebSock.send(JSON.stringify(arg.msg));
       return {status:true}; 
     };
-
-    #sendQueriesOnUpdate = () =>{
+      //notify all the members to update data from the server
+    #sendUpdateToClients = () =>{//sendUpdateToClients
       let msgQuery = {
         command:'update',
       }
@@ -202,6 +216,7 @@ import WebSocket, { WebSocketServer } from 'ws';
       switch (arg.command) {
         case 'registr':         
             this.#onClientRegistr(authResult, socket);
+             
             break;
         case 'send_msg':
             this.#onClientSendMsg(authResult, socket, arg);
@@ -270,29 +285,27 @@ import WebSocket, { WebSocketServer } from 'ws';
 
     #socketOnClose= (code, reason,socket)=> {
       //
+      let usrId = socket.idOfClient456;
       /**when a remote client had been disconnected or network connection had been broken: */
-      console.log(`Socket readyState: ${socket.readyState}`);
+        console.log(`Socket readyState: ${socket.readyState}`);
       //delete from list
-      if (socket.idOfClient456) {
-         this.#removeRemoteClient({id:socket.idOfClient456});
-      }
-     
-      console.log(code);
-      console.log(reason);
+        if (socket.idOfClient456) {
+          this.#removeRemoteClient({id:socket.idOfClient456});
+        }
+      //notify all the clients that the client (usrId) has been disconnected
+        this.#sendNet_stToClients(usrId, false);
+        console.log(code);
+        console.log(reason);
     };
 //@msgData - it is an object with avatar, userMessage e.t.c
     #broadcastAllTheSockets = async (msgData) =>{
-       this.#remoteSockets.forEach((value,key)=>{
-        console.log(`broadcast to User ${key} `);
-        value.send(JSON.stringify(msgData));
-    })
-     
-      
+          this.#remoteSockets.forEach((value,key)=>{
+            console.log(`broadcast to User ${key} `);
+            value.send(JSON.stringify(msgData));
+        })
     }
 
 
-
-    
     #onPingInterval= ()=> {
       
           this.#webSocketServer.clients.forEach(function each(ws) {
