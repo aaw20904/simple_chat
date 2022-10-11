@@ -711,11 +711,11 @@ async incrementFailLoginAttempts (usrId) {
         return new Promise((resolve, reject) => {
             db.query(`INSERT INTO clean_mode (pk, service_stat) VALUES (16, 0) `+
             `ON DUPLICATE KEY UPDATE service_stat=service_stat & 0xFE;`,  (err, rows)=>{
-                if(err) {
-                    reject(err)
-                } else {
-                    resolve({status:true, results:rows[0]});
-                }
+                    if(err) {
+                        reject(err)
+                    } else {
+                        resolve({status:true, results:rows[0]});
+                    }
             })
         });
     }

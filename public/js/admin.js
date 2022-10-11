@@ -79,7 +79,7 @@ function statusNodeIndicator (status=true, text='*') {
 
 class Toast {
 
-    showToast(status=true,msg='Helloword',time=new Date().toLocaleTimeString()){
+    showToast (status=true,msg='Helloword',time=new Date().toLocaleTimeString()) {
         let toastMsg = document.getElementById('toast_01');
         let small =  document.getElementById('toast_time_01')
         small.innerText = time;
@@ -103,7 +103,7 @@ class Toast {
 
 }
 
-class MessageList{
+class MessageList {
     constructor(networkInteractor = null, statusNodeIndicator=null, notificator=null) {
                //making a hide property
       this.privateMembers = new WeakMap();
@@ -356,36 +356,51 @@ class CryptoKeyControl {
 
 
 class ChatCleaner {
+    /************************************* */
+    #networkInteractor;
+    #statusNodeIndicator;
+    #notificator;
+    #generateFunction;
     constructor (networkInteractor = null, statusNodeIndicator=null, notificator=null, generateListFunction=()=>{return null} ) {
                 //making a hide property
-        this.privateMembers = new WeakMap();
+        //this.privateMembers = new WeakMap();
         //assign a 'private' member of the class- it may be an object
-        this.privateMembers.set(this, {
-            networkInteractor: networkInteractor,
-            statusNodeIndicator: statusNodeIndicator,
-            notificator: notificator,
-            generateFunction: generateListFunction,
-            setAutoCleanPeriod: (arg={unit:'hour',value:1})=>{
+      
+            this.#networkInteractor = networkInteractor;
+             this.#statusNodeIndicator= statusNodeIndicator;
+             this.#notificator= notificator;
+             this.#generateFunction= generateListFunction;
+
+    }
+
+  ///private members
+   #setAutoCleanPeriod = (arg={unit:'hour',value:1})=>{
                 let clnInput = document.getElementById('autoCleanPeriodInput');
                 let btnMinutes = document.getElementById('clnUnitsMinute');
                 let btnHours = document.getElementById('clnUnitsHour');
                 let btnDays =  document.getElementById('clnUnitsDay');
                 switch (arg.unit) {
                     case 'hour':
+                    //lock start time 
+                        this.#activateAutoCleanStartTime(false);
                       //remove attribute 
-                         btnMinutes.removeAttribute('checked')
+                        btnMinutes.removeAttribute('checked')
                         btnDays.removeAttribute('checked')
                       //set the new
                         btnHours.setAttribute('checked','');
                     break;
                     case 'day':
+                     //unlock start time 
+                        this.#activateAutoCleanStartTime(true);
                     //remove attribute 
-                         btnMinutes.removeAttribute('checked')
+                        btnMinutes.removeAttribute('checked')
                         btnHours.removeAttribute('checked')
                       //set the new
                         btnDays.setAttribute('checked','');
                     break;
                     case 'minute':
+                     //lock start time 
+                        this.#activateAutoCleanStartTime(false);
                      //remove attribute 
                        btnDays.removeAttribute('checked')
                        btnHours.removeAttribute('checked')
@@ -398,8 +413,9 @@ class ChatCleaner {
                 //assign to input
                 clnInput.value = arg.value;
                 return {status:true};
-            },
-            activateCleanThreshold(arg=true) {
+            }
+
+            #activateCleanThreshold = (arg=true)=> {
                 let node = document.querySelector('.thresholtRemoveChat')
                 let hours =  document.getElementById('cleanerRadioHourTh');
                 let days =  document.getElementById('cleanerRadioDayTh');
@@ -413,8 +429,9 @@ class ChatCleaner {
                     days.setAttribute('disabled','');
                 }
                 return {status:true};
-            },
-            activateAutoCleanPeriodInput: (state=true) =>{
+            };
+
+            #activateAutoCleanPeriodInput = (state=true) =>{
                 let clnInput = document.getElementById('autoCleanPeriodInput');
                 let radioMinutes = document.getElementById('clnUnitsMinute')
                 let radioHours = document.getElementById('clnUnitsHour')
@@ -430,11 +447,11 @@ class ChatCleaner {
                     radioHours.setAttribute('disabled','');
                     raioDays.setAttribute('disabled','');
                     radioMinutes.setAttribute('disabled','');
-
                 }
                 return {status:true};
-            },
-             activateAutoCleanStartTime: (state='true')=>{
+            };
+            ///when a day has been choosen by the user
+             #activateAutoCleanStartTime = (state='true')=>{
                 let clnInput = document.getElementById('cleanTimeInput');
                 if (state) {
                     clnInput.removeAttribute('disabled');
@@ -442,8 +459,8 @@ class ChatCleaner {
                     clnInput.setAttribute('disabled','');
                 }
                 return {status:true};
-             },
-             activateButtonSaveOpt: (state='true')=> {
+             };
+             #activateButtonSaveOpt = (state='true')=> {
                 let clnInput = document.getElementById('btnApplyClean');
                 if (state) {
                     clnInput.removeAttribute('disabled');
@@ -451,8 +468,8 @@ class ChatCleaner {
                     clnInput.setAttribute('disabled','');
                 }
                 return {status:true};
-             },
-             activateBtnStart: (state=true)=>{
+             };
+             #activateBtnStart = (state=true)=>{
                 let clnInput = document.getElementById('processStart');
                 if (state) {
                     clnInput.removeAttribute('disabled');
@@ -461,8 +478,8 @@ class ChatCleaner {
                 }
                 return {status:true};
 
-             },
-             activateBtnStop: (state=true)=> {
+             };
+             #activateBtnStop = (state=true)=> {
                 let clnInput = document.getElementById('processStop');
                 if (state) {
                     clnInput.removeAttribute('disabled');
@@ -470,8 +487,8 @@ class ChatCleaner {
                     clnInput.setAttribute('disabled','');
                 }
                 return {status:true};
-             },
-             setAutoCleanStatus: (state='true')=> {
+             };
+             #setAutoCleanStatus = (state='true')=> {
                 let imgNode=document.getElementById('icoStatusIndicator');
                 let statString=document.getElementById('txtStatusIndicator');
                 if(state) {
@@ -483,9 +500,9 @@ class ChatCleaner {
                     imgNode.setAttribute('src','/images/stop.svg');
                     statString.innerText='Stopped'
                 }
-             },
+             };
            
-             getAutoCleanPeriod: ( )=>{
+             #getAutoCleanPeriod = ( )=>{
                 let radioMinutes = document.getElementById('clnUnitsMinute')
                 let radioHours = document.getElementById('clnUnitsHour')
                 let radioDays = document.getElementById('clnUnitsDay');
@@ -504,23 +521,23 @@ class ChatCleaner {
                 }
 
                 return {status:false,value:null}
-             },
+             };
             //@ string format with 4 digits and semicolon - '15:40'
-             setAutoCleanTime: (timeX='02:15')=>{
+             #setAutoCleanTime= (timeX='02:15')=>{
                 let nodeX = document.getElementById('cleanTimeInput');
                 nodeX.value = timeX;
                 console.log('#');
                 return{status:true}
-             },
+             };
                 //returned 4 digits with a semicolon
-             getAutoCleanTime: ()=> {
+             #getAutoCleanTime= ()=> {
                 let node = document.getElementById('cleanTimeInput');
                 return {status:true, value:node.value}
-             },
+             };
              
 
 
-            getCleanThreshold: ()=>{
+            #getCleanThreshold = ()=>{
                 let node = document.querySelector('.thresholtRemoveChat')
                 let hours =  document.getElementById('cleanerRadioHourTh');
                 let days =  document.getElementById('cleanerRadioDayTh');
@@ -532,8 +549,8 @@ class ChatCleaner {
                     return {status:true, results:{value:node.value,unit:'day'}}
                 }
                
-            },
-            setCleanThreshold: (arg={unit:'day',value:5})=> {
+            };
+            #setCleanThreshold= (arg={unit:'day',value:5})=> {
                  let node = document.querySelector('.thresholtRemoveChat')
                 let hours =  document.getElementById('cleanerRadioHourTh');
                 let days =  document.getElementById('cleanerRadioDayTh');
@@ -550,50 +567,50 @@ class ChatCleaner {
                 node.value = arg.value;
                 return {status:true}
 
-            },
-            getChatNodeAndParent: ()=>{
+            };
+            #getChatNodeAndParent= ()=>{
                 let child = document.querySelector('.chatRoot');
                 let parent = document.querySelector('.mainWrap');
                 return {parent:parent,child:child}
-            },
+            };
             /***event listeners  */
             //single clean - button event listener subroutine
-            onClean: async  (evt)=>{
-                let members = this.privateMembers.get(this);
+            #onClean = async  (evt)=>{
+                 
                 //try to clean
                     let netResult;
-                    netResult = await  members.networkInteractor.removeOld(members.getCleanThreshold().results);
+                    netResult = await this.#networkInteractor.removeOld(this.#getCleanThreshold().results);
                     if (netResult.status) {
                         //when success
                         //update key node
-                        members.notificator.showToast(true,`${netResult.msg}, time: ${new Date().toLocaleTimeString()}`)
-                        members.statusNodeIndicator(true, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
+                         this.#notificator.showToast(true,`${netResult.msg}, time: ${new Date().toLocaleTimeString()}`)
+                         this.#statusNodeIndicator(true, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
                     } else {
                         //when fail
-                        members.notificator.showToast(false,`${netResult.msg}, time: ${new Date().toLocaleTimeString()}`)
-                        members.statusNodeIndicator(false, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
+                        this.#notificator.showToast(false,`${netResult.msg}, time: ${new Date().toLocaleTimeString()}`)
+                         this.#statusNodeIndicator(false, `${netResult.msg}, time: ${new Date().toLocaleTimeString()}`);
                     }
                     //regeneration of a new mesage list 
-                    let newNode = await members.generateFunction();
+                    let newNode = await this.#generateFunction();
                     //get node 
-                    let nodes = members.getChatNodeAndParent();
+                    let nodes = this.#getChatNodeAndParent();
                     //remove 
                     nodes.parent.removeChild(nodes.child);
                     //append new
                     nodes.parent.appendChild(newNode);
                     return netResult;
-            },
+            };
 
-            
-        })
-    }
+            #isDayChoosen(){
+               return document.getElementById('clnUnitsDay').checked
+            }
+
 
    /***public members of ChatCleaner */
    async createCleaner () {
-        //get private members
-        let priv = this.privateMembers.get(this);
+       
         //query clean options from the network
-             let autocleanOpt = await priv.networkInteractor.getCleanOptions();
+             let autocleanOpt = await this.#networkInteractor.getCleanOptions();
           
        if (!autocleanOpt.status) {
             let errorNode = document.createElement('h2');
@@ -658,21 +675,8 @@ class ChatCleaner {
             }
             //EVENT LISTENER << click >> 'clean once immediately'
             btnRemoveImg.onclick = async (evt) =>{
-                 // priv.setAutoCleanPeriod({unit:'days',value:80});
-                //ok priv.getAutoCleanPeriod(); 
-                //OK priv.activateAutoCleanInput(true);
-                //OK priv.activateAutoCleanStartTime(true);
-                //OK priv.activateButtonApply(false)
-               //OK  priv.activateButtonApply(true)
-              //OK priv.setAutoCleanStatus(true)
-              //OK console.log(priv.getCleanThreshold());
-              ///OK priv.setCleanThreshold({unit:'hour',value:33});
-             //OK    console.log(priv.setAutoCleanTime('02:15'));
-             //OK console.log(priv.getAutoCleanTime());
-              //OK let uuu = this._convertCleanStartTimeToNumber("3:40");
-              //OK console.log(this._convertCleanStartTimeToString(uuu));
-
-                await priv.onClean(evt)
+            
+                await this.#onClean(evt)
             }
 
         btnRemove.appendChild(btnRemoveImg);
@@ -791,25 +795,35 @@ class ChatCleaner {
           btnApplyClean.setAttribute('id','btnApplyClean')
           btnApplyClean.innerText = 'Save options..';
 
-          ///EVENT LISTENER <<< click >>>  'SAVE OPTIONS'
+         ///EVENT LISTENER FOR RADIOBUTTONS <<click>>
+          rTimeChooseMinute.onclick = () =>{
+           this.#activateAutoCleanStartTime(false);
+          }
+          rTimeChooseHour.onclick = () =>{
+           
+             this.#activateAutoCleanStartTime(false);
+          }
+          rTimeChooseDay.onclick = () =>{
+             this.#activateAutoCleanStartTime(true);
+            
+          }         
+           ///EVENT LISTENER <<< click >>>  'SAVE OPTIONS'
           btnApplyClean.onclick = async (evt)=>{
             //get options from DOM
             let opts = this.convertCleanOptionsToDB();
             //try to save
-            let netresult = await priv.networkInteractor.saveCleanOptions(opts.results);
+            let netresult = await this.#networkInteractor.saveCleanOptions(opts.results);
             if (netresult.status) {
-                priv.notificator.showToast(true, netresult.msg);
+                this.#notificator.showToast(true, netresult.msg);
             } else {
-                priv.notificator.showToast(false, netresult.msg);
+                this.#notificator.showToast(false, netresult.msg);
             }
 
           }
 
           let  inpCleanTimeContainer = document.createElement('article');
-           inpCleanTimeContainer.setAttribute('class','d-inline m-1');
-           inpCleanTimeContainer.appendChild(inpCleanTime);
-
-         
+               inpCleanTimeContainer.setAttribute('class','d-inline m-1');
+               inpCleanTimeContainer.appendChild(inpCleanTime);
           sevenString.appendChild(inpCleanTimeContainer); 
           sevenString.appendChild(btnApplyClean );
         //eight string 
@@ -841,19 +855,21 @@ class ChatCleaner {
          procStartBtn.onclick = async (evt) =>{
             
              //try to send on the server
-            let netresult = await priv.networkInteractor.startAutoCleanScheduler();
+            let netresult = await this.#networkInteractor.startAutoCleanScheduler();
             if (netresult.status) {
-                  priv.notificator.showToast(true, netresult.msg);
+                  this.#notificator.showToast(true, netresult.msg);
                   //lock inputs
-                    priv.activateBtnStart(false)
-                    priv.activateBtnStop(true)
-                    priv.activateButtonSaveOpt(false)
-                    priv.activateCleanThreshold(false)
-                    priv.activateAutoCleanStartTime(false);
-                    priv.activateAutoCleanPeriodInput(false);
-                    priv.setAutoCleanStatus(true);
+                    this.#activateBtnStart(false)
+                    this.#activateBtnStop(true)
+                    this.#activateButtonSaveOpt(false)
+                    this.#activateCleanThreshold(false)
+                     if(this.#isDayChoosen()) {
+                          this.#activateAutoCleanStartTime(false);
+                     }
+                    this.#activateAutoCleanPeriodInput(false);
+                    this.#setAutoCleanStatus(true);
             } else {
-                 priv.notificator.showToast(false, netresult.msg);
+                 this.#notificator.showToast(false, netresult.msg);
             }
           
          }
@@ -869,19 +885,22 @@ class ChatCleaner {
          procStopBtn.onclick= async (evt)=>{
             
               //try to send on the server
-            let netresult = await priv.networkInteractor.stopAutoCleanScheduler();
+            let netresult = await this.#networkInteractor.stopAutoCleanScheduler();
             if (netresult.status) {
-                  priv.notificator.showToast(true, netresult.msg);
+                  this.#notificator.showToast(true, netresult.msg);
                   //unlock inputs
-                priv.activateBtnStart(true)
-                priv.activateBtnStop(false)
-                priv.activateButtonSaveOpt(true)
-                priv.activateCleanThreshold(true)
-                priv.activateAutoCleanStartTime(true);
-                priv.activateAutoCleanPeriodInput(true);
-                priv.setAutoCleanStatus(false);
+                this.#activateBtnStart(true)
+                this.#activateBtnStop(false)
+                this.#activateButtonSaveOpt(true)
+                this.#activateCleanThreshold(true)
+                if(this.#isDayChoosen()) {
+                    this.#activateAutoCleanStartTime(true);
+                }
+                //
+                this.#activateAutoCleanPeriodInput(true);
+                this.#setAutoCleanStatus(false);
             } else {
-                 priv.notificator.showToast(false, netresult.msg);
+                 this.#notificator.showToast(false, netresult.msg);
             }
          }
 
@@ -909,17 +928,16 @@ class ChatCleaner {
                 cln_start:"03:45",
                 service_stat:0,
     }) {
-        //get private members
-        let priv = this.privateMembers.get(this);
+         
         ///CLEAN PARAMETER 1 - >  remove threshold (older that)
-        switch(Number(options.cln_threshold_unit)|0) {
+        switch (Number(options.cln_threshold_unit)|0) {
             //when ther are hours
             case 0:
-              priv.setCleanThreshold({unit:'hour', value:options.cln_period});
+              this.#setCleanThreshold({unit:'hour', value:options.cln_period});
             break;
             case 1:
             //when ther are days
-              priv.setCleanThreshold({unit:'day', value:options.cln_period});
+              this.#setCleanThreshold({unit:'day', value:options.cln_period});
             break;
             default:
             //do nothing
@@ -928,54 +946,62 @@ class ChatCleaner {
         switch (Number(options.cln_period_unit)|0) {
             case 0:
              //when minutes
-                priv.setAutoCleanPeriod({unit:'minute', value:options.cln_threshold})
+                this.#setAutoCleanPeriod({unit:'minute', value:options.cln_threshold})
+            //inactivate start time HH:MM
+               this.#activateAutoCleanStartTime(false);
             break;
             case 1:
              //when hours 
-              priv.setAutoCleanPeriod({unit:'hour', value:options.cln_threshold})
+             //show active start time HH:MM
+              this.#activateAutoCleanStartTime(false);
+              this.#setAutoCleanPeriod({unit:'hour', value:options.cln_threshold})
             break;
             case 2:
               //when days
-              priv.setAutoCleanPeriod({unit:'day', value:options.cln_threshold})
+              //show active start time HH:MM
+             this.#activateAutoCleanStartTime(true);
+             this.#setAutoCleanPeriod({unit:'day', value:options.cln_threshold})
             break;
             default:
         }
         ///CLEAN PARAMETER 3 -> start time
-      priv.setAutoCleanTime(options.cln_start);
+      this.#setAutoCleanTime(options.cln_start);
       ///SET process status - 
       if(options.service_stat & 0x01) {
         //when a process in action 
-        priv.setAutoCleanStatus(true);
+        this.#setAutoCleanStatus(true);
         //lock buttons and inputs
         //1)a threshold
-        priv.activateCleanThreshold(false)
+       this.#activateCleanThreshold(false)
         //2)a period
-        priv.activateAutoCleanPeriodInput(false)
+        this.#activateAutoCleanPeriodInput(false)
         //3)a start time
-        priv.activateAutoCleanStartTime(false);
+       //this.#activateAutoCleanStartTime(false);
         //4)a start process button
-        priv.activateBtnStart(false);
+        this.#activateBtnStart(false);
         //5)button stop
-        priv.activateBtnStop(true);
+        this.#activateBtnStop(true);
         //6) save options
-        priv.activateButtonSaveOpt(false);
+       this.#activateButtonSaveOpt(false);
 
       } else {
         //when a process had stopped
-        priv.setAutoCleanStatus(false);
+       this.#setAutoCleanStatus(false);
         //lock buttons and inputs
         //1)a threshold
-        priv.activateCleanThreshold(true)
+        this.#activateCleanThreshold(true)
         //2)a period
-        priv.activateAutoCleanPeriodInput(true)
+        this.#activateAutoCleanPeriodInput(true)
         //3)a start time
-        priv.activateAutoCleanStartTime(true);
+        //has a day been choosen?
+
+        //this.#activateAutoCleanStartTime(true);
         //4)a start process button
-        priv.activateBtnStart(true);
+        this.#activateBtnStart(true);
         //5)button stop
-        priv.activateBtnStop(false);
+        this.#activateBtnStop(false);
         //5) save options
-        priv.activateButtonSaveOpt(true);
+        this.#activateButtonSaveOpt(true);
 
       }
       return {status:true}
@@ -984,8 +1010,7 @@ class ChatCleaner {
     }
     // reading data from DOM and converting to DB format  
     convertCleanOptionsToDB () {
-      //get private members
-        let priv = this.privateMembers.get(this);
+    
         let result={
             cln_threshold_unit:0,
                 cln_threshold:12,
@@ -996,7 +1021,7 @@ class ChatCleaner {
         };
 
         //clean threshold
-       let clnThr = priv.getCleanThreshold().results;
+       let clnThr = this.#getCleanThreshold().results;
        switch (clnThr.unit) {
         case 'hour':
           result.cln_threshold_unit = 0;
@@ -1008,7 +1033,7 @@ class ChatCleaner {
        }
          result.cln_threshold  = Number(clnThr.value)|0;
        //auto clean period;
-       let clnPer = priv.getAutoCleanPeriod().results;
+       let clnPer = this.#getAutoCleanPeriod().results;
        switch (clnPer.unit) {
         case 'minute':
          result.cln_period_unit = 0;
@@ -1022,7 +1047,7 @@ class ChatCleaner {
        }
         result.cln_period = Number(clnPer.value)|0;
        //start time 
-       let startTime = priv.getAutoCleanTime();
+       let startTime = this.#getAutoCleanTime();
        result.cln_start = startTime.value;
        return {status:true, results:result}
     }
