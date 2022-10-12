@@ -24,3 +24,17 @@ class cronSheduler {
 	}
 
 }
+
+
+var job = new cron.CronJob(
+	'*/7 * * * * *',
+	function() {
+		console.log(`${new Date().toLocaleTimeString()}`);
+		job.stop();
+	},
+	null,
+	true,
+	'America/Los_Angeles'
+);
+// Use this if the 4th param is default value(false)
+// job.start(
