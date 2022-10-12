@@ -1,6 +1,6 @@
 import cron from 'cron';
 
-class cronSheduler { 
+class CronSheduler { 
 	#commonInterfaces;  
 	#cronFormatSrting;
 	#runProc = (arg) => {
@@ -8,6 +8,15 @@ class cronSheduler {
 	}
 	constructor ( commonInterfaces={}) {
 		this.#commonInterfaces = commonInterfaces;
+	}
+
+	#parseTimeString = (str="12:25:00") =>{
+		let arr = str.split(':');
+		let returned = {};
+		  returned.hours = arr[0];
+		returned.minutes = arr[1];
+		returned.seconds = arr[2];
+		return returned;
 	}
 
 	#convertParamsToCronFormat = (params={
@@ -19,34 +28,36 @@ class cronSheduler {
 		cln_start: 0, // time to start an autocleaning service when clean starting one times per day or rarely (for example 17:20:00)
 		cln_period: 0, // Auto-clean period.. (an integer number)
 	})=>{
-		switch (cln_period_unit) {
+		switch (params.cln_period_unit) {
             case 0:
                //when minutes = run a task every 'cln_period' minutes every hour
-               this.#cronFormatSrting = `0 */${cln_period} * ? * * *`;//
+               this.#cronFormatSrting = `0 */${params.cln_period} * ? * * *`;//
             break;
             case 1:
               //when hours = run a task every 'cln_period' hours every day
-               this.#cronFormatSrting = `0 0 */${cln_period} ? * * *`;//
+               this.#cronFormatSrting = `0 0 */${params.cln_period} ? * * *`;//
             break;
             case 2:
               //when days - run a task every  'cln_period' days at 'cln_start' time
-              `0 40 15 ? * * *` //At 15:40:00pm every day 
+			  let parsed = this.#parseTimeString(params.cln_start);
+            //  `0 40 15 ? * * *` //At 15:40:00pm every day 
+			 // `0 10 12 */3 * ? *` //At 12:10:00pm, every 3 days starting on the 1st, every month 
+			  this.#cronFormatSrting = `0 ${parsed.minutes} ${parsed.hours} */${params.cln_period} * ? *`;
             break;
+			default:
         }
+		return this.#cronFormatSrting;
 
+	}
+
+	converter (a) {
+		return this.#convertParamsToCronFormat({cln_period_unit: 2, // Auto-clean period units..  : 0-minutes, 1-hours, 2-days
+												service_stat: 0, // 1-the autoclean srervice must running, 0-service must stopping 
+												cln_start: '10:56:00', // time to start an autocleaning service when clean starting one times per day or rarely (for example 17:20:00)
+												cln_period: 5, // Auto-clean period.. (an integer number)
+												});
 	}
 }
 
-
-var job = new cron.CronJob(
-	'*/7 * * * * *',
-	function() {
-		console.log(`${new Date().toLocaleTimeString()}`);
-		job.stop();
-	},
-	null,
-	true,
-	'America/Los_Angeles'
-);
-// Use this if the 4th param is default value(false)
-// job.start(
+let x = new CronSheduler();
+console.log(x.converter());
