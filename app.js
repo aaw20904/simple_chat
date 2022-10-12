@@ -119,7 +119,7 @@ let onChatDatabaseConnectedRoutine = async (err) => {
     //create an instance init key and vect
     layers77.cryptoLayer = new CryptoProcedures(keys.results );
     layers77.authenticationLayer = new UserAuthentication(layers77.cryptoLayer, layers77.databaseLayer,{
-                                                                AUTH_COOKIE_LIFE_TIME:600000,//all the fields are in  milliseconds
+                                                                AUTH_COOKIE_LIFE_TIME:3600000,//all the fields are in  milliseconds
                                                                 AUTH_COOKIE_UPDATE_THRESHOLD:30000,//all the fields are in  milliseconds
                                                                 AUTH_FAIL_ATTEMPTS:10,
                                                                 });

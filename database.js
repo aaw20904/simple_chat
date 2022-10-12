@@ -653,7 +653,7 @@ async incrementFailLoginAttempts (usrId) {
     async saveCleanOptions (opts = {
                     cln_period: 1,
                     cln_threshold: 10,
-                    cln_start:'15:40',
+                    cln_start:'15:40:00',
                     cln_period_unit: 0,
                     cln_threshold_unit: 0,
             }) {
@@ -662,9 +662,9 @@ async incrementFailLoginAttempts (usrId) {
 
                 return new Promise((resolve, reject) => {
                     db.query( `INSERT INTO clean_mode (pk, cln_period, cln_threshold, cln_start, cln_period_unit, cln_threshold_unit)`+
-                    `VALUES (16, ${opts.cln_period},${opts.cln_threshold},${opts.cln_start},${opts.cln_period_unit},${opts.cln_threshold_unit})`+
+                    `VALUES (16, ${opts.cln_period},${opts.cln_threshold},'${opts.cln_start}',${opts.cln_period_unit},${opts.cln_threshold_unit})`+
                     `ON DUPLICATE KEY UPDATE   cln_period=${opts.cln_period}, cln_threshold=${opts.cln_threshold}, `+
-                    ` cln_start=${opts.cln_start}, cln_period_unit=${opts.cln_period_unit},`+
+                    ` cln_start='${opts.cln_start}', cln_period_unit=${opts.cln_period_unit},`+
                     `cln_threshold_unit=${opts.cln_threshold_unit} `,  (err, rows)=>{
                         if(err) {
                             reject(err)

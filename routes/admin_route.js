@@ -121,11 +121,11 @@ adminRouter.post('/command', async (req,res)=>{
     
   }
 
-  let onCln_stopCommand = async (req,res) =>{
+  let onCln_stopCommand = async (req, res) =>{
      let result;
     try {
         //has a service been started?
-        result = await adminRouter._layers77.databaseLayer.readAutoCleanStatus();
+           result = await adminRouter._layers77.databaseLayer.readAutoCleanStatus();
         if (result.results.running === false) {
           //when a sheduler already running
           res.json({status:false,msg:"The scheduler has been already stopped!"});
@@ -261,8 +261,8 @@ adminRouter.post('/command', async (req,res)=>{
   }
 
   let onClnoptCommand = async (req,res) =>{
-       req.body.data.cln_start = adminRouter.convertTimeToInteger(req.body.data.cln_start);
-
+      // req.body.data.cln_start = adminRouter.convertTimeToInteger(req.body.data.cln_start);
+       req.body.data.cln_start = `${req.body.data.cln_start}:00`;
             try {
               let result = await adminRouter._layers77
                         .databaseLayer.saveCleanOptions({
@@ -324,10 +324,10 @@ adminRouter.post('/command', async (req,res)=>{
           return;
        }
      //must a cookie been updated?
-  if(authResult.results.mustUpdated){
-      //update  cookie
-    res.cookie( adminRouter._layers77.authCookieName, authResult.results.cookie, { sameSite: 'None', secure:true });
-  }
+    if (authResult.results.mustUpdated) {
+        //update  cookie
+      res.cookie( adminRouter._layers77.authCookieName, authResult.results.cookie, { sameSite: 'None', secure:true });
+    }
        
          
   
@@ -440,9 +440,12 @@ adminRouter.post('/data',async (req,res)=>{
             case 'cln_opt':
                queryChat = await adminRouter._layers77
                       .databaseLayer.getCleanOptions();
-              //convert integer to time
+              
               if (queryChat.results) {
-                 queryChat.results.cln_start = adminRouter.convertIntegerToTime(queryChat.results.cln_start);
+                //cut seconds
+                queryChat.results.cln_start = queryChat.results.cln_start.slice(0,5);
+                //convert integer to time
+                // queryChat.results.cln_start = adminRouter.convertIntegerToTime(queryChat.results.cln_start);
               }
               
                res.status(200);
