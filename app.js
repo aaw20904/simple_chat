@@ -29,6 +29,45 @@ import CryptoProcedures from './cryptoroutines.js';
 import UserAuthentication from './authentication.js';
 import crypto from 'crypto';
 import { fstat } from 'fs'
+import cron from 'cron';
+
+class cronSheduler { 
+	#commonInterfaces;  
+	#cronFormatSrting;
+	#runProc = (arg) => {
+		console.log(new Date().toLocaleTimeString());
+	}
+	constructor ( commonInterfaces={}) {
+		this.#commonInterfaces = commonInterfaces;
+	}
+
+	#convertParamsToCronFormat = (params={
+		cln_threshold_unit: 0,//
+		cln_period_unit: 0,
+		service_start: 0,
+		cln_start: 0,
+		cln_threshold: 0,
+		cln_period: 0,
+	})=>{
+		
+
+	}
+
+}
+
+
+var job = new cron.CronJob(
+	'*/7 * * * * *',
+	function() {
+		console.log(`${new Date().toLocaleTimeString()}`);
+		job.stop();
+	},
+	null,
+	true,
+	'America/Los_Angeles'
+);
+// Use this if the 4th param is default value(false)
+// job.start(
 
 const DATABASE_USER='root';
 const DATABASE_HOST='localhost';
