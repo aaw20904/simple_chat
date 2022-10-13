@@ -14,10 +14,11 @@ import cron from 'cron';
 	#runProc = async (arg) => {
 		try {
 			console.log(`Clean chat at ${new Date().toLocaleTimeString()}`);
-			let rs = await this.#_layers77.databaseLayer.removeOlderThat();//start autoclean process 
-			if(rs) {
-				console.log(rs.results);
-			}
+			//start autoclean process 
+			let rs = await this.#_layers77.databaseLayer.removeOlderThat();
+			//notify all the WebSockets to update
+			this.#_layers77.websocketLayer.notifyAllTheClientsToUpdate();
+			console.log(rs);
 			
 		} catch (e) {
 			console.log(e);
@@ -47,10 +48,12 @@ import cron from 'cron';
             case 0:
                //when minutes = run a task every 'cln_period' minutes every hour
                this.#cronFormatSrting = `0 */${params.cln_period} * * * *`;//
+			    
             break;
             case 1:
               //when hours = run a task every 'cln_period' hours every day
-               this.#cronFormatSrting = `0 0 */${params.cln_period} * * *`;//
+                this.#cronFormatSrting = `0 0 */${params.cln_period} * * *`;//
+			   
             break;
             case 2:
               //when days - run a task every  'cln_period' days at 'cln_start' time

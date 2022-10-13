@@ -704,7 +704,7 @@ class ChatCleaner {
         thridCleanString.appendChild(btnRemove); 
        ///forth string - autoclean options
       let forthStringAutoClean = document.createElement('div');
-        forthStringAutoClean.setAttribute('class','p-1 message-msg-text border-top w-100') ;
+        forthStringAutoClean.setAttribute('class','p-1 message-msg-text border-top border-secondary w-100') ;
         forthStringAutoClean.innerText = 'Auto-clean period..';
       ///five string -auto clean UI
       let fiveStringUI = document.createElement('div');
@@ -776,7 +776,7 @@ class ChatCleaner {
        //six static text string
         let sixStringInfo = document.createElement('div');
           sixStringInfo.setAttribute('class','message-msg-text border-top w-100 my-1 py-1');
-           sixStringInfo.innerText='Start autocleaning process at..';
+           sixStringInfo.innerText='Clean dayly or rarely at..';
        //seven srting
         let sevenString = document.createElement('div');
           sevenString.setAttribute('class','d-flex flex-row justify-content-between align-items-center p-1 m-1 w-100');

@@ -59,7 +59,7 @@ pswChangeRouter._layers77 = layers77;
 /*********** */
 ////when  DB connection had established
 let onChatDatabaseConnectedRoutine = async (err) => {
-
+   
   ///
    let cleanSchedulerOpts;
       if (err) {
@@ -94,6 +94,13 @@ let onChatDatabaseConnectedRoutine = async (err) => {
     cleanSchedulerOpts = await layers77.databaseLayer.getCleanOptions();
     if (cleanSchedulerOpts.results) {
       layers77.cleanScheduler.createCleanerInstance(cleanSchedulerOpts.results);
+    }
+   ///when a crypto key must be updated:
+    if ( (process.argv.length > 2) && (process.argv[2] === 'KEYGEN')) {
+          let key = await layers77.cryptoLayer.generateSymmetricCryptoKey();
+          let recordStatus = await layers77.databaseLayer.updateKey(key.results);
+          console.log('Key updated successfully!');
+          console.log(recordStatus);
     }
     //2 let result = layers77.registrationLayer.createRegistrationCookieAndCaptcha();
     //2 layers77.registrationLayer.isRegistrationCookieValid(result.results.cookie, result.results.text);
