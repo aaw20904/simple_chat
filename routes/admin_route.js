@@ -103,21 +103,26 @@ adminRouter.get('/', async (req, res)=>{
 adminRouter.post('/command', async (req,res)=>{
   //on command server handlers
   let onCln_goCommand = async (req,res) =>{
-    let result;
+    let result, cleanOpts;
     try {
           //has a service been started?
-        result = await adminRouter._layers77.databaseLayer.readAutoCleanStatus();
-        if (result.results.running === true) {
+        cleanOpts = await adminRouter._layers77.databaseLayer.readAutoCleanStatus();
+        if (cleanOpts.results.running === true) {
           //when a sheduler already running
           res.json({status:false,msg:"The scheduler has been already running!"});
           return;
         }
          //update status in the  DB
         result = await adminRouter._layers77.databaseLayer.writeAutoCleanStatus();
+         //stop autocleaner when running !ONLY FOR DEBUG!
+        adminRouter._layers77.cleanScheduler.stopAutoClean();
+         //refresh cleaner cron instance
+         adminRouter._layers77.cleanScheduler.createCleanerInstance(cleanOpts.results);
          //start scheduler
-         
+         adminRouter._layers77.cleanScheduler.startAutoClean();
     } catch (e) {
       res.json({status:false, msg: e})
+      return;
     }
      res.json({status:true, msg:"Service started successfully!"});
       
@@ -134,7 +139,10 @@ adminRouter.post('/command', async (req,res)=>{
           res.json({status:false,msg:"The scheduler has been already stopped!"});
           return;
         }
+        //update database
         result = await adminRouter._layers77.databaseLayer.clearAutoCleanStatus();
+        //stop autocleaner
+        adminRouter._layers77.cleanScheduler.stopAutoClean();
     } catch (e) {
       res.json({status:false, msg: e})
     }

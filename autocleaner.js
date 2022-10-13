@@ -1,21 +1,24 @@
 import cron from 'cron';
 
-export default class CleanScheduler { 
+ export default   class CleanScheduler { 
 	#_layers77;  
 	#cronFormatSrting;
 	#cronJob;
 	#jobStatus;
 
-	constructor ( autoCleanExecutor=()=>{}) {
-		this.#executor = autoCleanExecutor; 
+	constructor (appLayers) {
+		this.#_layers77 = appLayers; 
 		this.#jobStatus = false;
 	}
 
 	#runProc = async (arg) => {
 		try {
 			console.log(`Clean chat at ${new Date().toLocaleTimeString()}`);
-			let rs = await this.#executor();//start autoclean process 
-			console.log(rs.results);
+			let rs = await this.#_layers77.databaseLayer.removeOlderThat();//start autoclean process 
+			if(rs) {
+				console.log(rs.results);
+			}
+			
 		} catch (e) {
 			console.log(e);
 		}
@@ -43,11 +46,11 @@ export default class CleanScheduler {
 		switch (params.cln_period_unit) {
             case 0:
                //when minutes = run a task every 'cln_period' minutes every hour
-               this.#cronFormatSrting = `0 */${params.cln_period} * ? * * `;//
+               this.#cronFormatSrting = `0 */${params.cln_period} * * * *`;//
             break;
             case 1:
               //when hours = run a task every 'cln_period' hours every day
-               this.#cronFormatSrting = `0 0 */${params.cln_period} ? * * `;//
+               this.#cronFormatSrting = `0 0 */${params.cln_period} * * *`;//
             break;
             case 2:
               //when days - run a task every  'cln_period' days at 'cln_start' time
@@ -63,21 +66,15 @@ export default class CleanScheduler {
 	}
 
 
-	converter (a) {
-		return this.#convertParamsToCronFormat({
-				cln_period_unit: 2, // Auto-clean period units..  : 0-minutes, 1-hours, 2-days
-				service_stat: 0, // 1-the autoclean srervice must running, 0-service must stopping 
-				cln_start: '10:56:00', // time to start an autocleaning service when clean starting one times per day or rarely (for example 17:20:00)
-				cln_period: 5, // Auto-clean period.. (an integer number)
-			});
-	}
-
+	
 	createCleanerInstance (options={
-						cln_period_unit: 2, // Auto-clean period units..  : 0-minutes, 1-hours, 2-days
-						service_stat: 0, // 1-the autoclean srervice must running, 0-service must stopping 
+						cln_period_unit: 0, // Auto-clean period units..  : 0-minutes, 1-hours, 2-days
+						service_stat: 1, // 1-the autoclean srervice must running, 0-service must stopping 
 						cln_start: '11:18:00', // time to start an autocleaning service when clean starting one times per day or rarely (for example 17:20:00)
 						cln_period: 1, // Auto-clean period.. (an integer number)						
 					}) {
+			//reset status
+			this.#jobStatus = false;
 			//making crone opts
 			let croneString = this.#convertParamsToCronFormat(options);
 			//create a cron instance
@@ -104,5 +101,4 @@ export default class CleanScheduler {
 	}
 
 }
-
  
