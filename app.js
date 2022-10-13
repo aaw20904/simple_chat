@@ -29,45 +29,7 @@ import CryptoProcedures from './cryptoroutines.js';
 import UserAuthentication from './authentication.js';
 import crypto from 'crypto';
 import { fstat } from 'fs'
-import cron from 'cron';
-
-class cronSheduler { 
-	#commonInterfaces;  
-	#cronFormatSrting;
-	#runProc = (arg) => {
-		console.log(new Date().toLocaleTimeString());
-	}
-	constructor ( commonInterfaces={}) {
-		this.#commonInterfaces = commonInterfaces;
-	}
-
-	#convertParamsToCronFormat = (params={
-		cln_threshold_unit: 0,//
-		cln_period_unit: 0,
-		service_start: 0,
-		cln_start: 0,
-		cln_threshold: 0,
-		cln_period: 0,
-	})=>{
-		
-
-	}
-
-}
-
-
-var job = new cron.CronJob(
-	'*/7 * * * * *',
-	function() {
-		console.log(`${new Date().toLocaleTimeString()}`);
-		job.stop();
-	},
-	null,
-	true,
-	'America/Los_Angeles'
-);
-// Use this if the 4th param is default value(false)
-// job.start(
+import CleanScheduler from './autocleaner.js'
 
 const DATABASE_USER='root';
 const DATABASE_HOST='localhost';
@@ -85,7 +47,8 @@ let layers77= {
   websocketLayer:null,
   authCookieName: 'sessionInfo',
   lastPageCookie: 'lastURL',
-  administratorId: null
+  administratorId: null,
+  cleanScheduler: null,
 }
 //init global interfaces in routes
 registerRouter._layers77 = layers77;
@@ -98,7 +61,7 @@ pswChangeRouter._layers77 = layers77;
 let onChatDatabaseConnectedRoutine = async (err) => {
 
   ///
-   
+   let cleanSchedulerOpts;
       if (err) {
         console.error('error SQL connecting: ' + err.stack);
         process.exit(-1);
@@ -126,6 +89,12 @@ let onChatDatabaseConnectedRoutine = async (err) => {
     layers77.authorizeLayer = new AuthorizationUser(layers77.databaseLayer, layers77.cryptoLayer, layers77.authenticationLayer,{AUTH_FAIL_ATTEMPTS:10});
     layers77.registrationLayer = new UserRegistration(layers77.cryptoLayer, layers77.databaseLayer);
     layers77.websocketLayer  = new WebSocketConnectionManager( layers77.databaseLayer,layers77.authenticationLayer,  8080);
+    layers77.cleanScheduler = new CleanScheduler(layers77.databaseLayer.removeOlderThat);
+    //reading cleaner options
+    cleanSchedulerOpts = await layers77.databaseLayer.getCleanOptions();
+    if (cleanSchedulerOpts.results) {
+      layers77.cleanScheduler.createCleanerInstance(cleanSchedulerOpts.results)
+    }
     //2 let result = layers77.registrationLayer.createRegistrationCookieAndCaptcha();
     //2 layers77.registrationLayer.isRegistrationCookieValid(result.results.cookie, result.results.text);
     // let newKeys = await layers77.cryptoLayer.generateSymmetricCryptoKey();   
@@ -151,17 +120,17 @@ let onChatDatabaseConnectedRoutine = async (err) => {
     //let res = await layers77.databaseLayer.readKey();
     //await layers77.databaseLayer.updateKey({pubKey:123,initVect:456})
     //let res = await layers77.databaseLayer.readKey();
-    //console.log(res.result.pubKey.toString('hex'));
-    //2 let x1 = layers77.cryptoLayer.symmEncrypt(Buffer.from("helloWord"));
-    //2 console.log(x1.value.toString('hex'));
-    //2 let y1 = layers77.cryptoLayer.symmDecrypt(x1.value);
-    //2 console.log(y1.value.toString('utf-8'));
-    ///console.log(y1.toString("utf-8"))
-    //2 let cookie =  layers77.authenticationLayer.createCookie(17);
+     //console.log(res.result.pubKey.toString('hex'));
+     //2 let x1 = layers77.cryptoLayer.symmEncrypt(Buffer.from("helloWord"));
+     //2 console.log(x1.value.toString('hex'));
+     //2 let y1 = layers77.cryptoLayer.symmDecrypt(x1.value);
+     //2 console.log(y1.value.toString('utf-8'));
+     ///console.log(y1.toString("utf-8"))
+     //2 let cookie =  layers77.authenticationLayer.createCookie(17);
      //2 console.log(cookie);
      // console.log(layers77.authenticationLayer.readCookie(cookie.value).results)
-    //2 let raw = await layers77.authenticationLayer.authenticateUserByCookie(cookie.value);
-   //2 console.log(raw.results, raw.status)
+     //2 let raw = await layers77.authenticationLayer.authenticateUserByCookie(cookie.value);
+     //2 console.log(raw.results, raw.status)
      //await layers77.databaseLayer.readUserShortlyByID(18)
      //let res = await  layers77.authenticationLayer.authenticateUserByCookie(cookie)
      //2 let hash = await layers77.cryptoLayer.createPasswordHash("password");
@@ -190,7 +159,7 @@ let onChatDatabaseConnectedRoutine = async (err) => {
         // } */
     
      });
- 
+ ///DATABASE EVENT HANDLER onConnectDB
  connectionDB.connect(onChatDatabaseConnectedRoutine);
 
 

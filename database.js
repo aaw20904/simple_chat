@@ -608,7 +608,7 @@ async incrementFailLoginAttempts (usrId) {
         });
     }
 
-    async removeOlderThat (seconds = 10) {
+    async removeOlderThat (seconds = 3) {
         //get a private member of class
         let db = this.privateMembers.get(this);
         return new Promise((resolve, reject) => {

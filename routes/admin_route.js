@@ -105,14 +105,17 @@ adminRouter.post('/command', async (req,res)=>{
   let onCln_goCommand = async (req,res) =>{
     let result;
     try {
-        //has a service been started?
+          //has a service been started?
         result = await adminRouter._layers77.databaseLayer.readAutoCleanStatus();
         if (result.results.running === true) {
           //when a sheduler already running
           res.json({status:false,msg:"The scheduler has been already running!"});
           return;
         }
+         //update status in the  DB
         result = await adminRouter._layers77.databaseLayer.writeAutoCleanStatus();
+         //start scheduler
+         
     } catch (e) {
       res.json({status:false, msg: e})
     }

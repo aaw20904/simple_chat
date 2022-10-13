@@ -1036,13 +1036,13 @@ class ChatCleaner {
        let clnPer = this.#getAutoCleanPeriod().results;
        switch (clnPer.unit) {
         case 'minute':
-         result.cln_period_unit = 0;
+          result.cln_period_unit = 0;
         break;
         case 'hour':
-         result.cln_period_unit = 1;
+          result.cln_period_unit = 1;
         break;
         case 'day':
-         result.cln_period_unit = 2;
+          result.cln_period_unit = 2;
         break;
        }
         result.cln_period = Number(clnPer.value)|0;

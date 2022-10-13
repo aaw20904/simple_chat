@@ -1,25 +1,31 @@
 import cron from 'cron';
 
-class CronSheduler { 
-	#commonInterfaces;  
+export default class CleanScheduler { 
+	#_layers77;  
 	#cronFormatSrting;
 	#cronJob;
 	#jobStatus;
-	#runProc = (arg) => {
-		console.log(new Date().toLocaleTimeString());
-	}
 
-	constructor ( commonInterfaces={}) {
-		this.#commonInterfaces = commonInterfaces; 
+	constructor ( autoCleanExecutor=()=>{}) {
+		this.#executor = autoCleanExecutor; 
 		this.#jobStatus = false;
 	}
 
-
+	#runProc = async (arg) => {
+		try {
+			console.log(`Clean chat at ${new Date().toLocaleTimeString()}`);
+			let rs = await this.#executor();//start autoclean process 
+			console.log(rs.results);
+		} catch (e) {
+			console.log(e);
+		}
+		
+	}
 
 	#parseTimeString = (str="12:25:00") =>{
 		let arr = str.split(':');
 		let returned = {};
-		  returned.hours = arr[0];
+		returned.hours = arr[0];
 		returned.minutes = arr[1];
 		returned.seconds = arr[2];
 		return returned;
@@ -48,7 +54,7 @@ class CronSheduler {
 			  let parsed = this.#parseTimeString(params.cln_start);
             //  `0 40 15 ? * * *` //At 15:40:00pm every day 
 			 // `0 10 12 */3 *  *` //At 12:10:00pm, every 3 days starting on the 1st, every month 
-			  this.#cronFormatSrting = `0 ${parsed.minutes} ${parsed.hours} */${params.cln_period} *  *`;
+			  this.#cronFormatSrting = `${parsed.seconds} ${parsed.minutes} ${parsed.hours} */${params.cln_period} *  *`;
             break;
 			default:
         }
@@ -69,7 +75,7 @@ class CronSheduler {
 	createCleanerInstance (options={
 						cln_period_unit: 2, // Auto-clean period units..  : 0-minutes, 1-hours, 2-days
 						service_stat: 0, // 1-the autoclean srervice must running, 0-service must stopping 
-						cln_start: '20:55:00', // time to start an autocleaning service when clean starting one times per day or rarely (for example 17:20:00)
+						cln_start: '11:18:00', // time to start an autocleaning service when clean starting one times per day or rarely (for example 17:20:00)
 						cln_period: 1, // Auto-clean period.. (an integer number)						
 					}) {
 			//making crone opts
@@ -99,6 +105,4 @@ class CronSheduler {
 
 }
 
-let x = new CronSheduler();
-x.createCleanerInstance();
-x.startAutoClean();
+ 
