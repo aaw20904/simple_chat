@@ -549,7 +549,7 @@ async incrementFailLoginAttempts (usrId) {
     async updateKey(arg={pubKey:null, initVect:null}) {
         //get a private member of class
         let db = this.privateMembers.get(this);
-        try{
+     try{
             await  new Promise((resolve, reject) => {
                 db.query('START TRANSACTION',(err,rows)=>{
                     if (err) { reject(err) }
@@ -621,6 +621,7 @@ async incrementFailLoginAttempts (usrId) {
             })
         });
     }
+
    /*
     async updateCleanOptions (arg={period:24, enable:(1|0)}) {
         //get a private member of class
