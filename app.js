@@ -15,6 +15,7 @@ import  registerRouter  from './routes/register_route.js'
 import loginRouter from './routes/login_route.js'
 import logoffRouter from './routes/logoff_route.js'
 import adminRouter from "./routes/admin_route.js"
+import clientRouter from "./routes/client_route.js"
 import pswChangeRouter from "./routes/psw_change_route.js";
 import UserRegistration from "./registration.js";
 import AuthorizationUser from './authorization.js';
@@ -56,6 +57,7 @@ loginRouter._layers77 = layers77;
 adminRouter._layers77 = layers77;
 logoffRouter._layers77 = layers77;
 pswChangeRouter._layers77 = layers77;
+clientRouter._layers77 = layers77;
 /*********** */
 ////when  DB connection had established
 let onChatDatabaseConnectedRoutine = async (err) => {
@@ -181,6 +183,7 @@ app.use("/login", loginRouter);
 app.use("/logoff", logoffRouter);
 app.use("/admin", adminRouter);
 app.use("/changepassword", pswChangeRouter);
+app.use("/client", clientRouter);
 
 app.use(express.json({extended:true}));
 app.use(express.static('public'));
@@ -206,6 +209,8 @@ app.get('/test',async(req,res)=>{
   let rnd = await layers77.cryptoLayer.generateRandomString(4);
   res.render('testwebsocket.ejs',{text:rnd});
 })
+
+
 /*********S T A R T **********/
 ///start to listen
 app.listen(80, ()=>console.log('Listen...'))

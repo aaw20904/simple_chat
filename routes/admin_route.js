@@ -210,6 +210,8 @@ adminRouter.post('/command', async (req,res)=>{
                         .databaseLayer.removeUserByID(req.body.data);
                 if (result.status) {
                     res.json({status:true, msg:result.msg})
+                    //update websockets
+                    adminRouter._layers77.websocketLayer.notifyAllTheClientsToUpdate();
                     return
                 } else {
                     res.json({status:false, msg:result.msg})
@@ -226,7 +228,10 @@ adminRouter.post('/command', async (req,res)=>{
              let  result = await adminRouter._layers77
                         .databaseLayer.removeUserMessage(req.body.data);
               if (result.status) {
+                //update web_sockets
+                  adminRouter._layers77.websocketLayer.notifyAllTheClientsToUpdate();
                   res.json({status:true, msg:result.msg})
+                  
                   return
               } else {
                   res.json({status:false, msg:result.msg})
@@ -243,7 +248,9 @@ adminRouter.post('/command', async (req,res)=>{
               let  result = await adminRouter._layers77
                         .databaseLayer.clearUserFailLoginAttempts(req.body.data);
                 if (result.status) {
-                    res.json({status:true, msg:result.msg})
+                   //update web_sockets
+                     adminRouter._layers77.websocketLayer.notifyAllTheClientsToUpdate();
+                    res.json({status:true, msg:result.msg});
                     return
                 } else {
                     res.json({status:false, msg:result.msg})
@@ -263,6 +270,7 @@ adminRouter.post('/command', async (req,res)=>{
               let result = await adminRouter._layers77
                             .databaseLayer.removeOlderThat(cleanPeriodInSeconds);
                 if (result.status) {
+                  adminRouter._layers77.websocketLayer.notifyAllTheClientsToUpdate();
                   res.json({status:true, msg: result.msg})
                 }
               } catch (e) {

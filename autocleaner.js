@@ -14,8 +14,8 @@ import cron from 'cron';
 	#runProc = async (arg) => {
 		try {
 			console.log(`Clean chat at ${new Date().toLocaleTimeString()}`);
-			//start autoclean process 
-			let rs = await this.#_layers77.databaseLayer.removeOlderThat();
+			//start autoclean process MUST UPDATED!
+			let rs = await this.#_layers77.databaseLayer.removeOlderThat(120);
 			//notify all the WebSockets to update
 			this.#_layers77.websocketLayer.notifyAllTheClientsToUpdate();
 			console.log(rs);
