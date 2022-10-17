@@ -18,7 +18,7 @@ class NetworkInteractor {
     let response;
     // current base URL
     // url = `${currentUrl.protocol}//${currentUrl.hostname}:${currentUrl.port}`;
-     let url = `${currentUrl.origin}${currentUrl.pathname}data${currentUrl.port}`;
+     let url = `${currentUrl.origin}${currentUrl.pathname}/data${currentUrl.port}`;
     const options={
         headers:{"Content-type":"application/json;charset=utf-8"},
         body:JSON.stringify({command:comm}),

@@ -61,7 +61,7 @@ clientRouter.post("/data",async (req,res)=>{
             }
             //when success
             let allChat;
-            try{
+            try {
                 allChat = await clientRouter._layers77.databaseLayer.getAllTheChat();
                 res.json(allChat);
                 
