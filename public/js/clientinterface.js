@@ -1,7 +1,9 @@
  alert(new Date().toLocaleTimeString());
 
  window.onload = async () => {
-    let httpInterface = new NetworkInteractor();
+    let cookieMgr = new CookieManager();
+    let msgList = new  ClientMessageList(document.getElementById('')) 
+    let httpInterface = new NetworkInteractor(cookieMgr,(x,y)=>console.info(x,y),msgList);
     let allTheChat = await httpInterface.getFullChat();
     console.log(allTheChat);
  }
@@ -10,19 +12,40 @@
 
 
 
-class clientMessage {
-    constructor (messageParams ={
+class ClientMessageList {
+    #parentNode;
+    constructor (parentNode) {
+        this.#parentNode = parentNode;
+    }
+
+    addNewMessage(messageData ={
         message: "vccfgchyjh",
         usrId: 27,
         msgId: 71, 
         usrName: "User1",
         sent: "2022-10-14T08:04:05.000Z",
+        online: true,
         usrAvatar: {}
     }) {
-        
+        //1) a flex container of a message
+        let messageWrapper = document.createElement('article');
+        //assign user and message id to a main message wrapper 
+        Object.assign(messageWrapper, {
+            usrId: messageData.usrId,
+            msgId: messageData.msgId,
+        });
+        messageWrapper.classList.add('d-flex','flex-column','justify-content-start','rounded');
+        messageWrapper.innerText="534343";
+        this.#parentNode.appendChild(messageWrapper);
+
+
     }
+
+
 }
 /////
+
+//
 
 class NetworkInteractor {
     #cookieMgr;
