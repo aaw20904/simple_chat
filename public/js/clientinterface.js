@@ -1,4 +1,4 @@
- alert(new Date().toLocaleTimeString());
+
 
  window.onload = async () => {
     let cookieMgr = new CookieManager();
@@ -6,7 +6,7 @@
     let wsInterface = new NetworkInteractor(cookieMgr,(x,y)=>console.info(x,y),msgList);
     await wsInterface.connectWs();
     await wsInterface.registerNewSocketCommand();
-     let allTheChat = await wsInterface.getAllMessagesCommand();
+    let allTheChat = await wsInterface.getAllMessagesCommand();
    
     console.log(allTheChat);
  }
@@ -22,6 +22,26 @@ class ClientMessageList {
         this.addNewMessage(chatData[0]);
     }
 
+    setUserOnlineStatus(usrId, status=false) {
+        let messageList = Array.prototype.slice.call(this.#parentNode.children);
+        messageList.forEach(el=>{
+            let usrIdAttr =el.getAttribute('usrId')
+            if (usrIdAttr == usrId ) {
+                //get a span elem
+                el = el.querySelector('.indicator_5dfg4');
+                if(status) {
+                    //clear old style
+                    el.classList.remove('offline-indicator');
+                    el.classList.add('online-indicator');
+                } else {
+                    el.classList.remove('online-indicator');
+                    el.classList.add('offline-indicator');
+                }
+            }
+        })
+        
+    }
+
     addNewMessage(messageData ={
         message: "vccfgchyjh",
         usrId: 27,
@@ -34,21 +54,51 @@ class ClientMessageList {
         //1) a flex container of a message
         let messageWrapper = document.createElement('article');
         //assign user and message id to a main message wrapper 
-        Object.assign(messageWrapper, {
+        messageWrapper.setAttribute('usrId',messageData.usrId);
+        messageWrapper.setAttribute('msgId',messageData.msgId);
+
+       /* Object.assign(messageWrapper, {
             usrId: messageData.usrId,
             msgId: messageData.msgId,
-        });
+        });*/
         messageWrapper.classList.add('d-flex','flex-column','justify-content-start','rounded');
-        messageWrapper.innerText="534343";//debug
-        //add online/offline bckg color
-        if(messageData.online){
-            messageWrapper.classList.add('online-background-color');
+        
+         
+            messageWrapper.classList.add('message-background-color');
+    
+        //2) create a FIRST line - an avatar, a name, an online-indicator
+            let firstLineWrapper = document.createElement('section');
+        firstLineWrapper.classList.add('d-flex','flex-row','justify-content-start','align-items-center');
+             let avatar = document.createElement('img');
+        avatar.classList.add('rounded','m-1');
+        //assign an avatart data  to an img elemet
+        avatar.src = messageData.usrAvatar;
+            let userName = document.createElement('div');
+        userName.classList.add('user-name-text','p-1');
+        userName.innerText = messageData.usrName;
+        let onlineIndicatorWrappr = document.createElement('div');
+        onlineIndicatorWrappr.classList.add('d-flex','justify-content-end','align-items-center','w-100');
+             let onlineIndicator = document.createElement('div');
+        onlineIndicator.classList.add('indicator_5dfg4')
+            
+             //assign status to the online indicator
+        if (messageData.online) {
+           onlineIndicator.classList.add('online-indicator');
         } else {
-             messageWrapper.classList.add('offline-background-color');
-        }
-        //2) create FIRST line - an avatar, a name, an online-indicator
-        let firstLine = document.createElement('section');
-        firstLine 
+             onlineIndicator.classList.add('offline-indicator');
+        } 
+        
+        let spanElem = document.createElement('span');
+        onlineIndicatorWrappr.appendChild(onlineIndicator);
+        onlineIndicator.appendChild(spanElem);
+        
+       //append children
+       firstLineWrapper.appendChild(avatar);
+       firstLineWrapper.appendChild(userName);
+       firstLineWrapper.appendChild(onlineIndicatorWrappr);
+       //first line
+       messageWrapper.appendChild(firstLineWrapper);
+
 
         this.#parentNode.appendChild(messageWrapper);
 
@@ -102,6 +152,7 @@ class NetworkInteractor {
     #onNet_stWsServerComm = (rsp) =>{
         let st = rsp.online ? 'ONline' : 'OFFline'; 
         this.#msgFunction (false,`User vith ID ${rsp.usrId}  ${st}`);
+        this.#chatInstance.setUserOnlineStatus(rsp.usrId, rsp.online);
     };
 
     #onLoginWsServerComm = (rsp) => {

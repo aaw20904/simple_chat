@@ -98,7 +98,7 @@ let onChatDatabaseConnectedRoutine = async (err) => {
       layers77.cleanScheduler.createCleanerInstance(cleanSchedulerOpts.results);
     }
    ///when a crypto key must be updated:
-    if ( (process.argv.length > 2) && (process.argv[2] === 'KEYGEN')) {
+    if ( (process.argv.length > 2) && (process.argv[2] === 'KEYGEN') ) {
           let key = await layers77.cryptoLayer.generateSymmetricCryptoKey();
           let recordStatus = await layers77.databaseLayer.updateKey(key.results);
           console.log('Key updated successfully!');

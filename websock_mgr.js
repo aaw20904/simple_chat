@@ -65,8 +65,11 @@ import WebSocket, { WebSocketServer } from 'ws';
            let chatMessages; 
            try {
                 chatMessages = await this.#databaseLayer.getAllTheChat();
+                
                 //get network_status of a client
                 chatMessages.results.forEach(elem=>{
+                  ///!! translate blob to utf-8 string
+                  elem.usrAvatar = elem.usrAvatar.toString('utf-8');
                   //is a user in network?
                   if (this.#remoteSockets.has(elem.usrId)){
                     elem.online = true;
