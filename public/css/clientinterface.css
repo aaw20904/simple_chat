@@ -27,10 +27,14 @@
   }
 
 
+ 
+ 
 .message-background-color {
   background-color: #90EE90 !important;
 }
  
+
+
 div.online-indicator {
   display: inline-block;
   width: 18px;
@@ -58,7 +62,7 @@ div.offline-indicator {
   width: 18px;
   height: 18px;
   margin-right: 12px;
-  background-color: #cc5f20;
+  background-color: #cc7f20;
   border-radius: 50%;
   position: relative;
 }
@@ -68,7 +72,7 @@ div.offline-indicator>span{
   width: 18px;
   height: 18px;
   
-  background-color: #cc5f20;
+  background-color: #cc7f20;
   opacity: 0.7;
   border-radius: 50%;
 }
@@ -84,4 +88,20 @@ div.offline-indicator>span{
 .user-name-text{
     font-family: 'Roboto Mono';
     font-size: calc(12px + 1.5vw);
+}
+
+.message-text{
+    font-family: 'Roboto Mono';
+    font-size: calc(10px + 0.7vw);
+    font-weight: bold;
+}
+
+.time-text{
+    font-family: 'Roboto Mono';
+    font-size: calc(10px + 0.7vw);
+ 
+}
+
+.time-color{
+    color:#808000 !important;
 }

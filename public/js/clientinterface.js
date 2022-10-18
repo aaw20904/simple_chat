@@ -19,7 +19,10 @@ class ClientMessageList {
     }
 
     buildChatFromScratch (chatData) {
-        this.addNewMessage(chatData[0]);
+        chatData.forEach(x1=>{
+            this.addNewMessage(x1)
+        })
+        ;
     }
 
     setUserOnlineStatus(usrId, status=false) {
@@ -56,15 +59,10 @@ class ClientMessageList {
         //assign user and message id to a main message wrapper 
         messageWrapper.setAttribute('usrId',messageData.usrId);
         messageWrapper.setAttribute('msgId',messageData.msgId);
-
-       /* Object.assign(messageWrapper, {
-            usrId: messageData.usrId,
-            msgId: messageData.msgId,
-        });*/
-        messageWrapper.classList.add('d-flex','flex-column','justify-content-start','rounded');
+    
+        messageWrapper.classList.add('p-1','m-1','d-flex','flex-column','justify-content-start','rounded');
         
-         
-            messageWrapper.classList.add('message-background-color');
+        messageWrapper.classList.add('message-background-color');
     
         //2) create a FIRST line - an avatar, a name, an online-indicator
             let firstLineWrapper = document.createElement('section');
@@ -73,24 +71,34 @@ class ClientMessageList {
         avatar.classList.add('rounded','m-1');
         //assign an avatart data  to an img elemet
         avatar.src = messageData.usrAvatar;
+        //user name
             let userName = document.createElement('div');
         userName.classList.add('user-name-text','p-1');
         userName.innerText = messageData.usrName;
-        let onlineIndicatorWrappr = document.createElement('div');
+        //online indicator
+            let onlineIndicatorWrappr = document.createElement('div');
         onlineIndicatorWrappr.classList.add('d-flex','justify-content-end','align-items-center','w-100');
-             let onlineIndicator = document.createElement('div');
-        onlineIndicator.classList.add('indicator_5dfg4')
+            let onlineIndicator = document.createElement('div');
+        onlineIndicator.classList.add('indicator_5dfg4');
             
-             //assign status to the online indicator
         if (messageData.online) {
            onlineIndicator.classList.add('online-indicator');
         } else {
              onlineIndicator.classList.add('offline-indicator');
         } 
         
-        let spanElem = document.createElement('span');
+            let spanElem = document.createElement('span');
         onlineIndicatorWrappr.appendChild(onlineIndicator);
         onlineIndicator.appendChild(spanElem);
+        //a message element
+        let message = document.createElement('div');
+        message.classList.add('message-text','d-block','m-1');
+        message.innerText = messageData.message;
+        //a time element
+        let timeNode = document.createElement('div');
+        timeNode.classList.add('d-block','m-1','time-text','time-color');
+        timeNode.innerText = new Date(messageData.sent).toString();
+
         
        //append children
        firstLineWrapper.appendChild(avatar);
@@ -98,11 +106,13 @@ class ClientMessageList {
        firstLineWrapper.appendChild(onlineIndicatorWrappr);
        //first line
        messageWrapper.appendChild(firstLineWrapper);
+       //second line
+       messageWrapper.appendChild(message);
+       //thrid line
+       messageWrapper.appendChild(timeNode);
+       //assign to the parent
 
-
-        this.#parentNode.appendChild(messageWrapper);
-
-
+       this.#parentNode.appendChild(messageWrapper);
     }
 
 
