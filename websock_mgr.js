@@ -19,10 +19,12 @@ import WebSocket, { WebSocketServer } from 'ws';
       this.#betheartIntervalHandle = null;
       this.#remoteSockets = new Map();
       this.#webSocketServer = new WebSocketServer({ port: port });
+      //start ping-pong process
+        this.#betheartIntervalHandle = setInterval(this.#onPingInterval, this.#pingScanInterval);
       //connect listeners
     this.#webSocketServer.on('connection',(socket,req)=>this.#onServerConnection(socket, req, this));
     this.#webSocketServer.on('close', function close() {
-            clearInterval(this.#betheartInterval);
+           // clearInterval(this.#betheartInterval);
     });
   }
 /**@ when a database has been changed after cleaning 
@@ -250,7 +252,7 @@ import WebSocket, { WebSocketServer } from 'ws';
           socket.on('message',(msg)=>this.#socketOnMessage(msg,socket));
           socket.on('close',(code,reason)=>this.#socketOnClose(code,reason,socket));
       ///starting PING/PONG
-        this.#betheartIntervalHandle = setInterval(this.#onPingInterval, this.#pingScanInterval);
+      //  this.#betheartIntervalHandle = setInterval(this.#onPingInterval, this.#pingScanInterval);
 
     };
 
@@ -316,7 +318,7 @@ import WebSocket, { WebSocketServer } from 'ws';
                   console.log('Connection closed!');
                   return ws.terminate();
                 }
-                // ws.isAlive = false;
+                //when live
                   ws.ping();
                 });
     }
