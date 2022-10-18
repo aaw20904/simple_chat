@@ -90,7 +90,7 @@ let onChatDatabaseConnectedRoutine = async (err) => {
                                                                 });
     layers77.authorizeLayer = new AuthorizationUser(layers77.databaseLayer, layers77.cryptoLayer, layers77.authenticationLayer,{AUTH_FAIL_ATTEMPTS:10});
     layers77.registrationLayer = new UserRegistration(layers77.cryptoLayer, layers77.databaseLayer);
-    layers77.websocketLayer  = new WebSocketConnectionManager( layers77.databaseLayer,layers77.authenticationLayer,  8080);
+    layers77.websocketLayer  = new WebSocketConnectionManager( layers77.databaseLayer,layers77.authenticationLayer,  8080, 15000);
     layers77.cleanScheduler = new CleanScheduler(layers77);
     //reading cleaner options
     cleanSchedulerOpts = await layers77.databaseLayer.getCleanOptions();

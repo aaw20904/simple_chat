@@ -2,20 +2,24 @@
 
  window.onload = async () => {
     let cookieMgr = new CookieManager();
-    let msgList = new  ClientMessageList(document.getElementById('')) 
-    let httpInterface = new NetworkInteractor(cookieMgr,(x,y)=>console.info(x,y),msgList);
-    let allTheChat = await httpInterface.getFullChat();
+    let msgList = new  ClientMessageList(document.getElementById('a4a1d61488ecb20b')) 
+    let wsInterface = new NetworkInteractor(cookieMgr,(x,y)=>console.info(x,y),msgList);
+    await wsInterface.connectWs();
+    await wsInterface.registerNewSocketCommand();
+     let allTheChat = await wsInterface.getAllMessagesCommand();
+   
     console.log(allTheChat);
  }
 
  
-
-
-
 class ClientMessageList {
     #parentNode;
     constructor (parentNode) {
         this.#parentNode = parentNode;
+    }
+
+    buildChatFromScratch (chatData) {
+        this.addNewMessage(chatData[0]);
     }
 
     addNewMessage(messageData ={
@@ -35,7 +39,17 @@ class ClientMessageList {
             msgId: messageData.msgId,
         });
         messageWrapper.classList.add('d-flex','flex-column','justify-content-start','rounded');
-        messageWrapper.innerText="534343";
+        messageWrapper.innerText="534343";//debug
+        //add online/offline bckg color
+        if(messageData.online){
+            messageWrapper.classList.add('online-background-color');
+        } else {
+             messageWrapper.classList.add('offline-background-color');
+        }
+        //2) create FIRST line - an avatar, a name, an online-indicator
+        let firstLine = document.createElement('section');
+        firstLine 
+
         this.#parentNode.appendChild(messageWrapper);
 
 
@@ -43,9 +57,7 @@ class ClientMessageList {
 
 
 }
-/////
-
-//
+/////-----------------------------------
 
 class NetworkInteractor {
     #cookieMgr;
@@ -117,7 +129,8 @@ class NetworkInteractor {
     #onGet_chatWsServerComm = (rsp) =>{
         
         this.#msgFunction(true,'The LiveChat has been updated successfully!');
-        rsp.data.forEach(d=>console.log(d.msgId));
+        this.#chatInstance.buildChatFromScratch(rsp.data);
+        rsp.data.forEach(d=>console.log(d.usrId));
     };
     
     

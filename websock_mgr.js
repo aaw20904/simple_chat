@@ -11,11 +11,11 @@ import WebSocket, { WebSocketServer } from 'ws';
     #pingScanInterval;
 
 
-  constructor (databaseLayer, authenticationLayer, port) {
+  constructor (databaseLayer, authenticationLayer, port, betheartinterval=10000) {
       this.#databaseLayer = databaseLayer;
       this.#authenticationLayer = authenticationLayer;
         //PING intreval
-      this.#pingScanInterval = 10000;
+      this.#pingScanInterval = betheartinterval;
       this.#betheartIntervalHandle = null;
       this.#remoteSockets = new Map();
       this.#webSocketServer = new WebSocketServer({ port: port });
