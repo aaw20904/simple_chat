@@ -1,15 +1,15 @@
  const SESSION_IDENTIFIER_COOKIE = 'sessionInfo';
 
  window.onload = async () => {
-   
+    let notificator = new Toast();
     let cookieMgr = new CookieManager();
     let msgList = new  ClientMessageList(document.getElementById('a4a1d61488ecb20b')) 
-    let wsInterface = new NetworkInteractor(cookieMgr,(x,y)=>console.info(x,y),msgList);
+    let wsInterface = new NetworkInteractor(cookieMgr, notificator.showToast, msgList);
     await wsInterface.connectWs();
     await wsInterface.registerNewSocketCommand();
-    let allTheChat = await wsInterface.getAllMessagesCommand();
+      await wsInterface.getAllMessagesCommand();
     new MessageSender(document.getElementById('2f869fd1941f5e46'), wsInterface);
-    console.log(allTheChat);
+    
  }
 
  
@@ -208,7 +208,7 @@ class NetworkInteractor {
     //when anyone had sent a message to a server - a server broadcasting the one
     #onBr_castWsServerComm = (rsp) =>{
         this.#chatInstance.addNewMessage(rsp)
-        console.log(rsp);
+        //console.log(rsp);
     };
 
     #onUpdateWsServerComm = (rsp) =>{
@@ -222,7 +222,7 @@ class NetworkInteractor {
         
         this.#msgFunction(true,'The LiveChat has been updated successfully!');
         this.#chatInstance.buildChatFromScratch(rsp.data);
-        rsp.data.forEach(d=>console.log(d.usrId));
+       // rsp.data.forEach(d=>console.log(d.usrId));
     };
     
     
@@ -370,7 +370,7 @@ class NetworkInteractor {
             cookiesString = cookiesString.replace(/\s/g, '');
             //split
             let splited = cookiesString.split(';');
-            console.log(splited);
+           
             //create a map
             let cookiesMap = new Map();
             //iterate an array and split into key/value
@@ -402,3 +402,28 @@ class NetworkInteractor {
         }
     }
 
+class Toast {
+
+    showToast (status=true,msg='Helloword',time=new Date().toLocaleTimeString()) {
+            let toastMsg = document.getElementById('toast_01');
+            let small =  document.getElementById('toast_time_01')
+            small.innerText = time;
+            if (status) {
+                toastMsg.classList.remove('text-danger')
+                toastMsg.classList.add('text-success')
+            } else {
+                toastMsg.classList.remove('text-success')
+                toastMsg.classList.add('text-danger')
+            }
+            toastMsg.innerText = msg;
+            let toastElem = document.querySelector('.toast');
+            toastElem = new bootstrap.Toast(toastElem);
+            toastElem.show();
+            /*var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+        var toastList = toastElList.map(function(toastEl) {
+        return new bootstrap.Toast(toastEl)
+        });
+        toastList.forEach(toast => toast.show()) ;*/
+    }
+
+}

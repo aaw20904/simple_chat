@@ -501,7 +501,7 @@ async incrementFailLoginAttempts (usrId) {
          let db = this.privateMembers.get(this);
          return new Promise((resolve, reject) => {
             
-             db.query( `SELECT usrName, usrId, msgId, message, sent, usrAvatar FROM messages NATURAL JOIN users_names NATURAL JOIN users ORDER BY messages.sent`, (err, rows)=>{
+             db.query( `SELECT usrName, usrId, msgId, message, sent, usrAvatar FROM messages NATURAL JOIN users_names NATURAL JOIN users ORDER BY messages.msgId`, (err, rows)=>{
                  if (err) {
                      reject(err)
                  } else  {

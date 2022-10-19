@@ -80,25 +80,25 @@ function statusNodeIndicator (status=true, text='*') {
 class Toast {
 
     showToast (status=true,msg='Helloword',time=new Date().toLocaleTimeString()) {
-        let toastMsg = document.getElementById('toast_01');
-        let small =  document.getElementById('toast_time_01')
-        small.innerText = time;
-        if (status) {
-            toastMsg.classList.remove('text-danger')
-            toastMsg.classList.add('text-success')
-        } else {
-            toastMsg.classList.remove('text-success')
-            toastMsg.classList.add('text-danger')
-        }
-        toastMsg.innerText = msg;
-        let toastElem = document.querySelector('.toast');
-        toastElem = new bootstrap.Toast(toastElem);
-        toastElem.show();
-        /*var toastElList = [].slice.call(document.querySelectorAll('.toast'));
-     var toastList = toastElList.map(function(toastEl) {
-       return new bootstrap.Toast(toastEl)
-     });
-     toastList.forEach(toast => toast.show()) ;*/
+            let toastMsg = document.getElementById('toast_01');
+            let small =  document.getElementById('toast_time_01')
+            small.innerText = time;
+            if (status) {
+                toastMsg.classList.remove('text-danger')
+                toastMsg.classList.add('text-success')
+            } else {
+                toastMsg.classList.remove('text-success')
+                toastMsg.classList.add('text-danger')
+            }
+            toastMsg.innerText = msg;
+            let toastElem = document.querySelector('.toast');
+            toastElem = new bootstrap.Toast(toastElem);
+            toastElem.show();
+            /*var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+        var toastList = toastElList.map(function(toastEl) {
+        return new bootstrap.Toast(toastEl)
+        });
+        toastList.forEach(toast => toast.show()) ;*/
     }
 
 }
