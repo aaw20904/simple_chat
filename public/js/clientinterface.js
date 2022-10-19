@@ -1,6 +1,7 @@
-
+ const SESSION_IDENTIFIER_COOKIE = 'sessionInfo';
 
  window.onload = async () => {
+   
     let cookieMgr = new CookieManager();
     let msgList = new  ClientMessageList(document.getElementById('a4a1d61488ecb20b')) 
     let wsInterface = new NetworkInteractor(cookieMgr,(x,y)=>console.info(x,y),msgList);
@@ -21,8 +22,8 @@ class ClientMessageList {
     buildChatFromScratch (chatData) {
         chatData.forEach(x1=>{
             this.addNewMessage(x1)
-        })
-        ;
+        });
+        
     }
 
     setUserOnlineStatus(usrId, status=false) {
@@ -44,6 +45,7 @@ class ClientMessageList {
         })
         
     }
+    
 
     addNewMessage(messageData ={
         message: "vccfgchyjh",
@@ -113,6 +115,8 @@ class ClientMessageList {
        //assign to the parent
 
        this.#parentNode.appendChild(messageWrapper);
+       //scroll on the top
+        this.#parentNode.scrollTop =  this.#parentNode.scrollHeight;
     }
 
 
@@ -201,8 +205,9 @@ class NetworkInteractor {
                     window.location.replace(`http://${this.#currHostName}/login`);
                   }, 3000);
     };
-
+    //when anyone had sent a message to a server - a server broadcasting the one
     #onBr_castWsServerComm = (rsp) =>{
+        this.#chatInstance.addNewMessage(rsp)
         console.log(rsp);
     };
 

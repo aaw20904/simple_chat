@@ -108,6 +108,7 @@ import WebSocket, { WebSocketServer } from 'ws';
           let brdcMsg = {
               usrName: usrAvatarAndName.usrName, 
               message: arg.message, 
+              usrId: authResult.results.info.usrId,
               msgId: resultWrite.msgId,
               command: 'br_cast',
               usrAvatar: usrAvatarAndName.usrAvatar.toString('utf8'),
@@ -304,6 +305,13 @@ import WebSocket, { WebSocketServer } from 'ws';
     };
 //@msgData - it is an object with avatar, userMessage e.t.c
     #broadcastAllTheSockets = async (msgData) =>{
+           //is a user in network?
+          if (this.#remoteSockets.has(msgData.usrId)){
+            msgData.online = true;
+          } else {
+            msgData.online = false;
+          }
+          //--iterate all the clients 
           this.#remoteSockets.forEach((value,key)=>{
             console.log(`broadcast to User ${key} `);
             value.send(JSON.stringify(msgData));
