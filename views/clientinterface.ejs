@@ -12,8 +12,15 @@
 </head>
 <body>
 <h3 class="h3 <%-status%> "> <%-text%></h3>
-<div class="container" id="a4a1d61488ecb20b"></div>
-
+<div class="container-fluid p-1 messages-group" id="a4a1d61488ecb20b"></div>
+  <section class="container-fluid p-1">
+   <div class="d-flex flex-column justify-content-end align-items-end my-2" id="2f869fd1941f5e46">
+         
+       <textarea class="form-control chat_input"   name="myTextarea" placeholder="Type your message here"   minlength="1" maxlength="250" required></textarea>
+       <img src="../images/send.svg" class="rounded send_button btn-primary m-2">
+    </div>
+  </section>
+   
 <script src="/js/clientinterface.js"></script>
 </body>
 </html>

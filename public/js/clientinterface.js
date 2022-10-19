@@ -7,7 +7,7 @@
     await wsInterface.connectWs();
     await wsInterface.registerNewSocketCommand();
     let allTheChat = await wsInterface.getAllMessagesCommand();
-   
+    new MessageSender(document.getElementById('2f869fd1941f5e46'), wsInterface);
     console.log(allTheChat);
  }
 
@@ -60,7 +60,7 @@ class ClientMessageList {
         messageWrapper.setAttribute('usrId',messageData.usrId);
         messageWrapper.setAttribute('msgId',messageData.msgId);
     
-        messageWrapper.classList.add('p-1','m-1','d-flex','flex-column','justify-content-start','rounded');
+        messageWrapper.classList.add('p-1','m-1','d-flex','flex-column','justify-content-start','rounded','main-chat-color');
         
         messageWrapper.classList.add('message-background-color');
     
@@ -117,7 +117,33 @@ class ClientMessageList {
 
 
 }
-/////-----------------------------------
+/////---------------
+
+class MessageSender {
+    #btn;
+    #input;
+    #networkInterractor;
+    constructor(parentNode, networkInterractorInstance=null) {
+        this.#networkInterractor = networkInterractorInstance;
+        this.#btn = parentNode.querySelector('.send_button');
+        this.#input = parentNode.querySelector('.chat_input');
+        this.#btn.addEventListener('click',this.#onSendButton);
+    }
+
+    #onSendButton = (evt) =>{
+        //--------start animation by adding class name
+        this.#btn.classList.add('roll-in-blurred-left');
+        //-----transmitt a message to a server
+        this.#networkInterractor.typeToChatCommand(this.#input.value);
+        window.setTimeout(this.#clearAnimation, 1000);
+    }
+
+    #clearAnimation = () =>{
+        this.#btn.classList.remove('roll-in-blurred-left');
+    }
+}
+
+////----------------
 
 class NetworkInteractor {
     #cookieMgr;
