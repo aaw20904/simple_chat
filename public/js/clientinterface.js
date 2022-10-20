@@ -7,12 +7,12 @@
     let wsInterface = new NetworkInteractor(cookieMgr, notificator.showToast, msgList);
     await wsInterface.connectWs();
     await wsInterface.registerNewSocketCommand();
-      await wsInterface.getAllMessagesCommand();
+    await wsInterface.getAllMessagesCommand();
     new MessageSender(document.getElementById('2f869fd1941f5e46'), wsInterface);
     
  }
 
- 
+ //----***--***--***--------------
 class ClientMessageList {
     #parentNode;
     constructor (parentNode) {
@@ -24,6 +24,27 @@ class ClientMessageList {
             this.addNewMessage(x1)
         });
         
+    }
+
+    setOfflineAllTheUsers(){
+         let messageList = Array.prototype.slice.call(this.#parentNode.children);
+        messageList.forEach(el=>{
+                //get a span elem
+                el = el.querySelector('.indicator_5dfg4');
+                    el.classList.remove('online-indicator');
+                    el.classList.add('offline-indicator');
+                
+           
+        }) 
+    }
+
+    removeAllTheMessages(){
+        let e = this.#parentNode;
+          var child = e.lastElementChild; 
+        while (child) {
+            e.removeChild(child);
+            child = e.lastElementChild;
+        }
     }
 
     setUserOnlineStatus(usrId, status=false) {
@@ -46,7 +67,6 @@ class ClientMessageList {
         
     }
     
-
     addNewMessage(messageData ={
         message: "vccfgchyjh",
         usrId: 27,
@@ -55,7 +75,7 @@ class ClientMessageList {
         sent: "2022-10-14T08:04:05.000Z",
         online: true,
         usrAvatar: {}
-    }) {
+    },animated=false) {
         //1) a flex container of a message
         let messageWrapper = document.createElement('article');
         //assign user and message id to a main message wrapper 
@@ -63,7 +83,10 @@ class ClientMessageList {
         messageWrapper.setAttribute('msgId',messageData.msgId);
     
         messageWrapper.classList.add('p-1','m-1','d-flex','flex-column','justify-content-start','rounded','main-chat-color');
-        
+       //when animated
+        if(animated) {
+            messageWrapper.classList.add('slide-in-elliptic-top-fwd');
+        }
         messageWrapper.classList.add('message-background-color');
     
         //2) create a FIRST line - an avatar, a name, an online-indicator
@@ -100,7 +123,6 @@ class ClientMessageList {
         let timeNode = document.createElement('div');
         timeNode.classList.add('d-block','m-1','time-text','time-color');
         timeNode.innerText = new Date(messageData.sent).toString();
-
         
        //append children
        firstLineWrapper.appendChild(avatar);
@@ -207,12 +229,14 @@ class NetworkInteractor {
     };
     //when anyone had sent a message to a server - a server broadcasting the one
     #onBr_castWsServerComm = (rsp) =>{
-        this.#chatInstance.addNewMessage(rsp)
+        this.#chatInstance.addNewMessage(rsp,true);
+        
         //console.log(rsp);
     };
 
     #onUpdateWsServerComm = (rsp) =>{
         this.#msgFunction(true,'Try to update...');
+        this.#chatInstance.removeAllTheMessages();
          this.getAllMessagesCommand();
 
     };
@@ -235,9 +259,6 @@ class NetworkInteractor {
         this.#msgFunction(false, rsp.msg);
     };
    
-    
-
-    
 
   /***base WS event handler***/
     #onWsMessage =  (evt) => {
@@ -279,6 +300,7 @@ class NetworkInteractor {
 
     #onWsError = (evt) => {
         this.#msgFunction(false,`ws connection error! ${evt}`);
+        this.#chatInstance.setOfflineAllTheUsers();
     };
 
 

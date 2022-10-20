@@ -30,7 +30,7 @@ import CryptoProcedures from './cryptoroutines.js';
 import UserAuthentication from './authentication.js';
 import crypto from 'crypto';
 import { fstat } from 'fs'
-import CleanScheduler from './autocleaner.js'
+import CleanScheduler from './autocleaner.js';
 
 const DATABASE_USER='root';
 const DATABASE_HOST='localhost';
@@ -84,10 +84,10 @@ let onChatDatabaseConnectedRoutine = async (err) => {
     //create an instance init key and vect
     layers77.cryptoLayer = new CryptoProcedures(keys.results );
     layers77.authenticationLayer = new UserAuthentication(layers77.cryptoLayer, layers77.databaseLayer,{
-                                                                AUTH_COOKIE_LIFE_TIME:3600000,//all the fields are in  milliseconds
-                                                                AUTH_COOKIE_UPDATE_THRESHOLD:30000,//all the fields are in  milliseconds
-                                                                AUTH_FAIL_ATTEMPTS:10,
-                                                                });
+                                                      AUTH_COOKIE_LIFE_TIME: 3600000,//all the fields are in  milliseconds
+                                                      AUTH_COOKIE_UPDATE_THRESHOLD: 30000,//all the fields are in  milliseconds
+                                                      AUTH_FAIL_ATTEMPTS: 10,
+                                                  });
     layers77.authorizeLayer = new AuthorizationUser(layers77.databaseLayer, layers77.cryptoLayer, layers77.authenticationLayer,{AUTH_FAIL_ATTEMPTS:10});
     layers77.registrationLayer = new UserRegistration(layers77.cryptoLayer, layers77.databaseLayer);
     layers77.websocketLayer  = new WebSocketConnectionManager( layers77.databaseLayer,layers77.authenticationLayer,  8080, 15000);
