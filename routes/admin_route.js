@@ -470,6 +470,10 @@ adminRouter.post('/data',async (req,res)=>{
                res.status(200);
                res.json({status:true, results:queryChat.results});
             break;
+            case 'notify':
+              let reqDataToNotify = req.body;
+              let resultOfNotify = adminRouter._layers77.websocketLayer.sendNotificationToTheClient()
+            break;
             default:
             res.status(400);
             res.end();

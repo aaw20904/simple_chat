@@ -34,6 +34,22 @@ import WebSocket, { WebSocketServer } from 'ws';
     this.#sendUpdateToClients();
   }
 
+  sendNotificationToTheClient ( usrId, message) {
+    //is a client online?
+           if ( this.#remoteSockets.has(usrId)) {
+           let userSocket = this.#remoteSockets.get(usrId);
+              let parcel = {
+                command:'notify',
+                msg: message,
+              }
+              userSocket.send(JSON.stringify({data: parcel}));
+
+           } else {
+            return {status:false, msg:"Te message hasn`t been sent! The user is offline"}
+           }
+
+  }
+
     #sendNet_stToClients = (usrId, online) =>{
      let parcel = {
       command:'net_st',

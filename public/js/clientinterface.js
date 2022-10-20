@@ -26,14 +26,13 @@ class ClientMessageList {
         
     }
 
-    setOfflineAllTheUsers(){
+    setOfflineAllTheUsers () {
          let messageList = Array.prototype.slice.call(this.#parentNode.children);
         messageList.forEach(el=>{
                 //get a span elem
                 el = el.querySelector('.indicator_5dfg4');
                     el.classList.remove('online-indicator');
                     el.classList.add('offline-indicator');
-                
            
         }) 
     }
@@ -258,7 +257,10 @@ class NetworkInteractor {
     #onErrorMsgWsServerComm = (rsp) =>{
         this.#msgFunction(false, rsp.msg);
     };
-   
+   ///when a custom notification from the server
+   #onNotifyServerComm = (rsp) => {
+        this.#msgFunction(true, rsp.msg);
+   };
 
   /***base WS event handler***/
     #onWsMessage =  (evt) => {
@@ -287,6 +289,9 @@ class NetworkInteractor {
             break;
             case 'net_st':
                 this.#onNet_stWsServerComm(msg);
+            break;
+            case 'notify':
+                this.#onNotifyServerComm(msg);
             break;
 
             default:

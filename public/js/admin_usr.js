@@ -380,6 +380,7 @@ class NetworkInteractor {
         return await this._sendCommand(usrId,'delete'); 
     }
 
+
     async _sendCommand (usrId, command) {
 
                 //define the adress - where you want to send
@@ -468,9 +469,12 @@ class InterractiveNotify {
             senderNode.setAttribute('data-usr-id',id);
             senderNode.querySelector('.message-name-text').innerText = name;
         },
-        onSend: (evt)=>{
+        onSend: async (evt)=>{
             let members = this.privateMembers.get(this);
+            ///sending a message to the remote client through server as proxy
+            //********************************************** */
             members.informer(true,'Message sent successfully!');
+
         },
         onClose: (evt)=>{
             let members = this.privateMembers.get(this);
