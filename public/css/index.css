@@ -29,10 +29,20 @@
   .first-title-part{
      background-position: center;
      background-repeat: no-repeat;
-    height:75vh !important;
+     background-size: auto;
+     background-color: rgba(255, 255, 255, 0.5);
+     height:75vh !important;
     color:#FF8E23;
     font-weight: bold;
   }
+
+  .scroll_animation{
+    position:fixed;
+    bottom:80px;
+    left:80px;
+
+  }
+  
 
   .titlepart{
     font-family: 'Roboto Mono' !important;
@@ -54,12 +64,25 @@
 
  @media only screen and (min-width: 640px) and (max-width: 1024px) {
   .first-title-part{
-    background-image: url('../images/an225_640.jpg');
+    background-image: url('../images/an225_1024.jpg');
   }
 }
 
- @media only screen and (min-width: 1204x) and (max-width: 1600px) {
+ @media only screen and (min-width: 1024px) and (max-width: 1600px) {
   .first-title-part{
-    background-image: '/an225_1024.jpg';
+    background-image: url('../images/an225_1280.jpg');
   }
 }
+
+@media only screen and (min-width: 1600px) and (max-width: 1920px) {
+  .first-title-part{
+    background-image: url('../images/an225_1600.jpg');
+  }
+}
+
+@media only screen and (min-width: 1920px)  {
+  .first-title-part{
+    background-image: url('../images/an225_1920.jpg');
+  }
+}
+
