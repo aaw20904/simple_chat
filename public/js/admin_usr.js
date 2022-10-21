@@ -1,10 +1,10 @@
 window.onload=async()=>{
     let toastInfo = new Toast();
-    let usrCtrl = new UserControl(new NetworkInteractor(), toastInfo.showToast);
+    let networkInt = new NetworkInteractor();
+    let usrCtrl = new UserControl(networkInt, toastInfo.showToast);
     document.querySelector('.tableWrapper').appendChild(await usrCtrl.createTable());  
-    let interactiveNotify = new InterractiveNotify(document.querySelector('tbody'),null, toastInfo.showToast);
+    let interactiveNotify = new InterractiveNotify(document.querySelector('tbody'), networkInt, toastInfo.showToast);
    interactiveNotify.bindListenersToAvatarImages ();
-
 }
 
 class UserControl {
@@ -285,7 +285,7 @@ class UserControl {
     }
    
 }
-
+/*
 function setStatusString (status=true, msg='*') {
   let node = document.querySelector('#statusString');
   if(status) {
@@ -295,13 +295,17 @@ function setStatusString (status=true, msg='*') {
   }
   node.innerText = msg;
 }
-
+*/
 
 
 class NetworkInteractor {
     
     async setLock(usrId) {
             return await this._sendCommand(usrId,'lock');
+    }
+
+    async sendNitification (usrId,message) {
+            return await this._sendCommand({usrId:usrId, msg:message},'notify');
     }
 
     async clearLock(usrId) {
@@ -473,7 +477,17 @@ class InterractiveNotify {
             let members = this.privateMembers.get(this);
             ///sending a message to the remote client through server as proxy
             //********************************************** */
-            members.informer(true,'Message sent successfully!');
+            //
+            let messangerNode = document.getElementById('interactiveMessanger');
+            let usrId = messangerNode.getAttribute('data-usr-id');
+            let message = messangerNode.querySelector('#sendMessageToUser').value;
+            let sendingResult = await members.networkInteractor.sendNitification(usrId, message);
+            if(sendingResult.status){
+                members.informer(true,'Message sent successfully!');
+            } else {
+                members.informer(false,sendingResult.msg);
+            }
+            
 
         },
         onClose: (evt)=>{

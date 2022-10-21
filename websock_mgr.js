@@ -36,16 +36,17 @@ import WebSocket, { WebSocketServer } from 'ws';
 
   sendNotificationToTheClient ( usrId, message) {
     //is a client online?
-           if ( this.#remoteSockets.has(usrId)) {
-           let userSocket = this.#remoteSockets.get(usrId);
+    let userSocket = this.#remoteSockets.get(Number(usrId)|0)
+           if (userSocket ) {
               let parcel = {
                 command:'notify',
                 msg: message,
               }
-              userSocket.send(JSON.stringify({data: parcel}));
+              userSocket.send(JSON.stringify(parcel));
+              return {status:true, msg:'A message has been sent successfully!'}
 
            } else {
-            return {status:false, msg:"Te message hasn`t been sent! The user is offline"}
+            return {status:false, msg:"Fail! User not found or offline!"}
            }
 
   }
@@ -116,6 +117,15 @@ import WebSocket, { WebSocketServer } from 'ws';
               this.#sendErrorToClient(socket,"You hasn`t subscribed yet!");
              return;
            }
+
+           //had  a user been locked?
+          let isLocked = await this.#databaseLayer.isUserLocked(authResult.results.info.usrId);
+          if(isLocked.value){
+            this.#sendErrorToClient(socket,"You are locked!Please call to admin!");
+            return;
+          }
+
+          
           //write an incomming message into the DB
           let resultWrite = await this.#databaseLayer.addUserMessage({usrId:authResult.results.info.usrId, msg:arg.message}); 
           //read user data - for a broadcast message 
@@ -221,6 +231,12 @@ import WebSocket, { WebSocketServer } from 'ws';
              let authResult = await this.#authenticationLayer.authenticateUserByCookie(arg.cookie);
         //has a user been authorized fail?
              if (!authResult.status) {
+              //has a user been locked?
+               if(authResult.error == 'LK') {
+                //when locked
+                 socket.send(JSON.stringify({status:false, msg:authResult.msg, command:'error'})); 
+                 return;
+               }
         //respond with fail status
                   socket.send(JSON.stringify({status:false, msg:authResult.msg, command:'login'})); 
                   return;

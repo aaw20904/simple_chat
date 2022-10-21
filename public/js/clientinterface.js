@@ -218,7 +218,7 @@ class NetworkInteractor {
 
     #onLoginWsServerComm = (rsp) => {
        //report that a user redirect to log in
-      this.#msgFunction(false,'You must to login.You will redirect after several seconds');
+      this.#msgFunction(false, rsp.msg);
        //save current position in cookie
        this.#cookieMgr.writeCookie(LAST_URL_COOKIE,this.#baseHttpUrl);
        ///redirect to the Log In page

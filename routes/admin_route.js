@@ -400,6 +400,12 @@ adminRouter.post('/command', async (req,res)=>{
              console.log(req.body);
              res.json({time:new Date().toLocaleTimeString()});
         break;
+         case 'notify':
+              let reqDataToNotify = req.body.data;
+              console.log('*');
+              let resultOfNotify = adminRouter._layers77.websocketLayer.sendNotificationToTheClient(reqDataToNotify.usrId, reqDataToNotify.msg)
+              res.json(resultOfNotify);
+            break;
         default:
         res.status(400);
         res.end();
@@ -470,10 +476,7 @@ adminRouter.post('/data',async (req,res)=>{
                res.status(200);
                res.json({status:true, results:queryChat.results});
             break;
-            case 'notify':
-              let reqDataToNotify = req.body;
-              let resultOfNotify = adminRouter._layers77.websocketLayer.sendNotificationToTheClient()
-            break;
+           
             default:
             res.status(400);
             res.end();
