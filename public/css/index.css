@@ -1,0 +1,65 @@
+/* roboto-mono-regular - latin_cyrillic */
+@font-face {
+    font-family: 'Roboto Mono';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../fonts/roboto-mono-v22-latin_cyrillic-regular.eot'); /* IE9 Compat Modes */
+    src: local(''),
+         url('../fonts/roboto-mono-v22-latin_cyrillic-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('../fonts/roboto-mono-v22-latin_cyrillic-regular.woff2') format('woff2'), /* Super Modern Browsers */
+         url('../fonts/roboto-mono-v22-latin_cyrillic-regular.woff') format('woff'), /* Modern Browsers */
+         url('../fonts/roboto-mono-v22-latin_cyrillic-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+         url('../fonts/roboto-mono-v22-latin_cyrillic-regular.svg#RobotoMono') format('svg'); /* Legacy iOS */
+  }
+  
+  /* roboto-mono-500 - latin_cyrillic */
+  @font-face {
+    font-family: 'Roboto Mono';
+    font-style: normal;
+    font-weight: 500;
+    src: url('../fonts/roboto-mono-v22-latin_cyrillic-500.eot'); /* IE9 Compat Modes */
+    src: local(''),
+         url('../fonts/roboto-mono-v22-latin_cyrillic-500.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('../fonts/roboto-mono-v22-latin_cyrillic-500.woff2') format('woff2'), /* Super Modern Browsers */
+         url('../fonts/roboto-mono-v22-latin_cyrillic-500.woff') format('woff'), /* Modern Browsers */
+         url('../fonts/roboto-mono-v22-latin_cyrillic-500.ttf') format('truetype'), /* Safari, Android, iOS */
+         url('../fonts/roboto-mono-v22-latin_cyrillic-500.svg#RobotoMono') format('svg'); /* Legacy iOS */
+  }
+
+  .first-title-part{
+     background-position: center;
+     background-repeat: no-repeat;
+    height:75vh !important;
+    color:#FF8E23;
+    font-weight: bold;
+  }
+
+  .titlepart{
+    font-family: 'Roboto Mono' !important;
+    font-size: calc(18px + 2vw) !important;
+  }
+
+ @media only screen and (max-width: 365px) {
+  .first-title-part{
+    background-image: url('../images/an225_360.jpg');
+  }
+}
+
+ @media only screen and (min-width: 365px) and (max-width: 640px) {
+  .first-title-part{
+    background-image: url('../images/an225_640.jpg');
+  }
+}
+
+
+ @media only screen and (min-width: 640px) and (max-width: 1024px) {
+  .first-title-part{
+    background-image: url('../images/an225_640.jpg');
+  }
+}
+
+ @media only screen and (min-width: 1204x) and (max-width: 1600px) {
+  .first-title-part{
+    background-image: '/an225_1024.jpg';
+  }
+}
