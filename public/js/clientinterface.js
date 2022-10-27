@@ -178,8 +178,11 @@ class NetworkInteractor {
     #msgFunction;
     #currHostName;
     #chatInstance;
+    #wsConnectionStatus;
+    #reconnectTimerId;
 
         constructor (cookieMgrInst, msgFunction, chatInstance) {
+            this.#wsConnectionStatus = false;
             this.#msgFunction = msgFunction;
             this.#cookieMgr = cookieMgrInst;
             this.#chatInstance = chatInstance;
@@ -300,8 +303,27 @@ class NetworkInteractor {
     };
 
     #onWsClose = (evt) => {
-        this.#msgFunction(false,`WS Coonection closed!`);
+        this.#msgFunction(false,`Network Coonection closed!`);
+        this.#wsConnectionStatus = false;
+        //try to establish a new connection 
+        this.#reconnectTimerId = window.setInterval(this.#onNetworkReconnectTimerHandler, 10000)
     };
+
+    #onNetworkReconnectTimerHandler = async () =>{
+         if (navigator.onLine ) {
+            //try to update
+            //1)establish a new ws connection
+            await this.connectWs();
+            //2)register
+            await this.registerNewSocketCommand();
+            //3)clean all the chat
+            this.#chatInstance.removeAllTheMessages();
+            //4)update - reload all the chat
+            await this.getAllMessagesCommand();
+            //clear interval 
+            window.clearInterval(this.#reconnectTimerId);
+         }
+    }
 
     #onWsError = (evt) => {
         this.#msgFunction(false,`ws connection error! ${evt}`);
@@ -318,8 +340,10 @@ class NetworkInteractor {
         //try to connect
         this.#webSocket =  await new Promise((resolve, reject) => {
                                 let socket = new WebSocket(this.#baseWsUrl );
+
                                 // 
                                 socket.addEventListener("open", () => {
+                                    this.#wsConnectionStatus = true;
                                     resolve(socket);
                                 });
                             }); 
