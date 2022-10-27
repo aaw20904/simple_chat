@@ -234,3 +234,12 @@ div.offline-indicator>span{
     color:#808000 !important;
 }
 
+.offline_indicator{
+  position: fixed;
+  top:50vh;
+  left:25vw;
+}
+
+.hide {
+  display: none !important;
+}

@@ -9,8 +9,20 @@
     await wsInterface.registerNewSocketCommand();
     await wsInterface.getAllMessagesCommand();
     new MessageSender(document.getElementById('2f869fd1941f5e46'), wsInterface);
-    
+     
+     window.setInterval(onOfflineIndicator, 1000);
+
+    function onOfflineIndicator () {
+        let node = document.querySelector('.offline_indicator');
+        if(!navigator.onLine){
+            node.classList.remove('hide')
+        } else {
+            node.classList.add('hide')
+        }
+    }
  }
+
+
 
  //----***--***--***--------------
 class ClientMessageList {
