@@ -190,16 +190,15 @@ app.use(express.static('public'));
 app.use(cookieParser());
 
 
- 
 
 app.get('/',(req, res)=>{
   if(!layers77.administratorId) {
     //when Admin hasn`t been found
-    res.render('index.ejs',{status:'text-danger',description:'please call to administrator or create creadantails if you are',time: new Date().toLocaleTimeString(),msg:"Admin not found!"});
+    res.render('index.ejs',{status:'text-danger',description:'please call to administrator or create creadantails if you are',time: new Date().toString(),msg:"Admin not found!"});
    return;
   }
   //when success
-  res.render('index.ejs',{status:'text-success',description:'please jump to any part of the site!',time: new Date().toLocaleTimeString(),msg:"Wellcome!"});
+  res.render('index.ejs',{status:'text-success',description:'please jump to any part of the site!',time: new Date().toString(),msg:"Wellcome!"});
 })
 
 /***T E S T I N G ROUTE  */

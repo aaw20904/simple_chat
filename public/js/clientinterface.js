@@ -300,7 +300,7 @@ class NetworkInteractor {
     };
 
     #onWsClose = (evt) => {
-        this.#msgFunction(false,`WS Coonection closed`);
+        this.#msgFunction(false,`WS Coonection closed!`);
     };
 
     #onWsError = (evt) => {
