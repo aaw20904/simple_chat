@@ -9,8 +9,8 @@
 
  */
 import WebSocketConnectionManager from './websock_mgr.js'
- import sizeof from 'object-sizeof'
- import cookieParser from "cookie-parser"
+import sizeof from 'object-sizeof'
+import cookieParser from "cookie-parser"
 import  registerRouter  from './routes/register_route.js'
 import loginRouter from './routes/login_route.js'
 import logoffRouter from './routes/logoff_route.js'
@@ -219,63 +219,3 @@ app.listen(80, ()=>console.log('Listen...'))
 
 
 
-
-/*******   W E B S O C K E T  ****/
-// (A) CREATE WEBSOCKET SERVER AT PORT 8080
-/*
-const wss = new WebSocketServer({ port: 8080 });
-
-function heartbeat() {
-  console.log(`beat: ${new Date().toLocaleTimeString()}`)
-  this.isAlive = true;
-}
-
-
-// (B) ON CLIENT CONNECT
-wss.on("connection", (socket, req) => {
-    // (B1) SEND MESSAGE TO CLIENT
-     socket.send("Welcome!");
-    socket.isAlive = true;
-    socket.on('pong', heartbeat);
-     //
-     console.log(sizeof(socket));
-    // (B2) ON RECEIVING MESSAGE FROM CLIENT
-    socket.on("message", (msg) => {
-        //console.log(JSON.stringify(socket));
-        let message = msg.toString(); // MSG IS BUFFER OBJECT
-        socket.send(`OK ->> ${Date.now().toString('10')}`,()=>console.log('sent!'));
-        let sockcets = [];
-        for (let y of wss.clients) {
-          sockcets.push(y);
-          console.log(y.readyState);
-          //при разрыве сетевого соединения (не закрывая браузер)
-          //подключение остается.Мало того добавляется новые сокеты 
-        }
-        console.log(wss.clients);
-      console.log(message);
-        
-    });
-
-    const interval = setInterval(function ping() {
-       wss.clients.forEach(function each(ws) {
-      if (ws.isAlive === false) return ws.terminate();
-         ws.isAlive = false;
-         ws.ping();
-      });
-    }, 3000);
-
-    // (B3) ON CLIENT DISCONNECT
-    socket.on("close", (code, reason) => {
-    console.log(code);
-    console.log(reason);
-    });
-});
-// (C) NOT-SO-CRITICAL EVENTS
-wss.on("listening", () => { console.log("WS READY and listen on port 8080... "); });
-
-  wss.on('close', function close() {
-    clearInterval(interval);
-  });
-
-wss.on("error", (err) => { console.log(err); });
-*/
