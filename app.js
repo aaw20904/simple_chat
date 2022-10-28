@@ -23,6 +23,15 @@ import crypto from 'crypto';
 import { fstat } from 'fs'
 import CleanScheduler from './autocleaner.js';
 
+const https = require('https');
+const fs = require('fs');
+
+const options = {
+  key: fs.readFileSync('./https.key'),
+  cert: fs.readFileSync('./https.cert'),
+  rejectUnauthorized:false
+};
+
 const DATABASE_USER='root';
 const DATABASE_HOST='localhost';
 const DATABASE_PASSWORD='65535258';
@@ -31,17 +40,18 @@ const DATABASE_NAME='chat';
 let app= express();
 /****global Instances of classes */
 let layers77= {
-  databaseLayer: null,
-  cryptoLayer: null,
-  authenticationLayer: null,
-  authorizeLayer: null,
-  registrationLayer: null,
-  websocketLayer:null,
-  authCookieName: 'sessionInfo',
-  lastPageCookie: 'lastURL',
-  administratorId: null,
-  cleanScheduler: null,
+    databaseLayer: null,
+    cryptoLayer: null,
+    authenticationLayer: null,
+    authorizeLayer: null,
+    registrationLayer: null,
+    websocketLayer:null,
+    authCookieName: 'sessionInfo',
+    lastPageCookie: 'lastURL',
+    administratorId: null,
+    cleanScheduler: null,
 }
+
 //init global interfaces in routes
 registerRouter._layers77 = layers77;
 loginRouter._layers77 = layers77;
@@ -158,7 +168,9 @@ app.get('/test',async(req,res)=>{
 
 /*********S T A R T **********/
 ///start to listen
-app.listen(80, ()=>console.log('Listen...'))
+
+https.createServer(options, app).listen(80,()=>console.log('listen on :80...'));
+//app.listen(80, ()=>console.log('Listen...'))
 
 
 
