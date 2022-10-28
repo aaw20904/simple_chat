@@ -1,13 +1,4 @@
-/*****RETURNED VALUE MUST BE 
-   {
-      status:Boolean,
-      msg:Text,    
-      error: Error | Text,
-      value: any  //when ONE returned value
-      results: {.....}  //when MANY returned values
-   }
 
- */
 import WebSocketConnectionManager from './websock_mgr.js'
 import sizeof from 'object-sizeof'
 import cookieParser from "cookie-parser"
@@ -104,52 +95,7 @@ let onChatDatabaseConnectedRoutine = async (err) => {
           console.log('Key updated successfully!');
           console.log(recordStatus);
     }
-    //2 let result = layers77.registrationLayer.createRegistrationCookieAndCaptcha();
-    //2 layers77.registrationLayer.isRegistrationCookieValid(result.results.cookie, result.results.text);
-    // let newKeys = await layers77.cryptoLayer.generateSymmetricCryptoKey();   
-    //layers77.databaseLayer.updateKey(newKeys.results);   
-    // console.log(await layers77.databaseLayer.writeNewUser({name:'Bill',hashedPassword:'213456',avatar:"abcdefg"}) ); 
-    //console.log(await layers77.databaseLayer.removeUserByID(16));
-    // console.log(await layers77.databaseLayer.changeUserPasword({usrId:16, password:123546}) );
-    //* console.log(await layers77.databaseLayer.addUserMessage({usrId:18, msg:"helloword!" })); */
-     //console.log( await layers77.databaseLayer.removeUserMessage(1) );
-    //console.log( await layers77.databaseLayer.editUserMessage({msgId:2,message:'abc'}) );
-    //console.log( await layers77.databaseLayer.incrementFailLoginAttempts(17) );
-    //console.log( await layers77.databaseLayer.clearUserLocked(17) );
-    //console.log( await layers77.databaseLayer.getUserFailLoginAttempts(17) );
-    //console.log( await layers77.databaseLayer.clearUserFailLoginAttempts(17) );
-    //console.log( await layers77.databaseLayer.setSessionActive(17) );
-    //console.log( await layers77.databaseLayer.setUserLocked(17) );
-    //console.log( await layers77.databaseLayer.clearSessionActive(17) );
-    //console.log( await layers77.databaseLayer.clearUserLocked(17) );
-    //console.log( await layers77.databaseLayer.isUserLocked(17) );
-    //console.log( await layers77.databaseLayer.isSessionActive(17) );
-    // let res = await layers77.databaseLayer.getAllTheChat()
-    //let res = await layers77.databaseLayer.getAllUsersWithStatus();
-    //let res = await layers77.databaseLayer.readKey();
-    //await layers77.databaseLayer.updateKey({pubKey:123,initVect:456})
-    //let res = await layers77.databaseLayer.readKey();
-     //console.log(res.result.pubKey.toString('hex'));
-     //2 let x1 = layers77.cryptoLayer.symmEncrypt(Buffer.from("helloWord"));
-     //2 console.log(x1.value.toString('hex'));
-     //2 let y1 = layers77.cryptoLayer.symmDecrypt(x1.value);
-     //2 console.log(y1.value.toString('utf-8'));
-     ///console.log(y1.toString("utf-8"))
-     //2 let cookie =  layers77.authenticationLayer.createCookie(17);
-     //2 console.log(cookie);
-     // console.log(layers77.authenticationLayer.readCookie(cookie.value).results)
-     //2 let raw = await layers77.authenticationLayer.authenticateUserByCookie(cookie.value);
-     //2 console.log(raw.results, raw.status)
-     //await layers77.databaseLayer.readUserShortlyByID(18)
-     //let res = await  layers77.authenticationLayer.authenticateUserByCookie(cookie)
-     //2 let hash = await layers77.cryptoLayer.createPasswordHash("password");
-     //2 console.log(await layers77.databaseLayer.changeUserPasword({usrId:17,password:hash.value}));
-     //2 console.log(await layers77.cryptoLayer.validatePassword('psw',hash.value));
-     //2console.log(await layers77.authorizeLayer.authorizeUser('Bob',"password"));
-     //2 console.log(await layers77.registrationLayer.registerUserInSystem({usrName:'Bob', password:'password',avatar:Buffer.from([0x01,0x03,0x05])}))
-     //await layers77.authorizeLayer.logoffUser(19);
-     //process.exit(0);
-    //console.log(await layers77.databaseLayer.readUserAvatar(25));
+    
 }
 /********** */
 
