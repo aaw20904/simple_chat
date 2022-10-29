@@ -1,4 +1,6 @@
 import WebSocket, { WebSocketServer } from 'ws';
+import { createServer } from 'https';
+import fs from 'fs';
 /***************************C L A S S  */
 
   class WebSocketConnectionManager {
@@ -11,14 +13,19 @@ import WebSocket, { WebSocketServer } from 'ws';
     #pingScanInterval;
 
 
-  constructor (databaseLayer, authenticationLayer, port, betheartinterval=10000) {
+  constructor (databaseLayer, authenticationLayer, port, betheartinterval=10000, server=null) {
       this.#databaseLayer = databaseLayer;
       this.#authenticationLayer = authenticationLayer;
         //PING intreval
       this.#pingScanInterval = betheartinterval;
       this.#betheartIntervalHandle = null;
       this.#remoteSockets = new Map();
-      this.#webSocketServer = new WebSocketServer({ port: port });
+      /*const server = createServer({
+        cert: fs.readFileSync('./chat.cert'),
+        key: fs.readFileSync('./chat.key')
+      }).listen(8080);*/
+      
+      this.#webSocketServer = new WebSocketServer({server});
       //start ping-pong process
         this.#betheartIntervalHandle = setInterval(this.#onPingInterval, this.#pingScanInterval);
       //connect listeners
@@ -284,9 +291,7 @@ import WebSocket, { WebSocketServer } from 'ws';
           socket.on('pong', this.#socketOnHeartbeat);
           socket.on('message',(msg)=>this.#socketOnMessage(msg,socket));
           socket.on('close',(code,reason)=>this.#socketOnClose(code,reason,socket));
-      ///starting PING/PONG
-      //  this.#betheartIntervalHandle = setInterval(this.#onPingInterval, this.#pingScanInterval);
-
+     
     };
 
     #onServerClose = ()=> {
@@ -306,15 +311,7 @@ import WebSocket, { WebSocketServer } from 'ws';
 
             //socket.send(`OK ->> ${Date.now().toString('10')}`, ()=>console.log('sent!'));
             let disconnectReason
-          /*  for (let y of  this.#webSocketServer.clients) {
-                //websocket.readyState code meaning:
-                //1 	OPEN 	The connection is open and ready to communicate.
-                //2 	CLOSING 	The connection is in the process of closing.
-                //3 	CLOSED 	The connection is closed or couldn't be opened.
-                console.log(`Socket readyState ${y.readyState}`);
-                //при разрыве сетевого соединения (не закрывая браузер)
-                //подключение остается.Мало того добавляется новые сокеты 
-            }*/
+       
             
             this.#clientInterfaceQueries(message,socket);
            // console.log( this.#webSocketServer.clients);
@@ -367,43 +364,3 @@ import WebSocket, { WebSocketServer } from 'ws';
 }
 
 export {WebSocketConnectionManager as default}
-
-
-/*let _onServerConnection = (socket, req)=> {
-     // (B1) SEND MESSAGE TO CLIENT
-        socket.send("Welcome!");
-        socket.isAlive = true;
-        socket.on('pong', _socketOnHeartbeat);
-        socket.on('message',(msg)=>_socketOnMessage(msg,socket));
-        socket.on('close',(code,reason)=>_socketOnClose(code,reason));
-    }
-
-    let _onServerClose = ()=> {
-      clearInterval(this._betheartInterval);
-     console.log('server closed..')
-    }
-
-   let  _socketOnHeartbeat= (socket) =>{
-      console.log(`beat: ${new Date().toLocaleTimeString()}`)
-      socket.isAlive = true;
-    }
-
-   let  _socketOnMessage= (msg, socket)=> {
-            let message = msg.toString(); // MSG IS BUFFER OBJECT
-            socket.send(`OK ->> ${Date.now().toString('10')}`, ()=>console.log('sent!'));
-            
-            for (let y of  this._webSocketServer.clients) {
-                this._sockcets.push(y);
-                console.log(y.readyState);
-                //при разрыве сетевого соединения (не закрывая браузер)
-                //подключение остается.Мало того добавляется новые сокеты 
-            }
-            console.log( this._webSocketServer.clients);
-            console.log(message);
-    }
-
-    let   _socketOnClose= (code, reason)=> {
-      console.log(code);
-      console.log(reason);
-    }
-     */

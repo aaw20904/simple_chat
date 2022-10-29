@@ -202,7 +202,7 @@ class NetworkInteractor {
             let currentUrl = new URL(document.location);
             this.#currHostName = currentUrl.host;
             this.#baseHttpUrl = `${currentUrl.protocol}//${currentUrl.host}${currentUrl.pathname}`;
-            this.#baseWsUrl = `ws://${currentUrl.hostname}/:8080`;
+            this.#baseWsUrl = `wss://${currentUrl.hostname}:8080`;
         }
 
     //----------- L I S T E N E R S -- on WS server messages --------
@@ -238,7 +238,7 @@ class NetworkInteractor {
        this.#cookieMgr.writeCookie(LAST_URL_COOKIE,this.#baseHttpUrl);
        ///redirect to the Log In page
           window.setTimeout(()=>{
-                    window.location.replace(`http://${this.#currHostName}/login`);
+                    window.location.replace(`https://${this.#currHostName}/login`);
                   }, 3000);
     };
     //when anyone had sent a message to a server - a server broadcasting the one
@@ -347,7 +347,7 @@ class NetworkInteractor {
     async connectWs (wsUrl=null) {
 
         if (!wsUrl) {
-            this.#baseWsUrl = `ws://${this.#currHostName}:8080`;
+            this.#baseWsUrl = `wss://${this.#currHostName}`;
         }
         //try to connect
         this.#webSocket =  await new Promise((resolve, reject) => {

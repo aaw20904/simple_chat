@@ -23,12 +23,12 @@ import crypto from 'crypto';
 import { fstat } from 'fs'
 import CleanScheduler from './autocleaner.js';
 
-const https = require('https');
-const fs = require('fs');
+import https from 'https';
+ 
 
 const options = {
-  key: fs.readFileSync('./https.key'),
-  cert: fs.readFileSync('./https.cert'),
+  key: fs.readFileSync('./chat.key'),
+  cert: fs.readFileSync('./chat.cert'),
   rejectUnauthorized:false
 };
 
@@ -50,6 +50,7 @@ let layers77= {
     lastPageCookie: 'lastURL',
     administratorId: null,
     cleanScheduler: null,
+    httpsServerObject: null
 }
 
 //init global interfaces in routes
@@ -91,7 +92,14 @@ let onChatDatabaseConnectedRoutine = async (err) => {
                                                   });
     layers77.authorizeLayer = new AuthorizationUser(layers77.databaseLayer, layers77.cryptoLayer, layers77.authenticationLayer,{AUTH_FAIL_ATTEMPTS:10});
     layers77.registrationLayer = new UserRegistration(layers77.cryptoLayer, layers77.databaseLayer);
-    layers77.websocketLayer  = new WebSocketConnectionManager( layers77.databaseLayer,layers77.authenticationLayer,  8080, 15000);
+    layers77.httpsServerObject = await new Promise((resolve, reject) => {
+                  /*********S T A R T **********/
+                  let server = https.createServer(options, app).listen(443,()=>{
+                                console.log('HTTPS server listen on port :443...');
+                                resolve(server)});
+                //app.listen(80, ()=>console.log('Listen...'))
+                });
+    layers77.websocketLayer  = new WebSocketConnectionManager( layers77.databaseLayer,layers77.authenticationLayer,  8080, 15000, layers77.httpsServerObject);
     layers77.cleanScheduler = new CleanScheduler(layers77);
     //reading cleaner options
     cleanSchedulerOpts = await layers77.databaseLayer.getCleanOptions();
@@ -166,11 +174,8 @@ app.get('/test',async(req,res)=>{
 })
 
 
-/*********S T A R T **********/
-///start to listen
 
-https.createServer(options, app).listen(80,()=>console.log('listen on :80...'));
-//app.listen(80, ()=>console.log('Listen...'))
+
 
 
 
