@@ -54,7 +54,7 @@ export default class UserRegistration {
         //how many time has gone since a cookie has been created?
         let ellapsed = Number(Date.now()) - Number(timestamp);
         if(ellapsed > CAPTCHA_TOKEN_LIFETIME) {
-          return{status:true, value:false, msg:"Too many time has gone! Try again"}
+          return{status:false, value:false, msg:"Too many time has gone! Try again"}
         }
         //get a string
         let text = decrypted.slice(8);
@@ -63,7 +63,7 @@ export default class UserRegistration {
         if (text.localeCompare(enteredText) === 0) {
            return {status:true, value:true }
         } else {
-          return {status:true, value:false , msg:"Wrong captcha code!"}
+          return {status:false, value:false , msg:"Wrong captcha code!"}
         }     
     }
   

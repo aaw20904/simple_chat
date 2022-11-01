@@ -23,7 +23,7 @@ registerRouter.post('/data', async (req, res)=>{
     let checkingCaptcha = await registerRouter._layers77
         .registrationLayer.isRegistrationCookieValid(req.cookies.regisrationInfo, req.body.captcha)
     //*---303 status code: conflict
-    if (checkingCaptcha.value) {
+    if (checkingCaptcha.status) {
         //when a captcha is correct - try to write a new user in the RDBS
         //convert an image avatar
         let avatarImage =   Buffer.from(req.body.usrAvatar,"utf-8");
