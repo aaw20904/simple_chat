@@ -20,10 +20,7 @@ import fs from 'fs';
       this.#pingScanInterval = betheartinterval;
       this.#betheartIntervalHandle = null;
       this.#remoteSockets = new Map();
-      /*const server = createServer({
-        cert: fs.readFileSync('./chat.cert'),
-        key: fs.readFileSync('./chat.key')
-      }).listen(8080);*/
+   
       
       this.#webSocketServer = new WebSocketServer({server});
       //start ping-pong process
