@@ -74,7 +74,7 @@ import fs from 'fs';
              socket.send(JSON.stringify(errorMsg));
              return;
     }
-   // events handlers of client 
+   // events handlers from a client`s requests  
     
     #onClientGetChat = async (authResult, socket) =>{
        let respMsg = {};
@@ -235,13 +235,13 @@ import fs from 'fs';
              let authResult = await this.#authenticationLayer.authenticateUserByCookie(arg.cookie);
         //has a user been authorized fail?
              if (!authResult.status) {
-              //has a user been locked?
-               if(authResult.error == 'LK') {
-                //when locked
-                 socket.send(JSON.stringify({status:false, msg:authResult.msg, command:'error'})); 
-                 return;
-               }
-        //respond with fail status
+                //has a user been locked?
+                if (authResult.error == 'LK') {
+                  //when locked
+                  socket.send(JSON.stringify({status:false, msg:authResult.msg, command:'error'})); 
+                  return;
+                }
+              //responding with a fail status
                   socket.send(JSON.stringify({status:false, msg:authResult.msg, command:'login'})); 
                   return;
              }
@@ -303,15 +303,8 @@ import fs from 'fs';
 
     #socketOnMessage= async (msg, socket)=> {
             let message = msg.toString(); // MSG IS BUFFER OBJECT
-            message = JSON.parse(message);
-           
-
-            //socket.send(`OK ->> ${Date.now().toString('10')}`, ()=>console.log('sent!'));
-            let disconnectReason
-       
-            
+            message = JSON.parse(message);          
             this.#clientInterfaceQueries(message,socket);
-           // console.log( this.#webSocketServer.clients);
             console.log(message);
     };
 
