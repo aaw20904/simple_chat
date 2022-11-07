@@ -246,8 +246,9 @@ div.offline-indicator>span{
 
 a.reference{
   color:darkslategray !important;
-  border: 1px solid darkslategray !important;
-  background-color: lavender !important;
+  border: 2px solid darkslategray !important;
+  background-color: gold !important;
   text-decoration: none !important;
   border-radius: 12px !important;
+  border-color: darkgreen !important;
 }
