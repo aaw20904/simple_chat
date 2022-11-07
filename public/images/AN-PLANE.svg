@@ -1,30 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Creator: CorelDRAW 2019 (64-Bit) -->
-<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="12mm" height="12mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
-viewBox="0 0 120 120"
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="15mm" height="15mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 150 150"
  xmlns:xlink="http://www.w3.org/1999/xlink"
  xmlns:xodm="http://www.corel.com/coreldraw/odm/2003">
  <defs>
   <style type="text/css">
    <![CDATA[
-    .str0 {stroke:#2B2A29;stroke-width:0.762;stroke-miterlimit:22.9256}
-    .fil3 {fill:none}
-    .fil4 {fill:#FEFEFE}
-    .fil1 {fill:#FFED00}
-    .fil2 {fill:#00A0E3}
-    .fil0 {fill:#393185}
+    .str0 {stroke:#2B2A29;stroke-width:2;stroke-miterlimit:22.9256}
+    .str1 {stroke:#2B2A29;stroke-width:0.762;stroke-miterlimit:22.9256}
+    .fil4 {fill:none}
+    .fil1 {fill:#FEFEFE}
+    .fil0 {fill:#00A0E3}
+    .fil3 {fill:#00A0E3}
+    .fil5 {fill:#FEFEFE}
+    .fil2 {fill:#FFED00}
    ]]>
   </style>
  </defs>
  <g id="Слой_x0020_1">
   <metadata id="CorelCorpID_0Corel-Layer"/>
-  <path class="fil0 str0" d="M23.127 39.675c0,0 4.106,-12.924 -1.521,-13.685 -5.626,-0.761 -8.073,10.301 -8.073,10.301l9.594 3.384z"/>
-  <path class="fil1 str0" d="M27.919 48.6c2.301,-1.151 50.259,-4.043 73.959,0.684 2.525,0.503 3.034,4.748 4.922,5.434 3.802,1.381 12.341,2.033 11.974,4.763 -1.528,11.386 -31.554,9.189 -44.023,9.494 -12.468,0.304 -52.915,6.082 -60.213,-4.866 -7.299,-10.947 -9.124,-23.721 -5.17,-26.762 3.954,-3.041 11.252,-3.345 14.901,3.954 3.65,7.299 3.65,7.299 3.65,7.299z"/>
-  <path class="fil0 str0" d="M46.773 46.776c0,0 15.51,-39.839 29.499,-36.19 13.989,3.649 -8.819,35.885 -8.819,35.885l-20.68 0.305z"/>
-  <path class="fil2 str0" d="M44.035 57.419c0,0 -29.802,52.915 -13.076,53.22 16.726,0.304 31.323,-54.436 31.323,-54.436l-18.247 1.216z"/>
-  <ellipse class="fil3 str0" cx="77.127" cy="55.538" rx="2.888" ry="2.087"/>
-  <path class="fil0 str0" d="M10.892 46.697c0,0 -7.909,18.248 -1.219,18.551 6.691,0.304 11.254,-17.943 11.254,-17.943l-10.035 -0.608z"/>
-  <path class="fil4 str0" d="M93.416 48.226c0,0 -1.186,6.735 0.335,7.268 1.52,0.532 9.882,0.208 10.72,-0.533 0.838,-0.74 -1.602,-5.688 -2.204,-5.55 -0.603,0.138 -8.851,-1.185 -8.851,-1.185z"/>
+  <path class="fil0 str0" d="M95.615 42.082c0,0 -22.265,-1.561 -25.33,0 -3.066,1.562 -4.801,4.974 -0.926,8.097 3.875,3.123 26.001,1.381 26.001,1.381l0.255 -9.478z"/>
+  <ellipse class="fil1 str0" cx="97.033" cy="46.825" rx="3.324" ry="4.742"/>
+  <path class="fil0 str0" d="M73.317 93.787c0,0 -22.265,-1.561 -25.33,0 -3.066,1.562 -4.801,4.974 -0.926,8.097 3.875,3.123 26.001,1.381 26.001,1.381l0.255 -9.478z"/>
+  <ellipse class="fil1 str0" cx="74.735" cy="98.53" rx="3.324" ry="4.742"/>
+ </g>
+ <g id="Слой_x0020_1_0">
+  <metadata id="CorelCorpID_1Corel-Layer"/>
+  <path class="fil0 str1" d="M38.127 54.675c0,0 4.106,-12.924 -1.521,-13.685 -5.626,-0.761 -8.073,10.301 -8.073,10.301l9.594 3.384z"/>
+  <path class="fil2 str1" d="M42.919 63.6c2.301,-1.151 50.259,-4.043 73.959,0.684 2.525,0.503 3.034,4.748 4.922,5.434 3.802,1.381 12.341,2.033 11.974,4.763 -1.528,11.386 -31.554,9.189 -44.023,9.494 -12.468,0.304 -52.915,6.082 -60.213,-4.866 -7.299,-10.947 -9.124,-23.721 -5.17,-26.762 3.954,-3.041 11.252,-3.345 14.901,3.954 3.65,7.299 3.65,7.299 3.65,7.299z"/>
+  <path class="fil0 str1" d="M61.773 61.776c0,0 15.51,-39.839 29.499,-36.19 13.989,3.649 -8.819,35.885 -8.819,35.885l-20.68 0.305z"/>
+  <path class="fil3 str1" d="M59.035 72.419c0,0 -29.802,52.915 -13.076,53.22 16.726,0.304 31.323,-54.436 31.323,-54.436l-18.247 1.216z"/>
+  <ellipse class="fil4 str1" cx="92.127" cy="70.538" rx="2.888" ry="2.087"/>
+  <path class="fil0 str1" d="M25.892 61.697c0,0 -7.909,18.248 -1.219,18.551 6.691,0.304 11.254,-17.943 11.254,-17.943l-10.035 -0.608z"/>
+  <path class="fil5 str1" d="M108.416 63.226c0,0 -1.186,6.735 0.335,7.268 1.52,0.532 9.882,0.208 10.72,-0.533 0.838,-0.74 -1.602,-5.688 -2.204,-5.55 -0.603,0.138 -8.851,-1.185 -8.851,-1.185z"/>
  </g>
 </svg>
