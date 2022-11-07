@@ -212,3 +212,11 @@ input[disabled]{
 .hide-element{
   display:none !important;
 }
+
+a.reference{
+  border: 1px solid darksalmon !important;
+  background-color: lavender !important;
+  text-decoration: none !important;
+  border-radius: 12px !important;
+}
+
