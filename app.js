@@ -123,13 +123,11 @@ let onChatDatabaseConnectedRoutine = async (err) => {
         host: DATABASE_HOST,
         database: DATABASE_NAME,
         
-        /* ssl:{
-                ca: fs.readFileSync(...),
-                /*You can also connect to a MySQL server
-                without properly providing the appropriate CA to trust.
-                You should not do this.*/
-                //rejectUnauthorized: FALSE,
-        // } */
+        ssl:{
+        ca: fs.readFileSync('./database.key'),
+        key: fs.readFileSync('./database.pub'),
+        rejectUnauthorized: false
+      }
     
      });
  ///DATABASE EVENT HANDLER onConnectDB
