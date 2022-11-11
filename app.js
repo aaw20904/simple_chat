@@ -26,11 +26,17 @@ import CleanScheduler from './autocleaner.js';
 import https from 'https';
  
 
-const options = {
-  key: fs.readFileSync('./chat.key'),
-  cert: fs.readFileSync('./chat.cert'),
+const rdbmsOptions = {
+  key: fs.readFileSync('./for_rdbms.key'),
+  ca: fs.readFileSync('./for_rdbms.crt'),
   rejectUnauthorized:false
 };
+
+const httpsOptions = {
+  key: fs.readFileSync('./server.key'),
+  cert: fs.readFileSync('./server.crt')
+
+}
 
 const DATABASE_USER='root';
 const DATABASE_HOST='localhost';
@@ -94,7 +100,7 @@ let onChatDatabaseConnectedRoutine = async (err) => {
     layers77.registrationLayer = new UserRegistration(layers77.cryptoLayer, layers77.databaseLayer);
     layers77.httpsServerObject = await new Promise((resolve, reject) => {
                   /*********S T A R T **********/
-                  let server = https.createServer(options, app).listen(443,()=>{
+                  let server = https.createServer(httpsOptions, app).listen(443,()=>{
                                 console.log('HTTPS server listen on port :443...');
                                 resolve(server)});
                 //app.listen(80, ()=>console.log('Listen...'))
@@ -123,11 +129,7 @@ let onChatDatabaseConnectedRoutine = async (err) => {
         host: DATABASE_HOST,
         database: DATABASE_NAME,
         
-        ssl:{
-        ca: fs.readFileSync('./database.key'),
-        key: fs.readFileSync('./database.pub'),
-        rejectUnauthorized: false
-      }
+        ssl:rdbmsOptions,
     
      });
  ///DATABASE EVENT HANDLER onConnectDB
