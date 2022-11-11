@@ -20,6 +20,11 @@
             node.classList.add('hide')
         }
     }
+
+    let smilesInst =  new SmilesPanel(document.querySelector('.smileShowButton'), 
+                                        document.querySelector('.messageInput'),
+                                        document.querySelector('.smilePanell')); 
+
  }
 
 
@@ -489,4 +494,53 @@ class Toast {
         toastList.forEach(toast => toast.show()) ;*/
     }
 
+}
+
+class SmilesPanel {
+    #showButtonNode;
+    #textInputNode;
+    #panellNode;
+
+    #onCallPanel = (evt) =>{
+          //when hide -show a  panel with smiles
+        if (this.#panellNode.classList.contains('scale-out-center')) {
+            this.#panellNode.classList.remove('scale-out-center');
+            this.#panellNode.classList.add('scale-in-center');
+            this.#showButtonNode.innerText = 'hide smiles';
+        } else {
+          //othervise - hide
+            this.#panellNode.classList.remove('scale-in-center');
+            this.#panellNode.classList.add('scale-out-center');
+            this.#showButtonNode.innerText = 'Smiles..';
+        }
+        
+    };
+
+    #onPasteSmile = (evt) => {
+      
+      //get a symbol
+      let smile = evt.target.innerText;
+      //get a string
+      let string = this.#textInputNode.value;
+      //concat
+      string = `${string}${smile}`;
+      //assign a new value
+      this.#textInputNode.value = string;
+
+    };
+
+    constructor (showButton=null, textInput=null, panellNode=null) {
+        this.#showButtonNode = showButton;
+        this.#textInputNode = textInput;
+        this.#panellNode = panellNode;
+        //add listener to open/close panel 
+        this.#showButtonNode.addEventListener('click', this.#onCallPanel);
+        //get live button colection
+        let buttons = Array.prototype.slice.call(this.#panellNode.children);
+        //add listener to buttons
+        buttons.forEach(element => {
+            element.addEventListener('click',this.#onPasteSmile);
+        });
+
+    }
 }

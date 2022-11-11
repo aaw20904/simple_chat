@@ -21,11 +21,28 @@
   <section class="container-fluid p-1">
    <div class="d-flex flex-column justify-content-end align-items-end my-2" id="2f869fd1941f5e46">
          
-       <textarea class="form-control chat_input"   name="myTextarea" placeholder="Type your message here"   minlength="1" maxlength="250" required></textarea>
+       <textarea class="form-control chat_input messageInput"   name="myTextarea" placeholder="Type your message here"   minlength="1" maxlength="250" required></textarea>
        <img src="../images/send.svg" class="rounded send_button btn-primary m-2">
     </div>
   </section>
 
+
+<!--smiles-->
+ <button type="button" class="m-1 btn smileShowButton btn-primary">Smiles..</button>
+  <!-- SMILE PANELL-->
+  <section class="scale-out-center m-2 d-flex flex-row flex-wrap justify-content-start align-items-center smilePanell">
+    <div style="cursor:pointer" class="p-1">😀</div>
+    <div style="cursor:pointer" class="p-1" >😜</div>
+    <div style="cursor:pointer" class="p-1">🙁</div>
+    <div style="cursor:pointer" class="p-1">😠</div>
+    <div style="cursor:pointer" class="p-1">😲</div>
+    <div style="cursor:pointer" class="p-1">🖐️</div>
+    <div style="cursor:pointer" class="p-1">👍</div>
+    <div style="cursor:pointer" class="p-1">👎</div>
+    <div style="cursor:pointer" class="p-1">✈️</div>
+    <div style="cursor:pointer" class="p-1">🚲</div>
+  </section>
+   <!--toast-->
    <div class="position-fixed bottom-0 end-0 p-3 " style="z-index: 11">
       <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
