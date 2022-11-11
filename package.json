@@ -14,7 +14,7 @@
     "mysql2": "^2.3.3"
   },
   "devDependencies": {
-    "bcrypt": "^5.0.1",
+    "bcrypt": "^5.1.0",
     "cookie-parser": "^1.4.6",
     "cron": "^2.1.0",
     "ejs": "^3.1.8",
