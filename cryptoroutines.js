@@ -1,7 +1,7 @@
-import crypto from 'crypto';
-import bcrypt from 'bcrypt';
+const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 
-export default class CryptoProcedures {
+module.exports =  class CryptoProcedures {
     constructor  (arg={pubKey:Buffer.from([0x01]), initVect:Buffer.from([0x01])}) {
         //making a hide property
       this.privateMembers = new WeakMap();

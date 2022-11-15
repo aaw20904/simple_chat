@@ -1,8 +1,9 @@
 
-import  express from "express"
-import cookieParser from "cookie-parser"
+const  express = require( "express");
+const cookieParser = require( "cookie-parser");
  let logoffRouter = express.Router();
 
+module.exports = logoffRouter;
  logoffRouter.use(express.json({extended:true}));
  logoffRouter.use(cookieParser())
 
@@ -32,4 +33,4 @@ logoffRouter.get("/",async (req, res)=>{
 
 }); 
 
-export {logoffRouter as default}
+ 

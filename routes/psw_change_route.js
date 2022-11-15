@@ -1,7 +1,8 @@
-import  express from "express"
-import cookieParser from "cookie-parser"
+const  express = require( "express");
+const cookieParser = require( "cookie-parser");
  let pswChangeRouter = express.Router();
 
+module.exports = pswChangeRouter;
  pswChangeRouter.use(express.urlencoded({extended:true}));
  pswChangeRouter.use(cookieParser());
  pswChangeRouter.use( (req, res, next)=>{
@@ -49,4 +50,4 @@ import cookieParser from "cookie-parser"
         // res.render('okay.ejs', {time: new Date().toLocaleTimeString()});
  })
 
- export {pswChangeRouter as default}
+  

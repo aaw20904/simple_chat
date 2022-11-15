@@ -1,9 +1,9 @@
-import WebSocket, { WebSocketServer } from 'ws';
-import { createServer } from 'https';
-import fs from 'fs';
+const WebSocketServer = require('ws').WebSocketServer;
+const createServer =  require('https').createServer;
+const fs =  require('fs');
 /***************************C L A S S  */
 
-  class WebSocketConnectionManager {
+ module.exports =  class WebSocketConnectionManager {
     #authenticationLayer;
     #databaseLayer;
     #betheartInterval;
@@ -353,4 +353,4 @@ import fs from 'fs';
  
 }
 
-export {WebSocketConnectionManager as default}
+

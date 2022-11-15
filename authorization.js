@@ -1,4 +1,4 @@
-export default class AuthorizationUser {
+module.exports =  class AuthorizationUser {
     constructor (dbInterface, cryptoRoutines, userAuthentication, userConstraints) {
           //making a hide property
         this.privateMembers = new WeakMap();

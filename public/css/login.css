@@ -30,3 +30,16 @@
 .hide-item{
     display: none !important;
 }
+
+a{
+    border:none !important;
+    background-color:lightsalmon !important;
+    color: darkslategrey !important;
+    transition: all ease 0.3s;
+    border-radius: 8px;
+}
+
+a:hover{
+    color:lightsalmon !important;
+    background-color: darkslategrey !important;
+}

@@ -1,6 +1,6 @@
 
 
-export default class UserAuthentication {
+module.exports =  class UserAuthentication {
     constructor (CryptoProcedures, DBinterface, userConstraints={ //in milliseconds
                                                                 AUTH_COOKIE_LIFE_TIME:600000,
                                                                 AUTH_COOKIE_UPDATE_THRESHOLD:30000,

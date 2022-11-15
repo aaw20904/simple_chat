@@ -1,6 +1,7 @@
-import  express from "express"
-import cookieParser from "cookie-parser"
+const  express = require( "express");
+const cookieParser = require( "cookie-parser");
 let loginRouter = express.Router();
+module.exports=loginRouter;
 
  loginRouter.use(express.urlencoded({extended:true}));
  loginRouter.use(express.json());
@@ -52,4 +53,3 @@ loginRouter.post('/data', async (req, res)=>{
     // res.render('okay.ejs', {time: new Date().toLocaleTimeString()});
 })
 
-export {loginRouter as default}

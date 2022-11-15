@@ -1,6 +1,8 @@
-import  express from "express"
-import cookieParser from "cookie-parser"
- let registerRouter = express.Router();
+let express = require( "express");
+let cookieParser = require("cookie-parser");
+let registerRouter = express.Router();
+
+module.exports = registerRouter;
 
  registerRouter.use(express.json({extended:true}));
  registerRouter.use(cookieParser())
@@ -70,5 +72,5 @@ registerRouter.post('/data', async (req, res)=>{
 })
 
  
-export {registerRouter as default}
+
  //module.exports=routerx;

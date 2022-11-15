@@ -1,8 +1,8 @@
 
-import  express from "express"
-import cookieParser from "cookie-parser"
+const  express = require( "express");
+const cookieParser = require( "cookie-parser");
 let adminRouter = express.Router();
-
+module.exports=adminRouter;
 adminRouter.use(cookieParser({extended:true}));
 adminRouter.use(express.json({extended:true}));
 
@@ -491,4 +491,4 @@ adminRouter.post('/data',async (req,res)=>{
 })
 
 
-export {adminRouter as default}
+ 

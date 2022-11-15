@@ -1,6 +1,6 @@
-import cron from 'cron';
+let  cron = require('cron');
 
- export default   class CleanScheduler { 
+module.exports =   class CleanScheduler { 
 	#_layers77;  
 	#cronFormatSrting;
 	#cronJob;

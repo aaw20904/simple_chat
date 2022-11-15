@@ -1,29 +1,29 @@
 
-import WebSocketConnectionManager from './websock_mgr.js'
-import sizeof from 'object-sizeof'
-import cookieParser from "cookie-parser"
-import  registerRouter  from './routes/register_route.js'
-import loginRouter from './routes/login_route.js'
-import logoffRouter from './routes/logoff_route.js'
-import adminRouter from "./routes/admin_route.js"
-import clientRouter from "./routes/client_route.js"
-import pswChangeRouter from "./routes/psw_change_route.js";
-import UserRegistration from "./registration.js";
-import AuthorizationUser from './authorization.js';
-import DBinterface  from './database.js';
-import WebSocket, { WebSocketServer } from 'ws';
-import express from 'express';
-import mysql from 'mysql2';
-import fs from 'fs';
-import svgCaptcha from 'svg-captcha';
+const WebSocketConnectionManager = require( './websock_mgr.js');
+const sizeof = require( 'object-sizeof');
+const cookieParser = require( "cookie-parser");
+const  registerRouter  = require( './routes/register_route.js');
+const loginRouter = require( './routes/login_route.js');
+const logoffRouter = require( './routes/logoff_route.js');
+const adminRouter = require( "./routes/admin_route.js");
+const clientRouter = require( "./routes/client_route.js");
+const pswChangeRouter = require( "./routes/psw_change_route.js");
+const UserRegistration = require( "./registration.js");
+const AuthorizationUser = require( './authorization.js');
+const DBinterface  = require( './database.js');
+const WebSocketServer = require( 'ws').WebSocketServer;
+const express = require( 'express');
+const mysql = require( 'mysql2');
+const fs = require( 'fs');
+const svgCaptcha = require( 'svg-captcha');
 
-import CryptoProcedures from './cryptoroutines.js';
-import UserAuthentication from './authentication.js';
-import crypto from 'crypto';
-import { fstat } from 'fs'
-import CleanScheduler from './autocleaner.js';
+const CryptoProcedures = require( './cryptoroutines.js');
+const UserAuthentication = require( './authentication.js');
+const crypto = require( 'crypto');
+const { fstat } = require( 'fs');
+const CleanScheduler = require( './autocleaner.js');
 
-import https from 'https';
+const https = require( 'https');
  
 
 const rdbmsOptions = {

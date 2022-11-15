@@ -1,7 +1,7 @@
 
-import svgCaptcha from 'svg-captcha';
+const svgCaptcha = require('svg-captcha');
 
-export default class UserRegistration {
+module.exports =  class UserRegistration {
     constructor(cryptoProcedures, dbInterface) {
        //making a hide property
         this.privateMembers = new WeakMap();
