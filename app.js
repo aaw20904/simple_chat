@@ -43,6 +43,26 @@ const DATABASE_HOST='localhost';
 const DATABASE_PASSWORD='65535258';
 const DATABASE_NAME='chat';
 
+/** for the aws instance--
+ const rdbmsOptions = {
+  key: fs.readFileSync('./for_rdbms.key'),
+  ca: fs.readFileSync('./for_rdbms.crt'),
+  rejectUnauthorized:false
+};
+
+const httpsOptions = {
+  key: fs.readFileSync('./server.key'),
+  cert: fs.readFileSync('./server.crt')
+
+}
+
+const DATABASE_USER='chat';
+const DATABASE_HOST='13.40.126.133';
+const DATABASE_PASSWORD='65535258';
+const DATABASE_NAME='chat';
+ 
+ */
+
 let app= express();
 /****global Instances of classes */
 let layers77= {
