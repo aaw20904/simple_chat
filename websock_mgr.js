@@ -4,13 +4,6 @@ const fs =  require('fs');
 /***************************C L A S S  */
 
  module.exports =  class WebSocketConnectionManager {
-    #authenticationLayer;
-    #databaseLayer;
-    #betheartInterval;
-    #betheartIntervalHandle;
-    #remoteSockets;
-    #webSocketServer;
-    #pingScanInterval;
 
 
   constructor (databaseLayer, authenticationLayer, port, betheartinterval=10000, server=null) {
