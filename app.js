@@ -53,7 +53,6 @@ const DATABASE_NAME='chat';
 const httpsOptions = {
   key: fs.readFileSync('./server.key'),
   cert: fs.readFileSync('./server.crt')
-
 }
 
 const DATABASE_USER='chat';
