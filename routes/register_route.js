@@ -48,7 +48,6 @@ registerRouter.post('/data', async (req, res)=>{
             //send a response
             res.json({msg:rdbmsResult.msg});
             return;
-
         }
         //if the user has been written successfully
         res.clearCookie('regisrationInfo');

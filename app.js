@@ -112,7 +112,7 @@ let onChatDatabaseConnectedRoutine = async (err) => {
     layers77.cryptoLayer = new CryptoProcedures(keys.results );
     layers77.authenticationLayer = new UserAuthentication(layers77.cryptoLayer, layers77.databaseLayer,{
                                                       AUTH_COOKIE_LIFE_TIME: 3600000,//all the fields are in  milliseconds
-                                                      AUTH_COOKIE_UPDATE_THRESHOLD: 30000,//all the fields are in  milliseconds
+                                                      AUTH_COOKIE_UPDATE_THRESHOLD: 60000,//all the fields are in  milliseconds
                                                       AUTH_FAIL_ATTEMPTS: 10,
                                                   });
     layers77.authorizeLayer = new AuthorizationUser(layers77.databaseLayer, layers77.cryptoLayer, layers77.authenticationLayer,{AUTH_FAIL_ATTEMPTS:10});

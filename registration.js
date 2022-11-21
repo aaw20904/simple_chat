@@ -38,7 +38,7 @@ module.exports =  class UserRegistration {
     }
   
     async isRegistrationCookieValid (cookie="*", enteredText="*") {
-        const CAPTCHA_TOKEN_LIFETIME = 60000;
+        const CAPTCHA_TOKEN_LIFETIME = 180000;
         let cryptoProc = this.privateMembers.get(this).cryptoProc;
         //decrypt, convert plain text to Buffer 
         let decrypted;
