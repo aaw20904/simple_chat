@@ -4,7 +4,7 @@
 .links_container{background-color:#ffefd5!important}
 .scroll_animation{bottom:80px;left:80px;position:fixed}
 .titlepart{font-family:Roboto Mono!important;font-size:calc(35px + 2.5vw)!important}
-.references{background-color:#bdb76b;border-radius:8px;color:#2f4f4f;font-family:Roboto Mono;font-size:calc(2vw)!important;text-decoration:none;transition:all .5s ease}
+.references{background-color:#bdb76b;border-radius:8px;color:#2f4f4f;font-family:Roboto Mono;font-size:calc(22px + 1vw)!important;text-decoration:none;transition:all .5s ease}
 .references:before{-webkit-animation:rotation_fw 2s linear infinite;animation:rotation_fw 2s linear infinite}
 .references:after,.references:before{content:url(../images/propeller.svg);display:inline-block}
 .references:after{-webkit-animation:rotation_bckw 2s linear infinite;animation:rotation_bckw 2s linear infinite}@-webkit-keyframes rotation_fw{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}
