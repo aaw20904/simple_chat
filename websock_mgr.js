@@ -70,7 +70,7 @@ const fs =  require('fs');
                       socket.send(JSON.stringify(respBody));
 
                 } catch (e) {
-                  pmVar.sendErrorToClient(socket,"Inernal server error!");
+                  pmVar.sendErrorToClient(socket,`Inernal server error! ${e}`);
                 }
 
           },
@@ -141,10 +141,12 @@ const fs =  require('fs');
               if (!key) {
                 throw new Error('BAD identifier!')
               } else if ( pmVar.remoteSockets.has(key)) {
+
                 return {status:false, msg: 'User has been already registered!'};
               }
                 arg.socket.idOfClient456 = arg.id;
                 pmVar.remoteSockets.set(key,arg.socket);
+                console.log('\x1b[33m%s\x1b[0m', `Register a user ${key} in LIST`)
                 return {status:true, msg:"Added"}
           },
 
@@ -159,6 +161,7 @@ const fs =  require('fs');
                 throw new Error('BAD identifier!')
               }
               pmVar.remoteSockets.delete(key);
+              console.log('\x1b[33m%s\x1b[0m', `Remove a user ${key} from the LIST`);
           },
 
           sendMessageToRemoteClient: (arg={id:null, msg:{}}) =>{
@@ -243,9 +246,11 @@ const fs =  require('fs');
 
                 //#interval;
           onServerConnection: (socket, req)=> {
-            // (B1) SEND MESSAGE TO CLIENT
+            let xadr = socket._socket.address();
+            console.log('\x1b[33m%s\x1b[0m', `A new client ${JSON.stringify(xadr)} has been connected to WS server`)
                   socket.send(JSON.stringify({command:"conn", 
                   msg:`Welcome! ${new Date().toLocaleTimeString()}`}));
+                  socket.cntOfTimeouts = 0|0;
                   socket.isAlive = true;
                   socket.on('pong', pmVar.socketOnHeartbeat);
                   socket.on('message',(msg)=>pmVar.socketOnMessage(msg,socket));
@@ -258,8 +263,9 @@ const fs =  require('fs');
           },
 
           socketOnHeartbeat: (socket) => {
-            console.log(`beat: ${new Date().toLocaleTimeString()}`)
+            console.log(`pong->: ${new Date().toLocaleTimeString()}`)
             socket.isAlive = true;
+            socket.cntOfTimeouts = 0;
           },
 
           socketOnMessage: async (msg, socket)=> {
@@ -280,8 +286,9 @@ const fs =  require('fs');
               }
             //notify all the clients that the client (usrId) has been disconnected
               pmVar.sendNet_stToClients(usrId, false);
-              console.log(code);
-              console.log(reason);
+              //debog info
+              let xadr = socket._socket.address();
+              console.log('\x1b[33m%s\x1b[0m', `A client ${JSON.stringify(xadr)} has been disconnected from WS server: ${reason}, ${code}`);
           },
 
           //@msgData - it is an object with avatar, userMessage e.t.c
@@ -300,11 +307,14 @@ const fs =  require('fs');
           },
 
           onPingInterval: ()=> {
+            console.log('\x1b[36m%s\x1b[0m', '<<ping interval>>')
             pmVar.webSocketServer.clients.forEach(function each(ws) {
-                  if (ws.isAlive === false) {
+                  if ((ws.isAlive === false) ) {
                     console.log('Connection closed!');
                     return ws.terminate();
                   }
+                  ws.cntOfTimeouts += 1;
+                  console.log('\x1b[34m%s\x1b[0m', `${ws.cntOfTimeouts},${JSON.stringify(ws._socket.address())}`);
                   //when live
                     ws.ping();
                   });

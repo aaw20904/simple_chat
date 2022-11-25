@@ -111,8 +111,8 @@ let onChatDatabaseConnectedRoutine = async (err) => {
     //create an instance init key and vect
     layers77.cryptoLayer = new CryptoProcedures(keys.results );
     layers77.authenticationLayer = new UserAuthentication(layers77.cryptoLayer, layers77.databaseLayer,{
-                                                      AUTH_COOKIE_LIFE_TIME: 3600000,//all the fields are in  milliseconds
-                                                      AUTH_COOKIE_UPDATE_THRESHOLD: 60000,//all the fields are in  milliseconds
+                                                      AUTH_COOKIE_LIFE_TIME: 7200000,//all the fields are in  milliseconds
+                                                      AUTH_COOKIE_UPDATE_THRESHOLD: 180000,//all the fields are in  milliseconds
                                                       AUTH_FAIL_ATTEMPTS: 10,
                                                   });
     layers77.authorizeLayer = new AuthorizationUser(layers77.databaseLayer, layers77.cryptoLayer, layers77.authenticationLayer,{AUTH_FAIL_ATTEMPTS:10});
@@ -124,7 +124,7 @@ let onChatDatabaseConnectedRoutine = async (err) => {
                                 resolve(server)});
                 //app.listen(80, ()=>console.log('Listen...'))
                 });
-    layers77.websocketLayer  = new WebSocketConnectionManager( layers77.databaseLayer,layers77.authenticationLayer,  8080, 15000, layers77.httpsServerObject);
+    layers77.websocketLayer  = new WebSocketConnectionManager( layers77.databaseLayer,layers77.authenticationLayer,  8080, 5000, layers77.httpsServerObject);
     layers77.cleanScheduler = new CleanScheduler(layers77);
     //reading cleaner options
     cleanSchedulerOpts = await layers77.databaseLayer.getCleanOptions();
