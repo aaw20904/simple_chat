@@ -1,7 +1,7 @@
 const WebSocketServer = require('ws').WebSocketServer;
 const createServer =  require('https').createServer;
 const fs =  require('fs');
-/***************************C L A S S  */
+/***************************C L A S S  ******/
 
  module.exports =  class WebSocketConnectionManager {
 
