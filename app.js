@@ -1,5 +1,6 @@
 
 /***updated version 01.02.23 **/
+var cookieFromString = require('cookie');
 const WebSocketConnectionManager = require( './websock_mgr.js');
 const sizeof = require( 'object-sizeof');
 const cookieParser = require( "cookie-parser");
@@ -127,7 +128,7 @@ let onChatDatabaseConnectedRoutine = async (err) => {
                     server.on ('upgrade', function upgrade(req, socket, head) {
                         socket.on('error', (e)=>{});
                         //auhenticate here
-                        console.log(`client's cookie: ${req.headers.cookie}`)
+                        console.log(cookieFromString.parse(req.headers.cookie).sessionInfo);
                         //when a user has been authenticated successfully - calls ws event:
                         layers77.websocketLayer.initWsCallback(req, socket, head)
                     }) 
