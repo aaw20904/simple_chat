@@ -9,7 +9,7 @@ const fs =  require('fs');
   constructor (databaseLayer, authenticationLayer, port, betheartinterval=10000, server=null) {
        
   /**------ */
-  //create a private member object-container
+  //create a private member object-container-----
       let pmVar = {
         databaseLayer:databaseLayer,
         authenticationLayer: authenticationLayer,
