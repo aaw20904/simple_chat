@@ -1,4 +1,5 @@
 
+/***updated version 01.02.23 **/
 const WebSocketConnectionManager = require( './websock_mgr.js');
 const sizeof = require( 'object-sizeof');
 const cookieParser = require( "cookie-parser");
@@ -63,7 +64,7 @@ const DATABASE_NAME='chat';
  */
 
 let app= express();
-/****global Instances of classes ***********/
+/****global Instances of classes ***************/
 let layers77= {
     databaseLayer: null,
     cryptoLayer: null,
