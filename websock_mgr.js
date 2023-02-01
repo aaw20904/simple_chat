@@ -9,7 +9,7 @@ const fs =  require('fs');
   constructor (databaseLayer, authenticationLayer, port, betheartinterval=10000, server=null) {
        
   /**------ */
-  //create a private member object-container-----
+  //create a private member object-container
       let pmVar = {
         databaseLayer:databaseLayer,
         authenticationLayer: authenticationLayer,
@@ -17,7 +17,10 @@ const fs =  require('fs');
         betheartIntervalHandle: null,
         remoteSockets:new Map(),
         //declare and activate a WEB Socket server
-        webSocketServer: new WebSocketServer({server}),
+        //our ws server hasn`t any http(s) instance
+        //instead of the one - there a http(s) server calls a handleUpgrade() method
+        //of an ws instance  
+        webSocketServer: new WebSocketServer({noServer:true, clientTracking:true}),
 
           sendNet_stToClients: (usrId, online) =>{
               let parcel = {
@@ -38,10 +41,21 @@ const fs =  require('fs');
               return;
           },
 
+          //when a WS handshake in action: this callback function calls by a http(s) server
+          //!! must be deleted - because it isa public method !!
+          wsUpgradeCallback: (req, socket, head) =>{
+              webSocketServer.handleUpgrade(req, socket, head, function done(ws) { 
+              //assign a property
+              ws.w5ft = req.socket.remotePort;
+              ws.liveState = true;
+              webSocketServer.emit('connection', ws, req);
+            })
+          },
+
             // events handlers from a client`s requests  
 
           onClientGetChat: async (authResult, socket) =>{
-            let respMsg = {};
+                let respMsg = {};
                 ///has a user been registered in a broadcast procedure?
                 if (! pmVar.remoteSockets.has(authResult.results.info.usrId)) {
                   //sending error message
@@ -327,7 +341,10 @@ const fs =  require('fs');
   this.pmGetter = new WeakMap();
   //asiign members
   this.pmGetter.set(this, pmVar);
+
+  
 /**---------- */
+  
 
       //start ping-pong process
         pmVar.betheartIntervalHandle = setInterval(pmVar.onPingInterval, pmVar.pingScanInterval);
@@ -340,6 +357,17 @@ const fs =  require('fs');
 
 
   /*----------------P U B L I C    M E T H O D S--------- */
+
+  /**when a http server recive WS request - it calls this callback */
+      initWsCallback (req, socket, head) {
+        let privGetter = this.pmGetter.get(this);
+           privGetter.webSocketServer.handleUpgrade(req, socket, head, function done(ws) { 
+              //assign a property
+              ws.w5ft = req.socket.remotePort;
+              ws.liveState = true;
+              privGetter.webSocketServer.emit('connection', ws, req);
+            })
+          }
 /**@ when a database has been changed after cleaning 
  it needs to update DOM structure on client side  */
   notifyAllTheClientsToUpdate () {

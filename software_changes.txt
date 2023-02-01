@@ -1,0 +1,13 @@
+/******/
+1.02.23
+/*# reason: Improvement of auto-reconnect client to server.
+The software isn`t working correctly  */
+
+a) The last parameter of the class 'WebSocketConnectionManager' will not uses at all - because 
+ the websocket server will run apart from a HTTP server.
+b) When the client tries to connect to WS - 
+the event 'upgrade' appears on the  http server. Then the event handler of the http server process client`s data 
+(cookies for authentication) and if neccessary runs callbacks on webSocket instance
+for authorization.
+c) Then  calls websocket`s method 'handleUpgrade()' with the callback.
+This calback  in turn calls websocket`s 'emit(`connection`, , )'  method.
