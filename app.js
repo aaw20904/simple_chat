@@ -127,6 +127,7 @@ let onChatDatabaseConnectedRoutine = async (err) => {
                     server.on ('upgrade', function upgrade(req, socket, head) {
                         socket.on('error', (e)=>{});
                         //auhenticate here
+                        console.log(`client's cookie: ${req.headers.cookie}`)
                         //when a user has been authenticated successfully - calls ws event:
                         layers77.websocketLayer.initWsCallback(req, socket, head)
                     }) 

@@ -41,16 +41,7 @@ const fs =  require('fs');
               return;
           },
 
-          //when a WS handshake in action: this callback function calls by a http(s) server
-          //!! must be deleted - because it isa public method !!
-          wsUpgradeCallback: (req, socket, head) =>{
-              webSocketServer.handleUpgrade(req, socket, head, function done(ws) { 
-              //assign a property
-              ws.w5ft = req.socket.remotePort;
-              ws.liveState = true;
-              webSocketServer.emit('connection', ws, req);
-            })
-          },
+          
 
             // events handlers from a client`s requests  
 
