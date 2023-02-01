@@ -359,15 +359,15 @@ const fs =  require('fs');
   /*----------------P U B L I C    M E T H O D S--------- */
 
   /**when a http server recive WS request - it calls this callback */
-      initWsCallback (req, socket, head) {
-        let privGetter = this.pmGetter.get(this);
-           privGetter.webSocketServer.handleUpgrade(req, socket, head, function done(ws) { 
-              //assign a property
-              ws.w5ft = req.socket.remotePort;
-              ws.liveState = true;
-              privGetter.webSocketServer.emit('connection', ws, req);
-            })
-          }
+  initWsCallback (req, socket, head) {
+    let privGetter = this.pmGetter.get(this);
+        privGetter.webSocketServer.handleUpgrade(req, socket, head, function done(ws) { 
+          //assign a property
+          ws.w5ft = req.socket.remotePort;
+          ws.liveState = true;
+          privGetter.webSocketServer.emit('connection', ws, req);
+        })
+      }
 /**@ when a database has been changed after cleaning 
  it needs to update DOM structure on client side  */
   notifyAllTheClientsToUpdate () {
