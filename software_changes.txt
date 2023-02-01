@@ -9,5 +9,8 @@ b) When the client tries to connect to WS -
 the event 'upgrade' appears on the  http server. Then the event handler of the http server process client`s data 
 (cookies for authentication) and if neccessary runs callbacks on webSocket instance
 for authorization.
-c) Then  calls websocket`s method 'handleUpgrade()' with the callback.
+c) Then the http server calls websocket`s method 'handleUpgrade()' with the callback.
 This calback  in turn calls websocket`s 'emit(`connection`, , )'  method.
+                    *   *   *
+SHORTLY: add method 'initWsCallback(req, socket, head)' on the class 'WebSocketConnectionManager',
+ ths method calls by the HTTPS server.
