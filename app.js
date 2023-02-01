@@ -63,7 +63,7 @@ const DATABASE_NAME='chat';
  */
 
 let app= express();
-/****global Instances of classes */
+/****global Instances of classes ***********/
 let layers77= {
     databaseLayer: null,
     cryptoLayer: null,
