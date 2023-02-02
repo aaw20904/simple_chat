@@ -121,21 +121,20 @@ let onChatDatabaseConnectedRoutine = async (err) => {
     layers77.registrationLayer = new UserRegistration(layers77.cryptoLayer, layers77.databaseLayer);
     layers77.httpsServerObject = await new Promise((resolve, reject) => {
                   /*********S T A R T **********/
-                  let server = https.createServer(httpsOptions, app).listen(443,()=>{
-                                console.log('HTTPS server listen on port :443...');
-                  // a  procedure for websocket - the upgrade event handler
-                   //when a ws handshake has been occured
-                    server.on ('upgrade', function upgrade(req, socket, head) {
-                        socket.on('error', (e)=>{});
-                        //auhenticate here
-                        console.log(cookieFromString.parse(req.headers.cookie).sessionInfo);
-                        //when a user has been authenticated successfully - calls ws event:
-                        layers77.websocketLayer.initWsCallback(req, socket, head)
-                    }) 
+                    let server = https.createServer(httpsOptions, app).listen(443,()=>{
+                        console.log('HTTPS server listen on port :443...');
+                        // a  procedure for websocket - the upgrade event handler
+                        //when a ws handshake has been occured
+                      server.on ('upgrade', function upgrade(req, socket, head) {
+                          socket.on('error', (e)=>{});
+                          //auhenticate here
+                          console.log(cookieFromString.parse(req.headers.cookie).sessionInfo);
+                          //when a user has been authenticated successfully - calls ws event:
+                          layers77.websocketLayer.initWsCallback(req, socket, head)
+                      }) 
 
-
-
-                   resolve(server)});
+                      resolve(server);
+                    });
                 //app.listen(80, ()=>console.log('Listen...'))
                 });
     layers77.websocketLayer  = new WebSocketConnectionManager( layers77.databaseLayer,layers77.authenticationLayer,  8080, 5000, layers77.httpsServerObject);

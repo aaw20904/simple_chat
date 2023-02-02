@@ -129,6 +129,7 @@ const fs =  require('fs');
                     pmVar.sendErrorToClient(socket,"You have  already subscribed!");
                   return;
                 }
+                //add a new client to the websocket list
               let resultOp = pmVar.addRemoteClient({id:authResult.results.info.usrId, socket:socket});
                   // respond to network
                   respMessage.msg = resultOp.msg;
@@ -141,6 +142,7 @@ const fs =  require('fs');
           },
 
               //add a new client to #remoteSockets list by Id
+
           addRemoteClient: (arg={id:null, socket:{}}) => {
             let key = Number(arg.id)|0;
               if (!key) {
@@ -249,16 +251,21 @@ const fs =  require('fs');
             return {status: true, msg:'OK'};
           },
 
-                //#interval;
+                //
           onServerConnection: (socket, req)=> {
             let xadr = socket._socket.address();
             console.log('\x1b[33m%s\x1b[0m', `A new client ${JSON.stringify(xadr)} has been connected to WS server`)
-                  socket.send(JSON.stringify({command:"conn", 
-                  msg:`Welcome! ${new Date().toLocaleTimeString()}`}));
+                  //response to a new client
+                  socket.send(JSON.stringify({ command:"conn", 
+                                                msg:`Welcome! ${new Date().toLocaleTimeString()}`} ) );
                   socket.cntOfTimeouts = 0|0;
                   socket.isAlive = true;
+                  //add listeners to a new client:
+                  //1) for connection conrol ping-pong
                   socket.on('pong', pmVar.socketOnHeartbeat);
-                  socket.on('message',(msg)=>pmVar.socketOnMessage(msg,socket));
+                  //2) for incoming commands processing
+                  socket.on('message',(msg)=>pmVar.socketOnMessage(msg, socket));
+                  //3) when a socket is closing
                   socket.on('close',(code,reason)=>pmVar.socketOnClose(code,reason,socket));
             },
 
@@ -288,12 +295,13 @@ const fs =  require('fs');
             //delete from list
               if (socket.idOfClient456) {
                 pmVar.removeRemoteClient({id:socket.idOfClient456});
+                console.log('1)websocket has been removed from a socketList!');
               }
             //notify all the clients that the client (usrId) has been disconnected
               pmVar.sendNet_stToClients(usrId, false);
               //debog info
               let xadr = socket._socket.address();
-              console.log('\x1b[33m%s\x1b[0m', `A client ${JSON.stringify(xadr)} has been disconnected from WS server: ${reason}, ${code}`);
+              console.log('\x1b[33m%s\x1b[0m', `2) A client ${JSON.stringify(xadr)} has been disconnected from WS server: ${reason}, ${code}`);
           },
 
           //@msgData - it is an object with avatar, userMessage e.t.c
@@ -333,13 +341,10 @@ const fs =  require('fs');
   //asiign members
   this.pmGetter.set(this, pmVar);
 
-  
-/**---------- */
-  
-
+   //--------*****----*****--------///
       //start ping-pong process
-        pmVar.betheartIntervalHandle = setInterval(pmVar.onPingInterval, pmVar.pingScanInterval);
-      //connect listeners
+    pmVar.betheartIntervalHandle = setInterval(pmVar.onPingInterval, pmVar.pingScanInterval);
+      // connect listeners of WS server
     pmVar.webSocketServer.on('connection',(socket,req)=>pmVar.onServerConnection(socket, req, this));
     pmVar.webSocketServer.on('close', function close() {
            // clearInterval(pmVar.betheartInterval);
@@ -347,7 +352,21 @@ const fs =  require('fs');
   }
 
 
-  /*----------------P U B L I C    M E T H O D S--------- */
+  /*
+  
+                     __        __  __                                           __      __                        __                 
+                    |  \      |  \|  \                                         |  \    |  \                      |  \                
+  ______   __    __ | $$____  | $$ \$$  _______        ______ ____    ______  _| $$_   | $$____    ______    ____| $$  _______       
+ /      \ |  \  |  \| $$    \ | $$|  \ /       \      |      \    \  /      \|   $$ \  | $$    \  /      \  /      $$ /       \      
+|  $$$$$$\| $$  | $$| $$$$$$$\| $$| $$|  $$$$$$$      | $$$$$$\$$$$\|  $$$$$$\\$$$$$$  | $$$$$$$\|  $$$$$$\|  $$$$$$$|  $$$$$$$      
+| $$  | $$| $$  | $$| $$  | $$| $$| $$| $$            | $$ | $$ | $$| $$    $$ | $$ __ | $$  | $$| $$  | $$| $$  | $$ \$$    \       
+| $$__/ $$| $$__/ $$| $$__/ $$| $$| $$| $$_____       | $$ | $$ | $$| $$$$$$$$ | $$|  \| $$  | $$| $$__/ $$| $$__| $$ _\$$$$$$\      
+| $$    $$ \$$    $$| $$    $$| $$| $$ \$$     \      | $$ | $$ | $$ \$$     \  \$$  $$| $$  | $$ \$$    $$ \$$    $$|       $$      
+| $$$$$$$   \$$$$$$  \$$$$$$$  \$$ \$$  \$$$$$$$       \$$  \$$  \$$  \$$$$$$$   \$$$$  \$$   \$$  \$$$$$$   \$$$$$$$ \$$$$$$$       
+| $$                                                                                                                                 
+| $$                                                                                                                                 
+ \$$                                                                                     
+   */
 
   /**when a http server recive WS request - it calls this callback */
   initWsCallback (req, socket, head) {
@@ -358,7 +377,7 @@ const fs =  require('fs');
           ws.liveState = true;
           privGetter.webSocketServer.emit('connection', ws, req);
         })
-      }
+    }
 /**@ when a database has been changed after cleaning 
  it needs to update DOM structure on client side  */
   notifyAllTheClientsToUpdate () {

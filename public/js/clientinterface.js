@@ -5,13 +5,43 @@
     let cookieMgr = new CookieManager();
     let msgList = new  ClientMessageList(document.getElementById('a4a1d61488ecb20b')) 
     let wsInterface = new NetworkInteractor(cookieMgr, notificator.showToast, msgList);
-    await wsInterface.connectWs();
+    ///try to connnect
+     if(! await wsInterface.connectWs() ){
+        //when a  connection was failed - treminate the following actions:
+        ///redirect to the Log In page
+        let currentUrl = new URL(document.location);
+            var hostName = currentUrl.host;
+          window.setTimeout(()=>{
+                    window.location.replace(`https://${hostName}/login`);
+                  }, 3000);
+          return;
+     }
     await wsInterface.registerNewSocketCommand();
     await wsInterface.getAllMessagesCommand();
     new MessageSender(document.getElementById('2f869fd1941f5e46'), wsInterface);
-     
-     window.setInterval(onOfflineIndicator, 1000);
+   //timeout set of the 'echo' command :
+ window.setInterval(onOfflineIndicator, 1000);
 
+
+ /*
+                                           ___                                     ___          .-.                         ___   ___    
+                                      (   )                                   (   )  .-.   /    \    .-.               (   ) (   )   
+ ___ .-. .-.    ___  ___      .--.     | |_        ___ .-. .-.     .--.     .-.| |  ( __)  | .`. ;  ( __)   .--.     .-.| |   | |    
+(   )   '   \  (   )(   )   /  _  \   (   __)     (   )   '   \   /    \   /   \ |  (''")  | |(___) (''")  /    \   /   \ |   | |    
+ |  .-.  .-. ;  | |  | |   . .' `. ;   | |         |  .-.  .-. ; |  .-. ; |  .-. |   | |   | |_      | |  |  .-. ; |  .-. |   | |    
+ | |  | |  | |  | |  | |   | '   | |   | | ___     | |  | |  | | | |  | | | |  | |   | |  (   __)    | |  |  | | | | |  | |   | |    
+ | |  | |  | |  | |  | |   _\_`.(___)  | |(   )    | |  | |  | | | |  | | | |  | |   | |   | |       | |  |  |/  | | |  | |   | |    
+ | |  | |  | |  | |  | |  (   ). '.    | | | |     | |  | |  | | | |  | | | |  | |   | |   | |       | |  |  ' _.' | |  | |   | |    
+ | |  | |  | |  | |  ; '   | |  `\ |   | ' | |     | |  | |  | | | '  | | | '  | |   | |   | |       | |  |  .'.-. | '  | |   |_|    
+ | |  | |  | |  ' `-'  /   ; '._,' '   ' `-' ;     | |  | |  | | '  `-' / ' `-'  /   | |   | |       | |  '  `-' / ' `-'  /   .-.    
+(___)(___)(___)  '.__.'     '.___.'     `.__.     (___)(___)(___) `.__.'   `.__,'   (___) (___)     (___)  `.__.'   `.__,'   (   )   
+                                                                                                                              '-'    
+                                                                                                                                     
+*/
+     //the function must be modified - to process anempty 'echo' message
+     // when timeout (greater times 1.5 that 'ping-pong') went out and there will not any response - brutal close the connection
+     //and try to connect again (when the internet connection exists)
+    
     function onOfflineIndicator () {
         let node = document.querySelector('.offline_indicator');
         if(!navigator.onLine){
@@ -197,8 +227,10 @@ class NetworkInteractor {
     #chatInstance;
     #wsConnectionStatus;
     #reconnectTimerId;
+   
 
-        constructor (cookieMgrInst, msgFunction, chatInstance) {
+        constructor (cookieMgrInst, msgFunction, chatInstance) { 
+            this.echoResponsed = false;
             this.#wsConnectionStatus = false;
             this.#msgFunction = msgFunction;
             this.#cookieMgr = cookieMgrInst;
@@ -211,10 +243,40 @@ class NetworkInteractor {
         }
 
     //----------- L I S T E N E R S -- on WS server messages --------
+
+    #onEchoTimeout = async () =>{
+        //has a server responsed?
+        if( ! this.echoResponsed){
+            //when not:
+            //is a socket live?
+            if(this.#wsConnectionStatus){
+                //when yes, close the one:
+                this.#webSocket.close();
+            }
+            //try to connect again
+             if (navigator.onLine ) {
+            //try to update
+            //1)establish a new ws connection
+            if(! await this.connectWs() ){
+                 //when a  connection was failed - treminate the following actions:
+                   return;
+              }
+            //2)register
+           // await this.registerNewSocketCommand();
+            //3)clean all the chat
+            this.#chatInstance.removeAllTheMessages();
+            //4)update - reload all the chat
+            await this.getAllMessagesCommand();
+            //clear interval 
+            window.clearInterval(this.#reconnectTimerId);
+         }
+
+        }
+    }
     
     #onRegistrWsServerComm = (rsp) =>{
        if (rsp.status) {
-        //when success
+          //when success
           if (rsp.cookie) {
             //when a cokie needs to be updated
             this.#cookieMgr.writeCookie(SESSION_IDENTIFIER_COOKIE, rsp.cookie);
@@ -282,6 +344,8 @@ class NetworkInteractor {
         this.#msgFunction(true, rsp.msg);
    };
 
+
+
   /***base WS event handler***/
     #onWsMessage =  (evt) => {
        let msg = JSON.parse(evt.data);
@@ -313,7 +377,10 @@ class NetworkInteractor {
             case 'notify':
                 this.#onNotifyServerComm(msg);
             break;
-
+            case 'echo':
+              //must be realised!
+                this.echoResponsed = true;
+            break;
             default:
 
         }
@@ -330,9 +397,12 @@ class NetworkInteractor {
          if (navigator.onLine ) {
             //try to update
             //1)establish a new ws connection
-            await this.connectWs();
+            if(! await this.connectWs() ){
+                 //when a  connection was failed - treminate the following actions:
+                   return;
+              }
             //2)register
-            await this.registerNewSocketCommand();
+           // await this.registerNewSocketCommand();
             //3)clean all the chat
             this.#chatInstance.removeAllTheMessages();
             //4)update - reload all the chat
@@ -355,22 +425,34 @@ class NetworkInteractor {
             this.#baseWsUrl = `wss://${this.#currHostName}`;
         }
         //try to connect
-        this.#webSocket =  await new Promise((resolve, reject) => {
+        try{
+              this.#webSocket =  await new Promise((resolve, reject) => {
                                 let socket = new WebSocket(this.#baseWsUrl );
 
-                                // 
+                                socket.addEventListener("error",onErr);
+
+                                function onErr(err){
+                                    this.#wsConnectionStatus = false;
+                                    reject(err);
+                                }
                                 socket.addEventListener("open", () => {
                                     this.#wsConnectionStatus = true;
+                                        socket.removeEventListener("error",onErr);
                                     resolve(socket);
                                 });
                             }); 
+        } catch(e){
+             this.#msgFunction(false,`ws connection error! ${e}`);
+            return false;
+        }
+      
          //add isteners
          this.#webSocket.addEventListener('message', this.#onWsMessage);
          this.#webSocket.addEventListener('close', this.#onWsClose);
          this.#webSocket.addEventListener('error', this.#onWsError);
-
+        return true;
     }
-
+ ///!!!  In the new implementation, this function is obsolete and useless; authentication and registration are performed when a WS handshake occurs. 
     async registerNewSocketCommand(){
         return new Promise((resolve, reject) => {
             //get auth cookie 'ticket'
