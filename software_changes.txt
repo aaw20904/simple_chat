@@ -14,3 +14,14 @@ This calback  in turn calls websocket`s 'emit(`connection`, , )'  method.
                     *   *   *
 SHORTLY: add method 'initWsCallback(req, socket, head)' on the class 'WebSocketConnectionManager',
  ths method calls by the HTTPS server.
+/******/
+02.02.23
+in the clientinterface.js file - 
+    Unconnect a 'register' function - because registration flows during WS handshake
+    Try to realize auto reconnect using 'echo' command and callback when the server has been responsed
+in the websock_mgr.js:
+    Add a new function 'authenticateWsClient()' - this function checks if there is a user in the system, 
+    if a cookie-ticket can be updated (and a new one generated).
+    The other function 'registerWsClient()' -
+    Add event listeners to a new client's socket and insert it into the client list 
+    (if a socket with the same usrID already exists, close it). 

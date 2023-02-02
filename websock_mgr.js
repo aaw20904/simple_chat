@@ -1,6 +1,9 @@
 const WebSocketServer = require('ws').WebSocketServer;
 const createServer =  require('https').createServer;
 const fs =  require('fs');
+var cookieFromStringP = require('cookie');
+const { rejects } = require('assert');
+const { resolve } = require('path');
 /***************************C L A S S  ******/
 
  module.exports =  class WebSocketConnectionManager {
@@ -142,19 +145,25 @@ const fs =  require('fs');
           },
 
               //add a new client to #remoteSockets list by Id
-
+              ///DEPRECATED! 
           addRemoteClient: (arg={id:null, socket:{}}) => {
             let key = Number(arg.id)|0;
               if (!key) {
                 throw new Error('BAD identifier!')
-              } else if ( pmVar.remoteSockets.has(key)) {
+              }/* else if ( pmVar.remoteSockets.has(key)) {
 
                 return {status:false, msg: 'User has been already registered!'};
-              }
+              }*/
                 arg.socket.idOfClient456 = arg.id;
-                pmVar.remoteSockets.set(key,arg.socket);
+                pmVar.remoteSockets.set(key, arg.socket);
                 console.log('\x1b[33m%s\x1b[0m', `Register a user ${key} in LIST`)
                 return {status:true, msg:"Added"}
+          },
+          //new 02.02.23
+          addSocketToList(sock){
+
+            let key = Number(sock.idOfClient456)|0;
+            pmVar.remoteSockets.set(key, arg.socket);
           },
 
                 //assign a new key:value pair to the weakMap;
@@ -369,8 +378,16 @@ const fs =  require('fs');
    */
 
   /**when a http server recive WS request - it calls this callback */
-  initWsCallback (req, socket, head) {
-    let privGetter = this.pmGetter.get(this);
+  //a plug function 
+  async initWsCallback (req, socket, head) {
+        let privGetter = this.pmGetter.get(this);
+        //authenticate a new user
+        let authRes = await this.authenticateWsUser(req, socket, head);
+        if (!authRes.status) {
+          return false
+        } 
+        //assign  auth resuts to a socket
+        socket.regResults = authRes;
         privGetter.webSocketServer.handleUpgrade(req, socket, head, function done(ws) { 
           //assign a property
           ws.w5ft = req.socket.remotePort;
@@ -378,6 +395,88 @@ const fs =  require('fs');
           privGetter.webSocketServer.emit('connection', ws, req);
         })
     }
+
+    /***a new function 02.02.23 - for authenntiation user*/
+   async authenticateWsUser (req, socket, head ) {
+       let privGetter = this.pmGetter.get(this);
+      //is a cookie in the request?
+     let rawCookie =  cookieFromStringP.parse(req.headers.cookie).sessionInfo;
+     if (!rawCookie) {
+      //when isn`t response with an error!
+        socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+        socket.destroy();
+        return{status: false, mustUpdated:false}
+     }
+     ///decoding the cookie - ticket
+     //A) Is a user in system?
+      let authResult = await privGetter.authenticationLayer.authenticateUserByCookie(rawCookie);
+        //has a user been authorized fail?
+      if (!authResult.status) {
+          //respond with 
+          socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+          socket.destroy();
+          return{status: false, mustUpdated:false}
+      }
+    //when authorized successfully - assign a usrId to the socket object
+
+    return { status: true, 
+             mustUpdated: authResult.results.mustUpdated,
+             cookie: authResult.results.cookie, 
+             usrId:   Number(authResult.results.info.usrId)|0 };
+
+   }
+   /***a new 02.02.23  to register a new user after successfull authentication */
+   //it may be calls when a 'connection' event appears on webSocketServer
+   //@ws - a websocket from the 'connection' event, other params - returned values of the authenticateWsUser() method
+   async registerWsUser (ws/*arg={ws:null, status:true, mustUpdated:false, cookie:'kdhlh645f', usrId:1|0}*/) {
+     usrId = ws.authResults.usrId;
+     mustUpated = ws.authResults.mustUpated;
+     cookie = ws.authResults.cookie;
+
+     let privGetter = this.pmGetter.get(this);
+       //is there the socket with the same ID?
+       if (privGetter.hasRemoteClientBeenRegistered(usrId)) {
+        //close WS with a code 1001 indicates that an endpoint is "going away", such as a server
+        ///going down or a browser having navigated away from a page.
+        privGetter.remoteSockets.get(arg.usrId).close(1001|0);
+        //remove from the socket list
+        privGetter.remoteSockets.delete(arg.usrId);
+       }
+       //assign usrId to the socket
+       ws.idOfClient456 = usrId;
+       ws.isAlive = true;
+       //bind event listeners
+          //add    l i s t e n e r s    to a new client:
+          //1) for connection conrol ping-pong
+          socket.on('pong', pmVar.socketOnHeartbeat);
+          //2) for incoming commands processing
+          socket.on('message',(msg)=>pmVar.socketOnMessage(msg, socket));
+          //3) when a socket is closing
+          socket.on('close',(code,reason)=>pmVar.socketOnClose(code,reason,socket));
+       //add a new socket to the socket list
+          privGetter.addSocketToList(ws);
+          //send a 'registr' command to the user
+           // notify of client that it has been registered.
+
+          await new Promise((resolve, reject) => {
+                ws.send(JSON.stringify({  msg: 'A new ws Registered!',status: true, command: 'registr' }), null, 
+                    (e)=>{e ? rejects(e) : resolve();});
+          });
+          // must a ticket been updated?
+          if (mustUpated) {
+            await new Promise((resolve, reject) => {
+                let parcel = {command:'ticket',cookie:cookie}
+                ws.send(JSON.stringify(parcel), null, e=>{e ? reject(e) : resolve()});
+            });
+            
+          }
+            
+          //notify all the chat participants that the client (usrId) has been connected
+          pmVar.sendNet_stToClients(authResult.results.info.usrId, true);
+
+        
+   }
+
 /**@ when a database has been changed after cleaning 
  it needs to update DOM structure on client side  */
   notifyAllTheClientsToUpdate () {

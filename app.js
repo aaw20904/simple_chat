@@ -125,9 +125,11 @@ let onChatDatabaseConnectedRoutine = async (err) => {
                         console.log('HTTPS server listen on port :443...');
                         // a  procedure for websocket - the upgrade event handler
                         //when a ws handshake has been occured
-                      server.on ('upgrade', function upgrade(req, socket, head) {
+                      server.on ('upgrade',async function upgrade(req, socket, head) {
                           socket.on('error', (e)=>{});
                           //auhenticate here
+                          let authResult = await layers77.websocketLayer.authenticateWsUser(req, socket, head);
+                          //assign a result to a socket
                           console.log(cookieFromString.parse(req.headers.cookie).sessionInfo);
                           //when a user has been authenticated successfully - calls ws event:
                           layers77.websocketLayer.initWsCallback(req, socket, head)
