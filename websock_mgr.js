@@ -44,7 +44,9 @@ const { resolve } = require('path');
               return;
           },
 
-          
+          sendClientEcho: (socket) =>{
+            socket.send(JSON.stringify({command:'echo'}));
+          },
 
             // events handlers from a client`s requests  
 
@@ -210,6 +212,12 @@ const { resolve } = require('path');
                   msg: "srting",
                   resultCode: 1
               }, socket=null) =>{
+                //when an   e c h o  respond on it without authentication - 
+                // to decrease using of system resources
+                if(/\b(echo)\b/i.test(arg.command)) {
+                  pmVar.sendClientEcho(socket);
+                  return
+                } 
               ///checking a user
               //A) Is a user in system?
                   let authResult = await pmVar.authenticationLayer.authenticateUserByCookie(arg.cookie);
@@ -247,13 +255,6 @@ const { resolve } = require('path');
               case 'get_chat':
                   console.log('command get_chat..')
                   pmVar.onClientGetChat(authResult, socket);
-                  break;
-                  ///It`s only TEST route, not using
-              case 'echo':
-                   console.log('command echo..')
-                  console.log( pmVar.sendMessageToRemoteClient({ id: arg.data, 
-                                    msg: {time: new Date().toLocaleTimeString()}
-                                  }) );
                   break;
                   default:
                   return {status:false, msg:'bad API command!'};

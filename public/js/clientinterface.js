@@ -231,7 +231,7 @@ class NetworkInteractor {
    
 
         constructor (cookieMgrInst, msgFunction, chatInstance) { 
-            this.echoResponsed = false;
+            this.echoResponsed = true;
             this.wsConnectionStatus = false;
             this.#msgFunction = msgFunction;
             this.#cookieMgr = cookieMgrInst;
@@ -245,34 +245,10 @@ class NetworkInteractor {
 
     //----------- L I S T E N E R S -- on WS server messages --------
 
-    #onEchoTimeout = async () =>{
-        //has a server responsed?
-        if( ! this.echoResponsed){
-            //when not:
-            //is a socket live?
-            if(this.wsConnectionStatus){
-                //when yes, close the one:
-                this.#webSocket.close();
-            }
-            //try to connect again
-             if (navigator.onLine ) {
-            //try to update
-            //1)establish a new ws connection
-            if(! await this.connectWs() ){
-                 //when a  connection was failed - treminate the following actions:
-                   return;
-              }
-            //2)register
-           // await this.registerNewSocketCommand();
-            //3)clean all the chat
-            this.#chatInstance.removeAllTheMessages();
-            //4)update - reload all the chat
-            await this.getAllMessagesCommand();
-            //clear interval 
-            window.clearInterval(this.#reconnectTimerId);
-         }
+  
 
-        }
+    #onEchoServerResp = () =>{
+        this.echoResponsed = true;
     }
     
     #onRegistrWsServerComm = (rsp) =>{
@@ -379,8 +355,7 @@ class NetworkInteractor {
                 this.#onNotifyServerComm(msg);
             break;
             case 'echo':
-              //must be realised!
-                this.echoResponsed = true;
+                this.#onEchoServerResp(msg);
             break;
             default:
 
@@ -417,8 +392,23 @@ class NetworkInteractor {
         this.#msgFunction(false,`ws connection error! ${evt}`);
         this.#chatInstance.setOfflineAllTheUsers();
     };
-
-
+/**
+ * 
+ 
+█▀█ █░█ █▄▄ █░░ █ █▀▀
+█▀▀ █▄█ █▄█ █▄▄ █ █▄▄
+ */
+    
+      echoAutoSendingtLoop =  () =>{
+        //has a server responsed?
+        if( ! this.echoResponsed){
+            this.#webSocket.close();
+        } else {
+            this.echoResponsed = false;
+            this.sendEchoCommand();
+            window.setTimeout(this.echoAutoSendingtLoop, 10000);
+        }
+    }
 
     async connectWs (wsUrl=null) {
 
@@ -442,13 +432,16 @@ class NetworkInteractor {
                                     reject(err);
                                 }
                                 socket.addEventListener("open", () => {
+                                    this.echoResponsed = true;
                                     this.wsConnectionStatus = true;
                                         socket.removeEventListener("error",onErr);
+                                    //starting auto echo
+                                    this.echoAutoSendingtLoop();
                                     resolve(socket);
                                 });
                             }); 
         } catch(e){
-             this.#msgFunction(false,`ws connection error! ${e.toString()}`);
+             this.#msgFunction(false,`ws connection error! `);
             return false;
         }
       
@@ -512,6 +505,18 @@ class NetworkInteractor {
         return;
 
     }
+
+    sendEchoCommand() {
+           //sending without cookies - to decrease sysem load of the server
+        let commToSend = {
+                          command:'echo',
+                        };
+            this.#webSocket.send(JSON.stringify(commToSend));
+        return;
+
+    }
+
+
 
 }
 
