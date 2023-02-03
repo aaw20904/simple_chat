@@ -364,10 +364,7 @@ const { resolve } = require('path');
                   if ((ws.isAlive === false) ) {
                     console.log('Connection closed!');
                     //close the connection which hasn`d sponded
-
                      ws.close();
-                      pmVar.removeRemoteClient(ws._socket.usrAuthState.usrId)
-                     
                   } else {
                       //when a connection is alive
                   ws.isAlive = false;
