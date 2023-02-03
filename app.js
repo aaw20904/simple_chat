@@ -114,8 +114,8 @@ let onChatDatabaseConnectedRoutine = async (err) => {
     layers77.cryptoLayer = new CryptoProcedures(keys.results );
     layers77.authenticationLayer = new UserAuthentication(layers77.cryptoLayer, layers77.databaseLayer,{
                                                       AUTH_COOKIE_LIFE_TIME: 7200000,//all the fields are in  milliseconds
-                                                      AUTH_COOKIE_UPDATE_THRESHOLD: 180000,//all the fields are in  milliseconds
-                                                      AUTH_FAIL_ATTEMPTS: 10,
+                                                      AUTH_COOKIE_UPDATE_THRESHOLD: 60000,//all the fields are in  milliseconds
+                                                      AUTH_FAIL_ATTEMPTS: 20,
                                                   });
     layers77.authorizeLayer = new AuthorizationUser(layers77.databaseLayer, layers77.cryptoLayer, layers77.authenticationLayer,{AUTH_FAIL_ATTEMPTS:10});
     layers77.registrationLayer = new UserRegistration(layers77.cryptoLayer, layers77.databaseLayer);
@@ -125,14 +125,12 @@ let onChatDatabaseConnectedRoutine = async (err) => {
                         console.log('HTTPS server listen on port :443...');
                         // a  procedure for websocket - the upgrade event handler
                         //when a ws handshake has been occured
-                      server.on ('upgrade',async function upgrade(req, socket, head) {
+                          server.on ('upgrade',async function upgrade(req, socket, head) {
                           socket.on('error', (e)=>{});
                           //auhenticate here
-                          let authResult = await layers77.websocketLayer.authenticateWsUser(req, socket, head);
-                          //assign a result to a socket
                           console.log(cookieFromString.parse(req.headers.cookie).sessionInfo);
                           //when a user has been authenticated successfully - calls ws event:
-                          layers77.websocketLayer.initWsCallback(req, socket, head)
+                           layers77.websocketLayer.initWsCallback(req, socket, head)
                       }) 
 
                       resolve(server);

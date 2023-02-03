@@ -16,7 +16,7 @@ const { resolve } = require('path');
       let pmVar = {
         databaseLayer:databaseLayer,
         authenticationLayer: authenticationLayer,
-        pingScanInterval:betheartinterval,
+        pingScanInterval: betheartinterval,
         betheartIntervalHandle: null,
         remoteSockets:new Map(),
         //declare and activate a WEB Socket server
@@ -83,19 +83,18 @@ const { resolve } = require('path');
 
           },
 
-          onClientSendMsg: async (authResult, socket, arg) =>{
+        onClientSendMsg: async (authResult, socket, arg) =>{
               try{
               ///has a user been registered in a broadcast procedure?
                 if (! pmVar.remoteSockets.has(authResult.results.info.usrId)) {
-                  //sending error message
                     //sending error message
                     pmVar.sendErrorToClient(socket,"You hasn`t subscribed yet!");
-                  return;
+                    return;
                 }
 
                 //had  a user been locked?
                 let isLocked = await pmVar.databaseLayer.isUserLocked(authResult.results.info.usrId);
-                if(isLocked.value){
+                if (isLocked.value) {
                   pmVar.sendErrorToClient(socket,"You are locked!Please call to admin!");
                   return;
                 }
@@ -160,10 +159,9 @@ const { resolve } = require('path');
                 return {status:true, msg:"Added"}
           },
           //new 02.02.23
-          addSocketToList(sock){
-
+          addSocketToList (sock) {
             let key = Number(sock.idOfClient456)|0;
-            pmVar.remoteSockets.set(key, arg.socket);
+            pmVar.remoteSockets.set(key, sock);
           },
 
                 //assign a new key:value pair to the weakMap;
@@ -238,10 +236,10 @@ const { resolve } = require('path');
                   }
                   /***main handler - choose an action in according to a client comand */
             switch (arg.command) {
-              case 'registr':         
+             /* case 'registr':         
                   pmVar.onClientRegistr(authResult, socket);
                   
-                  break;
+                  break;*/
               case 'send_msg':
                   pmVar.onClientSendMsg(authResult, socket, arg);
                   break;
@@ -260,13 +258,45 @@ const { resolve } = require('path');
             return {status: true, msg:'OK'};
           },
 
-                //
+      //-------------------------------------------------------------
+        /***a new function 02.02.23 - for authenntiation user*/
+          async authenticateWsUser (req, socket, head ) {
+             
+              //is a cookie in the request?
+            let rawCookie =  cookieFromStringP.parse(req.headers.cookie).sessionInfo;
+            if (!rawCookie) {
+              //when isn`t response with an error!
+                socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+                socket.destroy();
+                return{status: false, mustUpdated:false}
+            }
+            ///decoding the cookie - ticket
+            //A) Is a user in system?
+              let authResult = await pmVar.authenticationLayer.authenticateUserByCookie(rawCookie);
+                //has a user been authorized fail?
+              if (!authResult.status) {
+                  //respond with 
+                  socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+                  socket.destroy();
+                  return{status: false, mustUpdated:false}
+              }
+            //when authorized successfully - assign a usrId to the socket object
+
+              return { status: true, 
+                      mustUpdated: authResult.results.mustUpdated,
+                      cookie: authResult.results.cookie, 
+                      usrId:   Number(authResult.results.info.usrId)|0 };
+
+          },
+
+         
+                // DEPRECATED! MUST BE DELETED
           onServerConnection: (socket, req)=> {
             let xadr = socket._socket.address();
             console.log('\x1b[33m%s\x1b[0m', `A new client ${JSON.stringify(xadr)} has been connected to WS server`)
-                  //response to a new client
-                  socket.send(JSON.stringify({ command:"conn", 
-                                                msg:`Welcome! ${new Date().toLocaleTimeString()}`} ) );
+                  //response to a new client - 
+                  /*socket.send(JSON.stringify({ command:"conn", 
+                                                msg:`Welcome! ${new Date().toLocaleTimeString()}`} ) );*/
                   socket.cntOfTimeouts = 0|0;
                   socket.isAlive = true;
                   //add listeners to a new client:
@@ -276,13 +306,13 @@ const { resolve } = require('path');
                   socket.on('message',(msg)=>pmVar.socketOnMessage(msg, socket));
                   //3) when a socket is closing
                   socket.on('close',(code,reason)=>pmVar.socketOnClose(code,reason,socket));
-            },
+          },
 
           onServerClose: ()=> {
             clearInterval(pmVar.betheartIntervalHandle);
             console.log('server closed..')
           },
-
+          /// p i n g  -  p o n g   event handler
           socketOnHeartbeat: (socket) => {
             console.log(`pong->: ${new Date().toLocaleTimeString()}`)
             socket.isAlive = true;
@@ -290,20 +320,20 @@ const { resolve } = require('path');
           },
 
           socketOnMessage: async (msg, socket)=> {
-              let message = msg.toString(); // MSG IS BUFFER OBJECT
+              let message = msg.toString(); // MSG IS a BUFFER
               message = JSON.parse(message);          
               pmVar.clientInterfaceQueries(message,socket);
               console.log(message);
           },
 
-          socketOnClose: (code, reason,socket)=> {
+          socketOnClose: (code, reason, socket)=> {
             //
             let usrId = socket.idOfClient456;
             /**when a remote client had been disconnected or network connection had been broken: */
               console.log(`Socket readyState: ${socket.readyState}`);
-            //delete from list
-              if (socket.idOfClient456) {
-                pmVar.removeRemoteClient({id:socket.idOfClient456});
+            //remove  from the socket list
+              if (usrId) {
+                pmVar.removeRemoteClient({id:usrId});
                 console.log('1)websocket has been removed from a socketList!');
               }
             //notify all the clients that the client (usrId) has been disconnected
@@ -327,23 +357,28 @@ const { resolve } = require('path');
                   value.send(JSON.stringify(msgData));
               })
           },
-
+       /// p i n g  -  p o n g  timeout event handler
           onPingInterval: ()=> {
             console.log('\x1b[36m%s\x1b[0m', '<<ping interval>>')
-            pmVar.webSocketServer.clients.forEach(function each(ws) {
+              pmVar.remoteSockets.forEach(function each(ws) {
                   if ((ws.isAlive === false) ) {
                     console.log('Connection closed!');
-                    return ws.terminate();
-                  }
+                    //close the connection which hasn`d sponded
+
+                     ws.close();
+                      pmVar.removeRemoteClient(ws._socket.usrAuthState.usrId)
+                     
+                  } else {
+                      //when a connection is alive
+                  ws.isAlive = false;
                   ws.cntOfTimeouts += 1;
                   console.log('\x1b[34m%s\x1b[0m', `${ws.cntOfTimeouts},${JSON.stringify(ws._socket.address())}`);
-                  //when live
+                 
                     ws.ping();
+                  }
+                
                   });
           },
-
-
-
       }
   //create a getter for the private members
   this.pmGetter = new WeakMap();
@@ -354,7 +389,7 @@ const { resolve } = require('path');
       //start ping-pong process
     pmVar.betheartIntervalHandle = setInterval(pmVar.onPingInterval, pmVar.pingScanInterval);
       // connect listeners of WS server
-    pmVar.webSocketServer.on('connection',(socket,req)=>pmVar.onServerConnection(socket, req, this));
+    pmVar.webSocketServer.on('connection',(socket,req)=>this.registerWsUser(socket, req, this));
     pmVar.webSocketServer.on('close', function close() {
            // clearInterval(pmVar.betheartInterval);
     });
@@ -382,12 +417,13 @@ const { resolve } = require('path');
   async initWsCallback (req, socket, head) {
         let privGetter = this.pmGetter.get(this);
         //authenticate a new user
-        let authRes = await this.authenticateWsUser(req, socket, head);
+        let authRes = await privGetter.authenticateWsUser(req, socket, head);
         if (!authRes.status) {
-          return false
+          return false;
         } 
         //assign  auth resuts to a socket
-        socket.regResults = authRes;
+        socket.usrAuthState = authRes;
+        
         privGetter.webSocketServer.handleUpgrade(req, socket, head, function done(ws) { 
           //assign a property
           ws.w5ft = req.socket.remotePort;
@@ -396,86 +432,72 @@ const { resolve } = require('path');
         })
     }
 
-    /***a new function 02.02.23 - for authenntiation user*/
-   async authenticateWsUser (req, socket, head ) {
-       let privGetter = this.pmGetter.get(this);
-      //is a cookie in the request?
-     let rawCookie =  cookieFromStringP.parse(req.headers.cookie).sessionInfo;
-     if (!rawCookie) {
-      //when isn`t response with an error!
-        socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-        socket.destroy();
-        return{status: false, mustUpdated:false}
-     }
-     ///decoding the cookie - ticket
-     //A) Is a user in system?
-      let authResult = await privGetter.authenticationLayer.authenticateUserByCookie(rawCookie);
-        //has a user been authorized fail?
-      if (!authResult.status) {
-          //respond with 
-          socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-          socket.destroy();
-          return{status: false, mustUpdated:false}
-      }
-    //when authorized successfully - assign a usrId to the socket object
 
-    return { status: true, 
-             mustUpdated: authResult.results.mustUpdated,
-             cookie: authResult.results.cookie, 
-             usrId:   Number(authResult.results.info.usrId)|0 };
+     /***a new 02.02.23  to register a new user after successfull authentication */
+          //it may be calls when a 'connection' event appears on webSocketServer
+          //@ws - a websocket from the 'connection' event, other params - returned values of the authenticateWsUser() method
+          async registerWsUser (ws/*arg={ws:null, status:true, mustUpdated:false, cookie:'kdhlh645f', usrId:1|0}*/) {
+            let pmVar = this.pmGetter.get(this);
+            let usrId = ws._socket.usrAuthState.usrId;
+            let mustUpated = ws._socket.usrAuthState.mustUpdated;
+            let cookie = ws._socket.usrAuthState.cookie;
 
-   }
-   /***a new 02.02.23  to register a new user after successfull authentication */
-   //it may be calls when a 'connection' event appears on webSocketServer
-   //@ws - a websocket from the 'connection' event, other params - returned values of the authenticateWsUser() method
-   async registerWsUser (ws/*arg={ws:null, status:true, mustUpdated:false, cookie:'kdhlh645f', usrId:1|0}*/) {
-     usrId = ws.authResults.usrId;
-     mustUpated = ws.authResults.mustUpated;
-     cookie = ws.authResults.cookie;
+              //is there the socket with the same ID?
+              if (pmVar.hasRemoteClientBeenRegistered(usrId)) {
+                  //close WS with a code 1001 indicates that an endpoint is "going away", such as a server
+                  ///going down or a browser having navigated away from a page.
+                  pmVar.remoteSockets.get(usrId).close(1001|0);
+                  //remove from the socket list
+                  pmVar.remoteSockets.delete(usrId);
+              }
+              //assign usrId to the socket
+              ws.idOfClient456 = usrId;
+              ws.isAlive = true; 
+              ws.cntOfTimeouts = 0|0;
+              let xadr = ws._socket.address();
 
-     let privGetter = this.pmGetter.get(this);
-       //is there the socket with the same ID?
-       if (privGetter.hasRemoteClientBeenRegistered(usrId)) {
-        //close WS with a code 1001 indicates that an endpoint is "going away", such as a server
-        ///going down or a browser having navigated away from a page.
-        privGetter.remoteSockets.get(arg.usrId).close(1001|0);
-        //remove from the socket list
-        privGetter.remoteSockets.delete(arg.usrId);
-       }
-       //assign usrId to the socket
-       ws.idOfClient456 = usrId;
-       ws.isAlive = true;
-       //bind event listeners
-          //add    l i s t e n e r s    to a new client:
-          //1) for connection conrol ping-pong
-          socket.on('pong', pmVar.socketOnHeartbeat);
-          //2) for incoming commands processing
-          socket.on('message',(msg)=>pmVar.socketOnMessage(msg, socket));
-          //3) when a socket is closing
-          socket.on('close',(code,reason)=>pmVar.socketOnClose(code,reason,socket));
-       //add a new socket to the socket list
-          privGetter.addSocketToList(ws);
-          //send a 'registr' command to the user
-           // notify of client that it has been registered.
+              console.log('\x1b[33m%s\x1b[0m', `A new client ${JSON.stringify(xadr)} has been connected to WS server`);
+              //bind event listeners
+                  //add    l i s t e n e r s    to a new client:
+                  //1) for connection conrol ping-pong
+                  ws.on('pong', pmVar.socketOnHeartbeat);
+                  //2) for incoming commands processing
+                  ws.on('message',(msg)=>pmVar.socketOnMessage(msg, ws));
+                  //3) when a socket is closing
+                  ws.on('close',(code,reason)=>pmVar.socketOnClose(code,reason,ws));
+               
+                  //send a 'registr' command to the user
+                  // notify of client that it has been registered.
+                    ws.send(JSON.stringify({  msg: 'A new ws Registered!',status: true, command: 'registr' }));
 
-          await new Promise((resolve, reject) => {
-                ws.send(JSON.stringify({  msg: 'A new ws Registered!',status: true, command: 'registr' }), null, 
-                    (e)=>{e ? rejects(e) : resolve();});
-          });
-          // must a ticket been updated?
-          if (mustUpated) {
-            await new Promise((resolve, reject) => {
-                let parcel = {command:'ticket',cookie:cookie}
-                ws.send(JSON.stringify(parcel), null, e=>{e ? reject(e) : resolve()});
-            });
-            
+                /*  await new Promise((resolve, reject) => {
+                        ws.send(JSON.stringify({  msg: 'A new ws Registered!',status: true, command: 'registr' }), null, 
+                            (e)=>{e ? reject(e) : resolve();});
+                  }); */
+
+                  // must a ticket been updated?
+                  if (mustUpated) {
+                     /* await new Promise((resolve, reject) => {
+                          let parcel = {command:'ticket',cookie:cookie}
+                          ws.send(JSON.stringify(parcel), null, e=>{e ? reject(e) : resolve()});
+                      });*/
+                       let parcel = {command:'ticket',cookie:cookie}
+                       ws.send(JSON.stringify(parcel));
+                  }
+
+                  //remove redurant props  
+                  //delete ws._socket.usrAuthState;
+                   //add a new socket to the socket list
+                  pmVar.addSocketToList(ws);
+                    
+                  //notify all the chat participants that the client (usrId) has been connected
+                  pmVar.sendNet_stToClients(usrId, true);
+
+                
           }
-            
-          //notify all the chat participants that the client (usrId) has been connected
-          pmVar.sendNet_stToClients(authResult.results.info.usrId, true);
 
-        
-   }
+   
+ 
 
 /**@ when a database has been changed after cleaning 
  it needs to update DOM structure on client side  */
