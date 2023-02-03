@@ -9,11 +9,11 @@
      if(! await wsInterface.connectWs() ){
         //when a  connection was failed - treminate the following actions:
         ///redirect to the Log In page
-        let currentUrl = new URL(document.location);
+      /*  let currentUrl = new URL(document.location);
             var hostName = currentUrl.host;
           window.setTimeout(()=>{
                     window.location.replace(`https://${hostName}/login`);
-                  }, 3000);
+                  }, 3000);*/
           return;
      }
     await wsInterface.registerNewSocketCommand();
