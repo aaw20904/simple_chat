@@ -241,13 +241,16 @@ const { resolve } = require('path');
                   
                   break;*/
               case 'send_msg':
+                  console.log('command send_msg..')
                   pmVar.onClientSendMsg(authResult, socket, arg);
                   break;
               case 'get_chat':
+                  console.log('command get_chat..')
                   pmVar.onClientGetChat(authResult, socket);
                   break;
                   ///It`s only TEST route, not using
               case 'echo':
+                   console.log('command echo..')
                   console.log( pmVar.sendMessageToRemoteClient({ id: arg.data, 
                                     msg: {time: new Date().toLocaleTimeString()}
                                   }) );
@@ -258,10 +261,9 @@ const { resolve } = require('path');
             return {status: true, msg:'OK'};
           },
 
-      //-------------------------------------------------------------
-        /***a new function 02.02.23 - for authenntiation user*/
+            //-------------------------------------------------------------
+              /***a new function 02.02.23 - for authenntiation user*/
           async authenticateWsUser (req, socket, head ) {
-             
               //is a cookie in the request?
             let rawCookie =  cookieFromStringP.parse(req.headers.cookie).sessionInfo;
             if (!rawCookie) {
@@ -301,7 +303,11 @@ const { resolve } = require('path');
                   socket.isAlive = true;
                   //add listeners to a new client:
                   //1) for connection conrol ping-pong
-                  socket.on('pong', pmVar.socketOnHeartbeat);
+                  socket.on('pong', (buf)=>{
+                    /// p i n g  -  p o n g   event handler
+                      console.log(`pong->: ${socket._socket.w5ft} ${new Date().toLocaleTimeString()} `)
+                      socket.isAlive = true;
+                  });
                   //2) for incoming commands processing
                   socket.on('message',(msg)=>pmVar.socketOnMessage(msg, socket));
                   //3) when a socket is closing
@@ -312,9 +318,10 @@ const { resolve } = require('path');
             clearInterval(pmVar.betheartIntervalHandle);
             console.log('server closed..')
           },
+
           /// p i n g  -  p o n g   event handler
           socketOnHeartbeat: (socket) => {
-            console.log(`pong->: ${new Date().toLocaleTimeString()}`)
+            console.log(`pong->: ${socket._socket.w5ft} ${new Date().toLocaleTimeString()} `)
             socket.isAlive = true;
             socket.cntOfTimeouts = 0;
           },
@@ -358,11 +365,14 @@ const { resolve } = require('path');
               })
           },
        /// p i n g  -  p o n g  timeout event handler
-          onPingInterval: ()=> {
+          onPingInterval: function () {
+            let con = 0;
             console.log('\x1b[36m%s\x1b[0m', '<<ping interval>>')
-              pmVar.remoteSockets.forEach(function each(ws) {
+              pmVar.webSocketServer.clients.forEach(function  each(ws) {
+                con++;
                   if ((ws.isAlive === false) ) {
-                    console.log('Connection closed!');
+                    console.log(`Connection closed! ${ws._socket.w5ft}`);
+                  
                     //close the connection which hasn`d sponded
                      ws.close();
                   } else {
@@ -370,11 +380,11 @@ const { resolve } = require('path');
                   ws.isAlive = false;
                   ws.cntOfTimeouts += 1;
                   console.log('\x1b[34m%s\x1b[0m', `${ws.cntOfTimeouts},${JSON.stringify(ws._socket.address())}`);
-                 
                     ws.ping();
                   }
                 
                   });
+                  console.log(`Iterated ${con} connections ${new Date().toLocaleTimeString()}`);
           },
       }
   //create a getter for the private members
@@ -386,7 +396,7 @@ const { resolve } = require('path');
       //start ping-pong process
     pmVar.betheartIntervalHandle = setInterval(pmVar.onPingInterval, pmVar.pingScanInterval);
       // connect listeners of WS server
-    pmVar.webSocketServer.on('connection',(socket,req)=>this.registerWsUser(socket, req, this));
+    pmVar.webSocketServer.on('connection', (socket,req)=>this.registerWsUser(socket, req, this));
     pmVar.webSocketServer.on('close', function close() {
            // clearInterval(pmVar.betheartInterval);
     });
@@ -444,6 +454,7 @@ const { resolve } = require('path');
                   //close WS with a code 1001 indicates that an endpoint is "going away", such as a server
                   ///going down or a browser having navigated away from a page.
                   pmVar.remoteSockets.get(usrId).close(1001|0);
+                  console.log('Deleted a duplicate od a socket!' );
                   //remove from the socket list
                   pmVar.remoteSockets.delete(usrId);
               }
@@ -457,7 +468,11 @@ const { resolve } = require('path');
               //bind event listeners
                   //add    l i s t e n e r s    to a new client:
                   //1) for connection conrol ping-pong
-                  ws.on('pong', pmVar.socketOnHeartbeat);
+                  ws.on('pong',(buf)=>{
+                      console.log(`pong->: ${ws._socket.w5ft} ${new Date().toLocaleTimeString()} `)
+                      ws.isAlive = true;
+                      ws.cntOfTimeouts = 0;
+                  });
                   //2) for incoming commands processing
                   ws.on('message',(msg)=>pmVar.socketOnMessage(msg, ws));
                   //3) when a socket is closing
@@ -465,20 +480,21 @@ const { resolve } = require('path');
                
                   //send a 'registr' command to the user
                   // notify of client that it has been registered.
-                    ws.send(JSON.stringify({  msg: 'A new ws Registered!',status: true, command: 'registr' }));
+                 ws.send(JSON.stringify({  msg: 'A new ws Registered!',status: true, command: 'registr' }));
 
-                /*  await new Promise((resolve, reject) => {
+                 /* await new Promise((resolve, reject) => {
                         ws.send(JSON.stringify({  msg: 'A new ws Registered!',status: true, command: 'registr' }), null, 
                             (e)=>{e ? reject(e) : resolve();});
-                  }); */
+                  });  */
 
                   // must a ticket been updated?
                   if (mustUpated) {
-                     /* await new Promise((resolve, reject) => {
+                      /*await new Promise((resolve, reject) => {
                           let parcel = {command:'ticket',cookie:cookie}
                           ws.send(JSON.stringify(parcel), null, e=>{e ? reject(e) : resolve()});
-                      });*/
-                       let parcel = {command:'ticket',cookie:cookie}
+                     });*/
+
+                        let parcel = {command:'ticket',cookie:cookie}
                        ws.send(JSON.stringify(parcel));
                   }
 

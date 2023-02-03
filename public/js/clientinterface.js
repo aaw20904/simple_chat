@@ -6,7 +6,9 @@
     let msgList = new  ClientMessageList(document.getElementById('a4a1d61488ecb20b')) 
     let wsInterface = new NetworkInteractor(cookieMgr, notificator.showToast, msgList);
     ///try to connnect
-     if(! await wsInterface.connectWs() ){
+   if (!await wsInterface.connectWs()) {
+        alert('Server unavaliable')
+   }
         //when a  connection was failed - treminate the following actions:
         ///redirect to the Log In page
       /*  let currentUrl = new URL(document.location);
@@ -14,9 +16,8 @@
           window.setTimeout(()=>{
                     window.location.replace(`https://${hostName}/login`);
                   }, 3000);*/
-          return;
-     }
-    await wsInterface.registerNewSocketCommand();
+     
+   // await wsInterface.registerNewSocketCommand();
     await wsInterface.getAllMessagesCommand();
     new MessageSender(document.getElementById('2f869fd1941f5e46'), wsInterface);
    //timeout set of the 'echo' command :
@@ -225,13 +226,13 @@ class NetworkInteractor {
     #msgFunction;
     #currHostName;
     #chatInstance;
-    #wsConnectionStatus;
+   
     #reconnectTimerId;
    
 
         constructor (cookieMgrInst, msgFunction, chatInstance) { 
             this.echoResponsed = false;
-            this.#wsConnectionStatus = false;
+            this.wsConnectionStatus = false;
             this.#msgFunction = msgFunction;
             this.#cookieMgr = cookieMgrInst;
             this.#chatInstance = chatInstance;
@@ -239,7 +240,7 @@ class NetworkInteractor {
             let currentUrl = new URL(document.location);
             this.#currHostName = currentUrl.host;
             this.#baseHttpUrl = `${currentUrl.protocol}//${currentUrl.host}${currentUrl.pathname}`;
-            this.#baseWsUrl = `wss://${currentUrl.hostname}:8080`;
+            this.#baseWsUrl = `wss://${currentUrl.hostname}`;
         }
 
     //----------- L I S T E N E R S -- on WS server messages --------
@@ -249,7 +250,7 @@ class NetworkInteractor {
         if( ! this.echoResponsed){
             //when not:
             //is a socket live?
-            if(this.#wsConnectionStatus){
+            if(this.wsConnectionStatus){
                 //when yes, close the one:
                 this.#webSocket.close();
             }
@@ -388,7 +389,7 @@ class NetworkInteractor {
 
     #onWsClose = (evt) => {
         this.#msgFunction(false,`Network Coonection closed!`);
-        this.#wsConnectionStatus = false;
+        this.wsConnectionStatus = false;
         //try to establish a new connection 
         this.#reconnectTimerId = window.setInterval(this.#onNetworkReconnectTimerHandler, 10000)
     };
@@ -428,15 +429,20 @@ class NetworkInteractor {
         try{
               this.#webSocket =  await new Promise((resolve, reject) => {
                                 let socket = new WebSocket(this.#baseWsUrl );
-
+                                    window.setTimeout(()=>{
+                                        if(socket.readyState !== 0x0001){
+                                            socket.close();
+                                            reject();
+                                        }
+                                    }, 4000)
                                 socket.addEventListener("error",onErr);
 
                                 function onErr(err){
-                                    this.#wsConnectionStatus = false;
+                                    this.wsConnectionStatus = false;
                                     reject(err);
                                 }
                                 socket.addEventListener("open", () => {
-                                    this.#wsConnectionStatus = true;
+                                    this.wsConnectionStatus = true;
                                         socket.removeEventListener("error",onErr);
                                     resolve(socket);
                                 });
