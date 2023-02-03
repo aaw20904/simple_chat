@@ -448,7 +448,7 @@ class NetworkInteractor {
                                 });
                             }); 
         } catch(e){
-             this.#msgFunction(false,`ws connection error! ${e}`);
+             this.#msgFunction(false,`ws connection error! ${e.toString()}`);
             return false;
         }
       
