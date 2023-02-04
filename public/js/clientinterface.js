@@ -9,6 +9,9 @@
    if (!await wsInterface.connectWs()) {
         alert('Server unavaliable')
    }
+    //starting auto echo
+        wsInterface.echoAutoSendingtLoop();
+
         //when a  connection was failed - treminate the following actions:
         ///redirect to the Log In page
       /*  let currentUrl = new URL(document.location);
@@ -385,6 +388,8 @@ class NetworkInteractor {
             await this.getAllMessagesCommand();
             //clear interval 
             window.clearInterval(this.#reconnectTimerId);
+            //start auto echo
+             this.echoAutoSendingtLoop();
          }
     }
 
@@ -419,9 +424,10 @@ class NetworkInteractor {
         try{
               this.#webSocket =  await new Promise((resolve, reject) => {
                                 let socket = new WebSocket(this.#baseWsUrl );
-                                    window.setTimeout(()=>{
+                                 let tmt =   window.setTimeout(()=>{
                                         if(socket.readyState !== 0x0001){
                                             socket.close();
+                                            console.log('ws conn timeout!')
                                             reject();
                                         }
                                     }, 4000)
@@ -432,11 +438,11 @@ class NetworkInteractor {
                                     reject(err);
                                 }
                                 socket.addEventListener("open", () => {
+                                    window.clearTimeout(tmt);
                                     this.echoResponsed = true;
                                     this.wsConnectionStatus = true;
                                         socket.removeEventListener("error",onErr);
-                                    //starting auto echo
-                                    this.echoAutoSendingtLoop();
+                                   
                                     resolve(socket);
                                 });
                             }); 

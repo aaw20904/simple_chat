@@ -216,6 +216,7 @@ const { resolve } = require('path');
                 // to decrease using of system resources
                 if(/\b(echo)\b/i.test(arg.command)) {
                   pmVar.sendClientEcho(socket);
+                  console.log(`ECHO ${new Date().toLocaleTimeString()}`)
                   return
                 } 
               ///checking a user
