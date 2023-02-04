@@ -321,12 +321,7 @@ const { resolve } = require('path');
             console.log('server closed..')
           },
 
-          /// p i n g  -  p o n g   event handler
-          socketOnHeartbeat: (socket) => {
-            console.log(`pong->: ${socket._socket.w5ft} ${new Date().toLocaleTimeString()} `)
-            socket.isAlive = true;
-            socket.cntOfTimeouts = 0;
-          },
+        
 
           socketOnMessage: async (msg, socket)=> {
               let message = msg.toString(); // MSG IS a BUFFER
@@ -372,11 +367,11 @@ const { resolve } = require('path');
             console.log('\x1b[36m%s\x1b[0m', '<<ping interval>>')
               pmVar.webSocketServer.clients.forEach(function  each(ws) {
                 con++;
-                  if ((ws.isAlive === false) ) {
+                  if ((ws.isAlive == false) ) {
                     console.log(`Connection closed! ${ws._socket.w5ft}`);
                   
                     //close the connection which hasn`d sponded
-                     ws.close();
+                     ws.terminate();
                   } else {
                       //when a connection is alive
                   ws.isAlive = false;
@@ -455,7 +450,7 @@ const { resolve } = require('path');
               if (pmVar.hasRemoteClientBeenRegistered(usrId)) {
                   //close WS with a code 1001 indicates that an endpoint is "going away", such as a server
                   ///going down or a browser having navigated away from a page.
-                  pmVar.remoteSockets.get(usrId).close(1001|0);
+                  pmVar.remoteSockets.get(usrId).terminate(1001|0);
                   console.log('Deleted a duplicate od a socket!' );
                   //remove from the socket list
                   pmVar.remoteSockets.delete(usrId);
