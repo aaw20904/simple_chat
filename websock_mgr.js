@@ -7,10 +7,7 @@ const { resolve } = require('path');
 /***************************C L A S S  ******/
 
  module.exports =  class WebSocketConnectionManager {
-
-
   constructor (databaseLayer, authenticationLayer, port, betheartinterval=10000, server=null) {
-       
   /**------ */
   //create a private member object-container
       let pmVar = {
@@ -534,9 +531,6 @@ const { resolve } = require('path');
            }
 
   }
-
-  
-
  
 }
 

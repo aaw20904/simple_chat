@@ -5,19 +5,21 @@
 .scroll_animation{bottom:80px;left:80px;position:fixed}
 .titlepart{font-family:Roboto Mono!important;font-size:calc(35px + 2.5vw)!important}
 .references{background-color:#bdb76b;border-radius:8px;color:#2f4f4f;font-family:Roboto Mono;font-size:calc(18px);text-decoration:none;transition:all .5s ease}
-.references:before{-webkit-animation:rotation_fw 2s linear infinite;animation:rotation_fw 2s linear infinite}
+.references:before{-webkit-animation:rotation_fw 2s linear 5;animation:rotation_fw 2s linear 5}
 .references:after,.references:before{content:url(../images/propeller.svg);display:inline-block}
-.references:after{-webkit-animation:rotation_bckw 2s linear infinite;animation:rotation_bckw 2s linear infinite}@-webkit-keyframes rotation_fw{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}
+.references:after{-webkit-animation:rotation_bckw 2s linear infinite;animation:rotation_bckw 2s linear 5}@-webkit-keyframes rotation_fw{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}
 @keyframes rotation_fw{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}
 @-webkit-keyframes rotation_bckw{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}to{-webkit-transform:rotate(-1turn);transform:rotate(-1turn)}}
 @keyframes rotation_bckw{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}to{-webkit-transform:rotate(-1turn);transform:rotate(-1turn)}}.references:hover{background-color:#5f9ea0!important;color:#7fffd4!important}
-@media only screen and (max-width:365px){.first-title-part{background-image:url(../images/rsp-mriya360.jpg)}}
+@media only screen and (max-width:365px){.first-title-part{background-image:url(../images/rsp-mriya360.jpg)} 
+ .references{font-size: 20px !important;} }
 @media only screen and (min-width:365px)and (max-width:640px){.first-title-part{background-image:url(../images/rsp-mriya640.jpg)}
+.references{font-size: 20px !important;}}
+@media only screen and (min-width:640px)and (max-width:1024px){.first-title-part{background-image:url(../images/rsp-mriya1024.jpg)}.references{font-size: 3vw !important;}}
+@media only screen and (min-width:1024px)and (max-width:1600px){.first-title-part{background-image:url(../images/rsp-mriya1280.jpg)} .references{font-size: 22px !important;}}
+@media only screen and (min-width:1600px)and (max-width:1920px){.first-title-part{background-image:url(../images/rsp-mriya1600.jpg)} .references{font-size: 25px !important;}}
+@media only screen and (min-width:1920px){.first-title-part{background-image:url(../images/rsp-mriya1900.jpg)} 
 .references{font-size: 32px !important;}}
-@media only screen and (min-width:640px)and (max-width:1024px){.first-title-part{background-image:url(../images/rsp-mriya1024.jpg)}.references{font-size: 32px !important;}}
-@media only screen and (min-width:1024px)and (max-width:1600px){.first-title-part{background-image:url(../images/rsp-mriya1280.jpg)}}
-@media only screen and (min-width:1600px)and (max-width:1920px){.first-title-part{background-image:url(../images/rsp-mriya1600.jpg)}}
-@media only screen and (min-width:1920px){.first-title-part{background-image:url(../images/rsp-mriya1900.jpg)}}
 /*!
 * Bootstrap  v5.2.2 (https://getbootstrap.com/)
 * Copyright 2011-2022 The Bootstrap Authors
