@@ -249,7 +249,7 @@ class UserControl {
         }
         arg = tableRows.value;
         let tableWrapper = document.createElement('article');
-        tableWrapper.classList.add('d-flex','justify-content-center','align-items-center');
+        tableWrapper.classList.add('justify-content-center','align-items-center');
           //main table node 
         let tableNode = document.createElement('table');
         tableNode.classList.add('table','table-striped','users-box-radius','m-1');
