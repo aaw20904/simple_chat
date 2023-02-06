@@ -121,42 +121,8 @@ const { resolve } = require('path');
               }
           },
 
-          onClientRegistr: async (authResult, socket) => {
-            let respMessage = {};
-            ///has a user been registered in a broadcast procedure?
-                if ( pmVar.remoteSockets.has(authResult.results.info.usrId)) {
-                  //sending error message
-                    //sending error message
-                    pmVar.sendErrorToClient(socket,"You have  already subscribed!");
-                  return;
-                }
-                //add a new client to the websocket list
-              let resultOp = pmVar.addRemoteClient({id:authResult.results.info.usrId, socket:socket});
-                  // respond to network
-                  respMessage.msg = resultOp.msg;
-                  respMessage.status = resultOp.status;
-                  respMessage.command = 'registr';
-                  socket.send(JSON.stringify(respMessage));
-                  //notify all the clients that the client (usrId) has been connected
-                  pmVar.sendNet_stToClients(authResult.results.info.usrId, true);
-                  return;
-          },
+        
 
-              //add a new client to #remoteSockets list by Id
-              ///DEPRECATED! 
-          addRemoteClient: (arg={id:null, socket:{}}) => {
-            let key = Number(arg.id)|0;
-              if (!key) {
-                throw new Error('BAD identifier!')
-              }/* else if ( pmVar.remoteSockets.has(key)) {
-
-                return {status:false, msg: 'User has been already registered!'};
-              }*/
-                arg.socket.idOfClient456 = arg.id;
-                pmVar.remoteSockets.set(key, arg.socket);
-                console.log('\x1b[33m%s\x1b[0m', `Register a user ${key} in LIST`)
-                return {status:true, msg:"Added"}
-          },
           //new 02.02.23
           addSocketToList (sock) {
             let key = Number(sock.idOfClient456)|0;
@@ -291,27 +257,7 @@ const { resolve } = require('path');
           },
 
          
-                // DEPRECATED! MUST BE DELETED
-          onServerConnection: (socket, req)=> {
-            let xadr = socket._socket.address();
-            console.log('\x1b[33m%s\x1b[0m', `A new client ${JSON.stringify(xadr)} has been connected to WS server`)
-                  //response to a new client - 
-                  /*socket.send(JSON.stringify({ command:"conn", 
-                                                msg:`Welcome! ${new Date().toLocaleTimeString()}`} ) );*/
-                  socket.cntOfTimeouts = 0|0;
-                  socket.isAlive = true;
-                  //add listeners to a new client:
-                  //1) for connection conrol ping-pong
-                  socket.on('pong', (buf)=>{
-                    /// p i n g  -  p o n g   event handler
-                      console.log(`pong->: ${socket._socket.w5ft} ${new Date().toLocaleTimeString()} `)
-                      socket.isAlive = true;
-                  });
-                  //2) for incoming commands processing
-                  socket.on('message',(msg)=>pmVar.socketOnMessage(msg, socket));
-                  //3) when a socket is closing
-                  socket.on('close',(code,reason)=>pmVar.socketOnClose(code,reason,socket));
-          },
+ 
 
           onServerClose: ()=> {
             clearInterval(pmVar.betheartIntervalHandle);
